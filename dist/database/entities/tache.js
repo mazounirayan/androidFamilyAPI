@@ -13,8 +13,9 @@ exports.Tache = void 0;
 const typeorm_1 = require("typeorm");
 const user_1 = require("./user");
 const famille_1 = require("./famille");
+const notification_1 = require("./notification"); // Ajoutez cette ligne
 let Tache = class Tache {
-    constructor(idTache, nom, date_debut, date_fin, status, type, description, user, famille) {
+    constructor(idTache, nom, date_debut, date_fin, status, notifications, type, description, user, famille) {
         this.idTache = idTache;
         this.nom = nom;
         this.date_debut = date_debut;
@@ -24,6 +25,7 @@ let Tache = class Tache {
         this.description = description;
         this.user = user;
         this.famille = famille;
+        this.notifications = notifications;
     }
 };
 exports.Tache = Tache;
@@ -67,6 +69,11 @@ __decorate([
     __metadata("design:type", user_1.User)
 ], Tache.prototype, "user", void 0);
 __decorate([
+    (0, typeorm_1.OneToMany)(() => notification_1.Notification, (notification) => notification.tache) // Relation OneToMany vers Notification
+    ,
+    __metadata("design:type", Array)
+], Tache.prototype, "notifications", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => famille_1.Famille, (famille) => famille.taches),
     (0, typeorm_1.JoinColumn)({ name: "idFamille" }),
     __metadata("design:type", famille_1.Famille)
@@ -74,6 +81,6 @@ __decorate([
 exports.Tache = Tache = __decorate([
     (0, typeorm_1.Entity)("taches"),
     __metadata("design:paramtypes", [Number, String, Date,
-        Date, String, String, String, user_1.User,
+        Date, String, Array, String, String, user_1.User,
         famille_1.Famille])
 ], Tache);
