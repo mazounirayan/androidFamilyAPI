@@ -12,11 +12,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Famille = void 0;
 const typeorm_1 = require("typeorm");
 const user_1 = require("./user");
+const tache_1 = require("./tache");
 let Famille = class Famille {
-    constructor(nom, utilisateurs, idFamille) {
+    constructor(nom, taches, utilisateurs, idFamille, date_de_creation) {
         this.nom = nom;
         this.utilisateurs = utilisateurs;
         this.idFamille = idFamille;
+        this.date_de_creation = date_de_creation;
+        this.taches = taches;
     }
 };
 exports.Famille = Famille;
@@ -29,10 +32,18 @@ __decorate([
     __metadata("design:type", String)
 ], Famille.prototype, "nom", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: "date", default: () => "CURRENT_TIMESTAMP" }),
+    __metadata("design:type", Date)
+], Famille.prototype, "date_de_creation", void 0);
+__decorate([
     (0, typeorm_1.OneToMany)(() => user_1.User, (user) => user.famille),
     __metadata("design:type", Array)
 ], Famille.prototype, "utilisateurs", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => tache_1.Tache, (tache) => tache.famille),
+    __metadata("design:type", Array)
+], Famille.prototype, "taches", void 0);
 exports.Famille = Famille = __decorate([
     (0, typeorm_1.Entity)('famille'),
-    __metadata("design:paramtypes", [String, Array, Number])
+    __metadata("design:paramtypes", [String, Array, Array, Number, Date])
 ], Famille);

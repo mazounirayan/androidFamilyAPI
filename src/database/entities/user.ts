@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany ,Ma
 import "reflect-metadata";
 import { Token } from "./token";
 import { Famille } from "./famille";
+import { Tache } from "./tache";
 
 export enum UserRole {
     Enfant = "Enfant",
@@ -50,7 +51,9 @@ export class User {
     @ManyToOne(() => Famille, (famille) => famille.utilisateurs, { nullable: true })
     @JoinColumn({ name: 'idFamille' })
     famille?: Famille;
-   
+    
+    @OneToMany(() => Tache, (tache) => tache.user)
+    taches: Tache[];
 
     constructor(
      id:number,
@@ -59,10 +62,12 @@ export class User {
         email: string,
         role: UserRole,
         motDePasse: string,
+        taches: Tache[],
        tokens:  Token[],
         dateInscription: Date,
         numTel?: string,
         idFamille?: number,
+
       
       ) {
         this.id = id;
@@ -75,6 +80,7 @@ export class User {
         this.numTel = numTel;
         this.idFamille = idFamille;
         this.dateInscription = dateInscription;
+        this.taches= taches;
 
       }
 }

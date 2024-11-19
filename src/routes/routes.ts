@@ -2,6 +2,8 @@ import express, { Request, Response } from "express";
 import { invalidPathHandler } from "../errors/invalid-path-handler";
 import { UserHandlerAuthentication } from "./users/userAuthentication";
 import { UserHandler } from "./users/user";
+import { FamilleHandler } from "./famille";
+import { TacheHandler } from "./tache";
 
 
 
@@ -12,9 +14,9 @@ export const initRoutes = (app: express.Express) => {
     })
 
 
-    UserHandlerAuthentication(app)
-    UserHandler(app)
-
-
+    UserHandlerAuthentication(app);
+    UserHandler(app);
+    FamilleHandler(app);
+    TacheHandler(app);
     app.use(invalidPathHandler);
 }

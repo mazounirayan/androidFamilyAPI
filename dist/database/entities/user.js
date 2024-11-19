@@ -14,13 +14,14 @@ const typeorm_1 = require("typeorm");
 require("reflect-metadata");
 const token_1 = require("./token");
 const famille_1 = require("./famille");
+const tache_1 = require("./tache");
 var UserRole;
 (function (UserRole) {
     UserRole["Enfant"] = "Enfant";
     UserRole["Parent"] = "Parent";
 })(UserRole || (exports.UserRole = UserRole = {}));
 let User = class User {
-    constructor(id, nom, prenom, email, role, motDePasse, tokens, dateInscription, numTel, idFamille) {
+    constructor(id, nom, prenom, email, role, motDePasse, taches, tokens, dateInscription, numTel, idFamille) {
         this.id = id;
         this.nom = nom;
         this.tokens = tokens;
@@ -31,6 +32,7 @@ let User = class User {
         this.numTel = numTel;
         this.idFamille = idFamille;
         this.dateInscription = dateInscription;
+        this.taches = taches;
     }
 };
 exports.User = User;
@@ -84,7 +86,11 @@ __decorate([
     (0, typeorm_1.JoinColumn)({ name: 'idFamille' }),
     __metadata("design:type", famille_1.Famille)
 ], User.prototype, "famille", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => tache_1.Tache, (tache) => tache.user),
+    __metadata("design:type", Array)
+], User.prototype, "taches", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)(),
-    __metadata("design:paramtypes", [Number, String, String, String, String, String, Array, Date, String, Number])
+    __metadata("design:paramtypes", [Number, String, String, String, String, String, Array, Array, Date, String, Number])
 ], User);

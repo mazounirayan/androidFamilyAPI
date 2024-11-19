@@ -38,19 +38,6 @@ export interface UserIdRequest {
     token: string
 }
 
-
-export const userGetBlobValidation = Joi.object<UserGetBlobRequest>({
-    id: Joi.number().required(),
-    token: Joi.string().required(),
-    blobName: Joi.string().required()
-});
-
-export interface UserGetBlobRequest {
-    id: number
-    token: string
-    blobName: string
-}
-
 export const updateUserValidation = Joi.object<UpdateUserRequest>({
     id: Joi.number().required(),
     token: Joi.string().required(),
@@ -58,11 +45,8 @@ export const updateUserValidation = Joi.object<UpdateUserRequest>({
     prenom: Joi.string().optional(),
     email: Joi.string().email().optional(),
     numTel: Joi.string().min(10).max(10).optional(),
-    profession: Joi.string().optional(),
     motDePasse: Joi.string().optional(),
     role: Joi.string().valid(...Object.values(UserRole)).optional(),
-    estBenevole: Joi.boolean().optional(),
-    estEnLigne : Joi.boolean().optional()
 
 });
 
@@ -73,12 +57,8 @@ export interface UpdateUserRequest {
     prenom?: string
     email?: string
     numTel?: string
-    profession?: string
     motDePasse?: string
     role?: UserRole
-    estBenevole?: boolean   
-    estEnLigne?: boolean
-
 }
 
 export const listUserValidation = Joi.object<ListUserRequest>({
@@ -87,11 +67,8 @@ export const listUserValidation = Joi.object<ListUserRequest>({
     nom: Joi.string().optional(),
     prenom: Joi.string().optional(),
     numTel: Joi.string().min(10).max(10).optional(),
-    profession: Joi.string().optional(),
     email: Joi.string().email().optional(),
     role: Joi.string().valid(...Object.values(UserRole)).optional(),
-    estBenevole: Joi.boolean().optional(),
-    estEnLigne : Joi.boolean().optional()
 });
 
 export interface ListUserRequest {
@@ -103,8 +80,6 @@ export interface ListUserRequest {
     numTel?: string
     profession?: string
     role?: UserRole
-    estBenevole?: boolean
-    estEnLigne?: boolean
 }
 
 export const LoginUserValidation = Joi.object<LoginUserValidationRequest>({
