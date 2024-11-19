@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from "typeorm";
 import { User } from "./user"; 
 import { Famille } from "./famille"; 
+import { Notification } from "./notification"; // Ajoutez cette ligne
 
 @Entity("taches")
 export class Tache {
@@ -32,6 +33,10 @@ export class Tache {
     @JoinColumn({ name: "idUser" }) // Vérifiez que c'est bien "idUser"
     user: User;
 
+    @OneToMany(() => Notification, (notification) => notification.tache) // Relation OneToMany vers Notification
+    notifications: Notification[];
+
+
     @ManyToOne(() => Famille, (famille) => famille.taches)
     @JoinColumn({ name: "idFamille" })
     famille: Famille;
@@ -41,6 +46,7 @@ export class Tache {
         date_debut: Date,
         date_fin: Date,
         status: string,
+        notifications: Notification[],
         type: string,
         description: string,
         user: User,
@@ -55,5 +61,6 @@ export class Tache {
         this.description = description;
         this.user = user;
         this.famille = famille;
+        this.notifications = notifications;
     }
 }

@@ -36,7 +36,7 @@ const TacheHandler = (app) => {
         }
     }));
     // Récupérer une tâche par ID
-    app.get("/taches/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.get("/taches/:idTache", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const validation = tache_validator_1.TacheIdValidation.validate(req.params);
         if (validation.error) {
             res.status(400).send({ error: validation.error.details });
@@ -77,7 +77,7 @@ const TacheHandler = (app) => {
         res.status(200).json(taches);
     }));
     // Mettre à jour une tâche
-    app.patch("/taches/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.patch("/taches/:idTache", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const validationResult = tache_validator_1.updateTacheValidation.validate(Object.assign(Object.assign({}, req.params), req.body));
             if (validationResult.error) {

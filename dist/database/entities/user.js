@@ -15,13 +15,17 @@ require("reflect-metadata");
 const token_1 = require("./token");
 const famille_1 = require("./famille");
 const tache_1 = require("./tache");
+const recomense_1 = require("./recomense");
+const message_1 = require("./message");
+const chat_1 = require("./chat");
+const notification_1 = require("./notification"); // Ajoutez cette ligne
 var UserRole;
 (function (UserRole) {
     UserRole["Enfant"] = "Enfant";
     UserRole["Parent"] = "Parent";
 })(UserRole || (exports.UserRole = UserRole = {}));
 let User = class User {
-    constructor(id, nom, prenom, email, role, motDePasse, taches, tokens, dateInscription, numTel, idFamille) {
+    constructor(id, nom, prenom, email, role, motDePasse, taches, tokens, recompenses, messages, notifications, chats, dateInscription, numTel, idFamille) {
         this.id = id;
         this.nom = nom;
         this.tokens = tokens;
@@ -33,6 +37,10 @@ let User = class User {
         this.idFamille = idFamille;
         this.dateInscription = dateInscription;
         this.taches = taches;
+        this.recompenses = recompenses;
+        this.messages = messages;
+        this.notifications = notifications;
+        this.chats = chats;
     }
 };
 exports.User = User;
@@ -90,7 +98,23 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => tache_1.Tache, (tache) => tache.user),
     __metadata("design:type", Array)
 ], User.prototype, "taches", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => recomense_1.Recompense, (recompense) => recompense.user),
+    __metadata("design:type", Array)
+], User.prototype, "recompenses", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => message_1.Message, (message) => message.user),
+    __metadata("design:type", Array)
+], User.prototype, "messages", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => notification_1.Notification, (notification) => notification.user),
+    __metadata("design:type", Array)
+], User.prototype, "notifications", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => chat_1.Chat, (chat) => chat.idChat),
+    __metadata("design:type", Array)
+], User.prototype, "chats", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)(),
-    __metadata("design:paramtypes", [Number, String, String, String, String, String, Array, Array, Date, String, Number])
+    __metadata("design:paramtypes", [Number, String, String, String, String, String, Array, Array, Array, Array, Array, Array, Date, String, Number])
 ], User);

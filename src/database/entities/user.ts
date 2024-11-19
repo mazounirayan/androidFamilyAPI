@@ -3,6 +3,10 @@ import "reflect-metadata";
 import { Token } from "./token";
 import { Famille } from "./famille";
 import { Tache } from "./tache";
+import { Recompense } from "./recomense";
+import { Message } from "./message";
+import { Chat } from "./chat";
+import { Notification } from "./notification"; // Ajoutez cette ligne
 
 export enum UserRole {
     Enfant = "Enfant",
@@ -51,9 +55,22 @@ export class User {
     @ManyToOne(() => Famille, (famille) => famille.utilisateurs, { nullable: true })
     @JoinColumn({ name: 'idFamille' })
     famille?: Famille;
-    
+
     @OneToMany(() => Tache, (tache) => tache.user)
     taches: Tache[];
+
+
+    @OneToMany(() => Recompense, (recompense) => recompense.user)
+    recompenses: Recompense[];
+
+    @OneToMany(() => Message, (message) => message.user)
+    messages: Message[];
+
+    @OneToMany(() => Notification, (notification) => notification.user)
+    notifications: Notification[];
+
+    @OneToMany(() => Chat, (chat) => chat.idChat)
+    chats: Chat[];
 
     constructor(
      id:number,
@@ -64,6 +81,10 @@ export class User {
         motDePasse: string,
         taches: Tache[],
        tokens:  Token[],
+       recompenses: Recompense[],
+       messages: Message[],
+       notifications: Notification[],
+       chats: Chat[],
         dateInscription: Date,
         numTel?: string,
         idFamille?: number,
@@ -81,6 +102,9 @@ export class User {
         this.idFamille = idFamille;
         this.dateInscription = dateInscription;
         this.taches= taches;
-
+        this.recompenses = recompenses;
+        this.messages = messages;
+        this.notifications = notifications;
+        this.chats = chats;
       }
 }
