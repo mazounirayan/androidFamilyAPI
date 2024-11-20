@@ -15,7 +15,7 @@ require("reflect-metadata");
 const token_1 = require("./token");
 const famille_1 = require("./famille");
 const tache_1 = require("./tache");
-const recomense_1 = require("./recomense");
+const recompense_1 = require("./recompense");
 const message_1 = require("./message");
 const chat_1 = require("./chat");
 const notification_1 = require("./notification"); // Ajoutez cette ligne
@@ -99,7 +99,7 @@ __decorate([
     __metadata("design:type", Array)
 ], User.prototype, "taches", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => recomense_1.Recompense, (recompense) => recompense.user),
+    (0, typeorm_1.OneToMany)(() => recompense_1.Recompense, (recompense) => recompense.user),
     __metadata("design:type", Array)
 ], User.prototype, "recompenses", void 0);
 __decorate([

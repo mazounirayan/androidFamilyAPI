@@ -3,7 +3,7 @@ import "reflect-metadata";
 import { Token } from "./token";
 import { Famille } from "./famille";
 import { Tache } from "./tache";
-import { Recompense } from "./recomense";
+import { Recompense } from "./recompense";
 import { Message } from "./message";
 import { Chat } from "./chat";
 import { Notification } from "./notification"; // Ajoutez cette ligne

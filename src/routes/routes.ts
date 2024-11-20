@@ -4,6 +4,10 @@ import { UserHandlerAuthentication } from "./users/userAuthentication";
 import { UserHandler } from "./users/user";
 import { FamilleHandler } from "./famille";
 import { TacheHandler } from "./tache";
+import { MessageHandler } from "./message";
+import { ChatHandler } from "./chat";
+import { RecompenseHandler } from "./recompense";
+import { NotificationHandler } from "./notification";
 
 
 
@@ -18,5 +22,9 @@ export const initRoutes = (app: express.Express) => {
     UserHandler(app);
     FamilleHandler(app);
     TacheHandler(app);
+    MessageHandler(app)
+    ChatHandler(app)
+    RecompenseHandler(app)
+    NotificationHandler(app)
     app.use(invalidPathHandler);
 }
