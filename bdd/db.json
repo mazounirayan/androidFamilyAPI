@@ -1,0 +1,54 @@
+
+{
+    "famille": [
+      {
+        "idFamille": 1,
+        "nom": "Famille Dupont",
+        "date_de_creation": "2024-01-01"
+      },
+      {
+        "idFamille": 2,
+        "nom": "Famille Martin",
+        "date_de_creation": "2024-02-01"
+      }
+    ],
+    "user": [
+      {
+        "id": 1,
+        "nom": "Dupont",
+        "prenom": "Jean",
+        "email": "jean.dupont@example.com",
+        "motDePasse": "hashedpassword123",
+        "profession": "Ingénieur",
+        "numTel": "0123456789",
+        "role": "Parent",
+        "dateInscription": "2024-01-01T12:00:00",
+        "idFamille": 1
+      },
+      {
+        "id": 2,
+        "nom": "Martin",
+        "prenom": "Lucie",
+        "email": "lucie.martin@example.com",
+        "motDePasse": "hashedpassword456",
+        "profession": "Étudiant",
+        "numTel": "0987654321",
+        "role": "Enfant",
+        "dateInscription": "2024-02-01T14:30:00",
+        "idFamille": 2
+      }
+    ],
+    "taches": [],
+    "notification": [],
+    "chat": [],
+    "message": [],
+    "recompense": [],
+    "token": [],
+    "faire": [],
+    "recevoir": [],
+    "envoyer": [],
+    "participer": [],
+    "lier": [],
+    "lier_recompense": []
+  }
+  
