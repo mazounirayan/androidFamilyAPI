@@ -98,6 +98,7 @@ export const UserHandlerAuthentication = (app: express.Express) => {
             user = await userUsecase.getOneUser(user.id);
             console.log("User récupéré par UserUsecase :", user);
             
+            
             if (user === null) {
                 res.status(404).send({ "error": `user not found` })
                 return
