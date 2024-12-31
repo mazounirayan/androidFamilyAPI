@@ -86,7 +86,12 @@ export const UserHandlerAuthentication = (app: express.Express) => {
             if (!user) {
                 res.status(400).send({ error: "username or password not valid" })
                 return
-            }
+            } 
+
+
+
+
+            
  
 
 
