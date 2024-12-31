@@ -79,7 +79,10 @@ export const UserHandlerAuthentication = (app: express.Express) => {
             // valid user exist
             let user = await AppDataSource.getRepository(User).findOneBy({ email: loginUserRequest.email });
             console.log("Utilisateur trouvé :", user);
-            
+            console.log("Utilisateur trouvé (ou null) :", user);
+        
+            console.log("Mot de passe reçu :", loginUserRequest.motDePasse);
+            console.log("Mot de passe stocké :", user?.motDePasse);
             if (!user) {
                 res.status(400).send({ error: "username or password not valid" })
                 return
