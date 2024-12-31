@@ -64,8 +64,12 @@ export const UserHandlerAuthentication = (app: express.Express) => {
 
     app.post('/auth/login', async (req: Request, res: Response) => {
         try {
+            console.log("Body reçu :", req.body);
+
 
             const validationResult = LoginUserValidation.validate(req.body)
+            console.log("Validation result :", validationResult);
+
             if (validationResult.error) {
                 res.status(400).send(generateValidationErrorMessage(validationResult.error.details))
                 return
@@ -74,7 +78,8 @@ export const UserHandlerAuthentication = (app: express.Express) => {
 
             // valid user exist
             let user = await AppDataSource.getRepository(User).findOneBy({ email: loginUserRequest.email });
-
+            console.log("Utilisateur trouvé :", user);
+            
             if (!user) {
                 res.status(400).send({ error: "username or password not valid" })
                 return
@@ -91,7 +96,8 @@ export const UserHandlerAuthentication = (app: express.Express) => {
             const userUsecase = new UserUsecase(AppDataSource);
 
             user = await userUsecase.getOneUser(user.id);
-
+            console.log("User récupéré par UserUsecase :", user);
+            
             if (user === null) {
                 res.status(404).send({ "error": `user not found` })
                 return
