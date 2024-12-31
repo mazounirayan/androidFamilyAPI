@@ -69,7 +69,9 @@ const UserHandlerAuthentication = (app) => {
     app.post('/auth/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
         try {
+            console.log("Body reçu :", req.body);
             const validationResult = user_validator_1.LoginUserValidation.validate(req.body);
+            console.log("Validation result :", validationResult);
             if (validationResult.error) {
                 res.status(400).send((0, generate_validation_message_1.generateValidationErrorMessage)(validationResult.error.details));
                 return;
@@ -77,17 +79,23 @@ const UserHandlerAuthentication = (app) => {
             const loginUserRequest = validationResult.value;
             // valid user exist
             let user = yield database_1.AppDataSource.getRepository(user_1.User).findOneBy({ email: loginUserRequest.email });
+            console.log("Utilisateur trouvé :", user);
+            console.log("Utilisateur trouvé (ou null) :", user);
+            console.log("Mot de passe reçu :", loginUserRequest.motDePasse);
+            console.log("Mot de passe stocké :", user === null || user === void 0 ? void 0 : user.motDePasse);
             if (!user) {
                 res.status(400).send({ error: "username or password not valid" });
                 return;
             }
-            const isValid = yield (0, bcrypt_1.compare)(loginUserRequest.motDePasse, user.motDePasse);
+            //  a remetrre apres les test   const isValid = await compare(loginUserRequest.motDePasse, user.motDePasse);
+            const isValid = loginUserRequest.motDePasse === user.motDePasse;
             if (!isValid) {
                 res.status(400).send({ error: "username or password not valid" });
                 return;
             }
             const userUsecase = new user_usecase_1.UserUsecase(database_1.AppDataSource);
             user = yield userUsecase.getOneUser(user.id);
+            console.log("User récupéré par UserUsecase :", user);
             if (user === null) {
                 res.status(404).send({ "error": `user not found` });
                 return;
