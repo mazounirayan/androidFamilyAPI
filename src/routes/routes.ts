@@ -13,6 +13,10 @@ import { NotificationHandler } from "./notification";
 
 export const initRoutes = (app: express.Express) => {
 
+
+
+
+    
     app.get("/health", (req: Request, res: Response) => {
         res.send({ "message": "succes" })
     })

@@ -29,12 +29,14 @@ export const UserHandlerAuthentication = (app: express.Express) => {
             const userRepository = AppDataSource.getRepository(User);
             const user = await userRepository.save({
                 nom: req.body.nom,
-                prenom:req.body.prenom,
-                email:req.body.email,
-                motDePasse: hashedPassword,
+                prenom: req.body.prenom,
+                email: req.body.email,
+                motDePasse: req.body.motDePasse, 
+                profession: req.body.profession,
+                numTel: req.body.numTel,
                 role: req.body.role,
                 dateInscription: new Date(),
-                estBenevole: req.body.estBenevole,
+                
             });
 
             res.status(201).send({ id: user.id,nom: user.nom,prenom:user.prenom ,email: user.email, role: user.role });
