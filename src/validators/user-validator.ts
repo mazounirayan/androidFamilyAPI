@@ -15,7 +15,7 @@ export const createUserValidation = Joi.object<CreateUserValidationRequest>({
     .messages({
       'any.only': 'Le rôle doit être soit "Parent" soit "Enfant".',
     }),
-    dateInscription: Joi.date(),
+  
 }).options({ abortEarly: false });
 
 export interface CreateUserValidationRequest {
