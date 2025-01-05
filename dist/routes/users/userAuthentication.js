@@ -37,7 +37,6 @@ const UserHandlerAuthentication = (app) => {
                 prenom: req.body.prenom,
                 email: req.body.email,
                 motDePasse: req.body.motDePasse,
-                profession: req.body.profession,
                 numTel: req.body.numTel,
                 role: req.body.role,
                 dateInscription: new Date(),

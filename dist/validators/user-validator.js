@@ -20,7 +20,6 @@ exports.createUserValidation = joi_1.default.object({
         .messages({
         'any.only': 'Le rôle doit être soit "Parent" soit "Enfant".',
     }),
-    dateInscription: joi_1.default.date().required(),
 }).options({ abortEarly: false });
 exports.userIdValidation = joi_1.default.object({
     id: joi_1.default.number().required(),
