@@ -1,110 +1,111 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany ,ManyToOne, JoinColumn,} from "typeorm";
-import "reflect-metadata";
-import { Token } from "./token";
-import { Famille } from "./famille";
-import { Tache } from "./tache";
-import { Recompense } from "./recompense";
-import { Message } from "./message";
-import { Chat } from "./chat";
-import { Notification } from "./notification"; // Ajoutez cette ligne
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from 'typeorm';
+import { Famille } from './famille';
+import { Tache } from './tache';
+import { Notification } from './notification';
+import { Message } from './message';
+import { Recompense } from './recompense';
+import { UserRecompense } from './userRecompense';
+import { UserBadge } from './userBadge';
+import { TransactionCoins } from './transactionCoins';
+export type UserRole = 'Parent' | 'Enfant';
 
-export enum UserRole {
-    Enfant = "Enfant",
-    Parent = "Parent",
-    
-}
 @Entity()
 export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({ length: 100 })
     nom: string;
 
-    @Column()
+    @Column({ length: 100 })
     prenom: string;
 
-    @Column({
-        unique: true
-    })
+    @Column({ length: 255, unique: true })
     email: string;
 
-    @Column()
+    @Column({ length: 255 })
     motDePasse: string;
 
-    @Column()
-    numTel?: string;
+    @Column({ length: 10, nullable: true })
+    numTel: string;
 
-    @OneToMany(() => Token, token => token.user)
-    tokens: Token[];
+    @Column({ type: 'enum', enum: ['Parent', 'Enfant'] })
+    role:UserRole;
 
-    @Column({
-        type: 'enum',
-        enum: ['Parent', 'Enfant'],
-      })
-   
-      role: UserRole;
-
-
-    @CreateDateColumn({ type: "datetime" })
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     dateInscription: Date;
 
+    @Column({ length: 255, nullable: true })
+    avatar: string;
 
-    @Column({ nullable: true })
-    idFamille?: number;
-    @ManyToOne(() => Famille, (famille) => famille.utilisateurs, { nullable: true })
-    @JoinColumn({ name: 'idFamille' })
-    famille?: Famille;
+    @Column({ default: 0 })
+    coins: number;
 
-    @OneToMany(() => Tache, (tache) => tache.user)
+    @Column({ default: 0 })
+    totalPoints: number; // Total des points accumulés
+
+    @ManyToOne(() => Famille, famille => famille.users)
+    famille: Famille;
+
+    @OneToMany(() => Tache, tache => tache.user)
     taches: Tache[];
 
-
-    @OneToMany(() => Recompense, (recompense) => recompense.user)
-    recompenses: Recompense[];
-
-    @OneToMany(() => Message, (message) => message.user)
-    messages: Message[];
-
-    @OneToMany(() => Notification, (notification) => notification.user)
+    @OneToMany(() => Notification, notification => notification.user)
     notifications: Notification[];
 
-    @OneToMany(() => Chat, (chat) => chat.idChat)
-    chats: Chat[];
+    @OneToMany(() => Message, message => message.user)
+    messages: Message[];
+
+    @OneToMany(() => UserRecompense, userRecompense => userRecompense.user)
+    userRecompenses: UserRecompense[]; // Récompenses obtenues par l'utilisateur
+
+    @OneToMany(() => UserBadge, userBadge => userBadge.user)
+    userBadges: UserBadge[]; // Badges obtenus par l'utilisateur
+
+    @OneToMany(() => TransactionCoins, transaction => transaction.user)
+    transactions: TransactionCoins[]; // Transactions de points
+
+
 
     constructor(
-     id:number,
+        id: number,
         nom: string,
         prenom: string,
         email: string,
-        role: UserRole,
         motDePasse: string,
-        taches: Tache[],
-       tokens:  Token[],
-       recompenses: Recompense[],
-       messages: Message[],
-       notifications: Notification[],
-       chats: Chat[],
+        role: UserRole,
         dateInscription: Date,
-        numTel?: string,
-        idFamille?: number,
-
-      
-      ) {
+        avatar: string,
+        coins: number,
+        totalPoints: number,
+        famille: Famille,
+        taches: Tache[] = [],
+        notifications: Notification[] = [],
+        messages: Message[] = [],
+        userRecompenses: UserRecompense[] = [],
+        userBadges: UserBadge[] = [],
+        transactions: TransactionCoins[] = [],
+       
+        numTel?: string
+    ) {
         this.id = id;
         this.nom = nom;
-        this.tokens = tokens;
         this.prenom = prenom;
         this.email = email;
-        this.role = role;
         this.motDePasse = motDePasse;
-        this.numTel = numTel;
-        this.idFamille = idFamille;
+        this.role = role;
         this.dateInscription = dateInscription;
-        this.taches= taches;
-        this.recompenses = recompenses;
-        this.messages = messages;
+        this.avatar = avatar;
+        this.coins = coins;
+        this.totalPoints = totalPoints;
+        this.famille = famille;
+        this.taches = taches;
         this.notifications = notifications;
-        this.chats = chats;
-      }
+        this.messages = messages;
+        this.userRecompenses = userRecompenses;
+        this.userBadges = userBadges;
+        this.transactions = transactions;
+    
+        this.numTel = numTel || "";
+    }
 }

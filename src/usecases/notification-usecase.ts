@@ -10,23 +10,53 @@ export class NotificationUsecase {
         return await repo.save(notification);
     }
 
+    // Marquer une notification comme vue
     async markAsViewed(idNotification: number) {
         const repo = this.db.getRepository(Notification);
-        const notification = await repo.findOneBy({ idNotification });
+        const notification = await repo.findOneBy({  idNotification }); // Correction ici
         if (!notification) throw new Error("Notification not found");
         notification.isVue = true;
         return await repo.save(notification);
     }
 
-    async listNotifications(page: number = 1, limit: number = 10,idUser?: number): Promise<Notification[]> {
+    // Lister les notifications avec pagination
+    async listNotifications(options: { page: number; limit: number; idUser?: number }) {
         const repo = this.db.getRepository(Notification);
         const query = repo.createQueryBuilder("notification");
-        if (idUser) {
-            query.where("notification.idUser LIKE :idUser", { idUser: `%${idUser}%` });
+
+        if (options.idUser) {
+            query.where("notification.idUser = :idUser", { idUser: options.idUser });
         }
 
-        query.skip((page - 1) * limit).take(limit);
-        return query.getMany();
+        const [notifications, total] = await query
+            .skip((options.page - 1) * options.limit)
+            .take(options.limit)
+            .getManyAndCount();
+
+        return { notifications, total, page: options.page, limit: options.limit };
+    }
+
+    // Récupérer une notification par son ID
+    async getNotificationById(idNotification: number) {
+        const repo = this.db.getRepository(Notification);
+        return await repo.findOneBy({ idNotification });
+    }
+
+    // Supprimer une notification
+    async deleteNotification(idNotification: number) {
+        const repo = this.db.getRepository(Notification);
+        const notification = await repo.findOneBy({ idNotification });
+        if (!notification) throw new Error("Notification not found");
+        await repo.remove(notification);
+    }
+
+    // Mettre à jour une notification
+    async updateNotification(idNotification: number, notificationData: Partial<Notification>) {
+        const repo = this.db.getRepository(Notification);
+        const notification = await repo.findOneBy({ idNotification });
+        if (!notification) throw new Error("Notification not found");
+        Object.assign(notification, notificationData);
+        return await repo.save(notification);
     }
 
 }

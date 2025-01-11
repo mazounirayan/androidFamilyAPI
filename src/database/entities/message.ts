@@ -1,32 +1,40 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { User } from './user';
 import { Chat } from './chat';
- 
-@Entity('message')
+
+@Entity()
 export class Message {
-  @PrimaryGeneratedColumn()
-  idMessage: number;
+    @PrimaryGeneratedColumn()
+    idMessage: number;
 
-  @Column('text')
-  contenu: string;
+    @Column({ type: 'text' })
+    contenu: string;
 
-  @Column({ type: 'datetime' })
-  date_envoie: Date;
+    @Column({ type: 'datetime' })
+    date_envoie: Date;
 
-  @Column({ default: false })
-  isVue: boolean;
+    @Column({ type: 'boolean' })
+    isVue: boolean;
 
-  @ManyToOne(() => User, (user) => user.messages)
-  user: User;
+    @ManyToOne(() => User, user => user.messages)
+    user: User;
 
-  @ManyToOne(() => Chat, (chat) => chat.messages)
-  chat: Chat;
+    @ManyToOne(() => Chat, chat => chat.messages)
+    chat: Chat;
 
-  constructor(  idMessage: number,contenu: string, date_envoie: Date, isVue: boolean, user: User, chat: Chat) {
-    this.contenu = contenu;
-    this.date_envoie = date_envoie;
-    this.isVue = isVue;
-    this.user = user; this.idMessage = idMessage;
-    this.chat = chat;
-  }
+    constructor(
+        idMessage: number,
+        contenu: string,
+        date_envoie: Date,
+        isVue: boolean,
+        user: User,
+        chat: Chat
+    ) {
+        this.idMessage = idMessage;
+        this.contenu = contenu;
+        this.date_envoie = date_envoie;
+        this.isVue = isVue;
+        this.user = user;
+        this.chat = chat;
+    }
 }

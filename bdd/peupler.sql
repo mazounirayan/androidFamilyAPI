@@ -1,71 +1,89 @@
--- Insertion des familles
-INSERT INTO famille (nom, date_de_creation) VALUES
-('Famille Dupont', '2024-01-01'),
-('Famille Martin', '2023-12-15');
+USE projet_famille;
 
--- Insertion des utilisateurs (user)
-INSERT INTO user (nom, prenom, email, motDePasse, profession, numTel, role, idFamille) VALUES
-('Dupont', 'Pierre', 'pierre.dupont@mail.com', 'motdepasse123', 'Développeur', '0123456789', 'Parent', 1),
-('Dupont', 'Marie', 'marie.dupont@mail.com', 'motdepasse123', 'Médecin', '0123456789', 'Parent', 1),
-('Martin', 'Paul', 'paul.martin@mail.com', 'motdepasse123', 'Professeur', '0987654321', 'Enfant', 2);
+-- Peupler la table famille
+INSERT INTO famille (nom, date_de_creation, code_invitation) VALUES
+('Famille Dupont', '2023-01-01', 'INV12345'),
+('Famille Martin', '2023-02-15', 'INV67890');
 
--- Insertion des tâches (taches)
-INSERT INTO taches (nom, date_debut, date_fin, status, type, description, idUser, idFamille) VALUES
-('Faire les courses', '2024-11-01', '2024-11-05', 'En cours', 'Ménage', 'Acheter les provisions', 1, 1),
-('Préparer le dîner', '2024-11-01', '2024-11-01', 'Terminé', 'Cuisine', 'Préparer le repas du soir', 2, 1);
+-- Peupler la table user
+INSERT INTO user (nom, prenom, email, motDePasse, profession, numTel, role, avatar, coins, idFamille) VALUES
+('Dupont', 'Jean', 'jean.dupont@example.com', 'password123', 'Ingenieur', '0601020304', 'Parent', 'avatar1.png', 100, 1),
+('Dupont', 'Marie', 'marie.dupont@example.com', 'password456', 'Docteur', '0604050607', 'Parent', 'avatar2.png', 50, 1),
+('Dupont', 'Paul', 'paul.dupont@example.com', 'password789', 'Etudiant', '0608091011', 'Enfant', 'avatar3.png', 30, 1);
 
--- Insertion des notifications
+-- Peupler la table categorie_tache
+INSERT INTO categorie_tache (nom) VALUES
+('Travaux ménagers'),
+('Devoirs scolaires'),
+('Activités familiales');
+
+-- Peupler la table taches
+INSERT INTO taches (nom, date_debut, date_fin, status, type, description, priorite, idUser, idFamille, idCategorie) VALUES
+('Faire la vaisselle', '2023-03-01', '2023-03-01', 'En cours', 'Tâche quotidienne', 'Nettoyer les assiettes et les couverts', 'Moyenne', 1, 1, 1),
+('Faire les devoirs de maths', '2023-03-01', '2023-03-02', 'Non commencé', 'Tâche scolaire', 'Réviser les fractions', 'Haute', 3, 1, 2);
+
+-- Peupler la table notification
 INSERT INTO notification (message, date_envoie, isVue, idUser, idTache) VALUES
-('Vous avez une nouvelle tâche à faire', '2024-11-01 10:00:00', false, 1, 1),
-('La tâche "Préparer le dîner" est terminée', '2024-11-01 20:00:00', true, 2, 2);
+('Vous avez une nouvelle tâche : Faire la vaisselle', '2023-03-01 09:00:00', FALSE, 1, 1),
+('Tâche assignée : Faire les devoirs de maths', '2023-03-01 10:00:00', TRUE, 3, 2);
 
--- Insertion des chats
+-- Peupler la table chat
 INSERT INTO chat (libelle) VALUES
-('Chat Famille Dupont'),
-('Chat Famille Martin');
+('Chat familial'),
+('Discussion enfants');
 
--- Insertion des messages
-INSERT INTO message (contenu, date_envoie, isVue, idUser, idChat) VALUES
-('Salut tout le monde !', '2024-11-01 08:00:00', true, 1, 1),
-('Bonjour, comment ça va ?', '2024-11-01 08:30:00', false, 2, 1);
+-- Peupler la table message
+INSERT INTO message (contenu, date_envoie, isVue, type, idUser, idChat) VALUES
+('Bonjour à tous !', '2023-03-01 08:30:00', TRUE, 'Texte', 1, 1),
+('N\oubliez pas la réunion de famille.', '2023-03-01 09:00:00', FALSE, 'Texte', 2, 1);
 
--- Insertion des récompenses
+-- Peupler la table recompense
 INSERT INTO recompense (coin, idUser) VALUES
-(100, 1),
-(50, 2);
+(50, 3),
+(30, 2);
 
--- Insertion des tokens
+-- Peupler la table token
 INSERT INTO token (token, userId) VALUES
-('token_1_abcdef', 1),
-('token_2_ghijk', 2);
+('abcdef123456', 1),
+('ghijkl789012', 2);
 
--- Insertion des relations dans la table faire (association entre user et tâche)
+-- Peupler la table faire
 INSERT INTO faire (idUser, idTache) VALUES
 (1, 1),
-(2, 2);
+(3, 2);
 
--- Insertion des relations dans la table recevoir (association entre user et notification)
+-- Peupler la table recevoir
 INSERT INTO recevoir (idUser, idNotification) VALUES
 (1, 1),
-(2, 2);
+(3, 2);
 
--- Insertion des relations dans la table envoyer (association entre user et message)
+-- Peupler la table envoyer
 INSERT INTO envoyer (idUser, idMessage) VALUES
 (1, 1),
 (2, 2);
 
--- Insertion des relations dans la table participer (association entre user et chat)
+-- Peupler la table participer
 INSERT INTO participer (idUser, idChat, date) VALUES
-(1, 1, '2024-11-01'),
-(2, 1, '2024-11-01');
+(1, 1, '2023-03-01'),
+(3, 2, '2023-03-01');
 
--- Insertion des relations dans la table lier (association entre user et famille)
+-- Peupler la table lier
 INSERT INTO lier (idUser, idFamille) VALUES
 (1, 1),
 (2, 1),
-(3, 2);
+(3, 1);
 
--- Insertion des relations dans la table lier_recompense (association entre user et recompense)
+-- Peupler la table lier_recompense
 INSERT INTO lier_recompense (idUser, idRecompense) VALUES
-(1, 1),
+(3, 1),
 (2, 2);
+
+-- Peupler la table historique_connexion
+INSERT INTO historique_connexion (idUser, date_connexion, ip_adresse) VALUES
+(1, '2023-03-01 08:00:00', '192.168.1.1'),
+(2, '2023-03-01 08:15:00', '192.168.1.2');
+
+-- Peupler la table transaction_coins
+INSERT INTO transaction_coins (idUser, type, montant, date_transaction) VALUES
+(3, 'Gain', 20, '2023-03-01 09:00:00'),
+(3, 'Depense', 10, '2023-03-01 09:30:00');

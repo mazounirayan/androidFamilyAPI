@@ -1,126 +1,133 @@
-import express, { Request, Response } from "express";
-import { AppDataSource } from "../database/database";
-import { Famille } from "../database/entities/famille";
-import { createFamilleValidation, FamilleIdValidation } from "../validators/famille-validator";
-import { updateFamilleValidation } from "../validators/famille-validator";
+import express, { Request, Response } from 'express';
+import { AppDataSource } from '../database/database';
+import { FamilleUsecase } from '../usecases/famille-usecase';
+import { generateValidationErrorMessage } from '../validators/generate-validation-message';
+import { listFamilleValidation, createFamilleValidation, FamilleIdValidation, updateFamilleValidation } from '../validators/famille-validator';
 
 export const FamilleHandler = (app: express.Express) => {
-    // Créer une nouvelle famille
+
+    app.get("/familles", async (req: Request, res: Response) => {
+        const validation = listFamilleValidation.validate(req.query);
+
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details));
+            return;
+        }
+
+        const listFamilleRequest = validation.value;
+        let limit = 20;
+        if (listFamilleRequest.limit) {
+            limit = listFamilleRequest.limit;
+        }
+        const page = listFamilleRequest.page ?? 1;
+
+        try {
+            const familleUsecase = new FamilleUsecase(AppDataSource);
+            const listFamilles = await familleUsecase.listFamilles({ ...listFamilleRequest, page, limit });
+            res.status(200).send(listFamilles);
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    });
+
     app.post("/familles", async (req: Request, res: Response) => {
         const validation = createFamilleValidation.validate(req.body);
 
         if (validation.error) {
-            res.status(400).send({ error: validation.error.details });
+            res.status(400).send(generateValidationErrorMessage(validation.error.details));
             return;
         }
 
-        const familleRepo = AppDataSource.getRepository(Famille);
-        const familleData = validation.value;
+        const familleRequest = validation.value;
 
         try {
-            const newFamille = familleRepo.create(familleData);
-            const savedFamille = await familleRepo.save(newFamille);
-            res.status(201).send(savedFamille);
+            const familleUsecase = new FamilleUsecase(AppDataSource);
+            const familleCreated = await familleUsecase.createFamille(familleRequest);
+            res.status(201).send(familleCreated);
         } catch (error) {
-            console.error(error);
-            res.status(500).send({ error: "Internal server error" });
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
         }
     });
 
-    // Récupérer une famille par ID
-    app.get("/familles/:id", async (req: Request, res: Response) => {
-        const validation = FamilleIdValidation.validate(req.params);
-
-        if (validation.error) {
-            res.status(400).send({ error: validation.error.details });
-            return;
-        }
-
-        const familleRepo = AppDataSource.getRepository(Famille);
-        const { id } = validation.value;
-
+    app.delete("/familles/:id", async (req: Request, res: Response) => {
         try {
-            const famille = await familleRepo.findOneBy({ idFamille: id });
+            const validationResult = FamilleIdValidation.validate(req.params);
 
-            if (!famille) {
-                res.status(404).send({ error: "Famille not found" });
+            if (validationResult.error) {
+                res.status(400).send(generateValidationErrorMessage(validationResult.error.details));
+                return;
+            }
+
+            const familleId = validationResult.value;
+
+            const familleUsecase = new FamilleUsecase(AppDataSource);
+            const famille = await familleUsecase.getFamilleById(familleId.id);
+
+            if (famille === null) {
+                res.status(404).send({ "error": `Famille ${familleId.id} not found` });
+                return;
+            }
+
+            await familleUsecase.deleteFamille(familleId.id);
+            res.status(200).send("Famille supprimée avec succès");
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    });
+
+    app.get("/familles/:id", async (req: Request, res: Response) => {
+        try {
+            const validationResult = FamilleIdValidation.validate(req.params);
+
+            if (validationResult.error) {
+                res.status(400).send(generateValidationErrorMessage(validationResult.error.details));
+                return;
+            }
+
+            const familleId = validationResult.value;
+
+            const familleUsecase = new FamilleUsecase(AppDataSource);
+            const famille = await familleUsecase.getFamilleById(familleId.id);
+
+            if (famille === null) {
+                res.status(404).send({ "error": `Famille ${familleId.id} not found` });
                 return;
             }
 
             res.status(200).send(famille);
         } catch (error) {
-            console.error(error);
-            res.status(500).send({ error: "Internal server error" });
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
         }
     });
 
-    // Lister toutes les familles
-    app.get("/familles", async (_req: Request, res: Response) => {
-        const familleRepo = AppDataSource.getRepository(Famille);
+ 
+app.patch("/familles/:id", async (req: Request, res: Response) => {
+    try {
+        const validationResult = updateFamilleValidation.validate(req.body);
 
-        try {
-            const familles = await familleRepo.find();
-            res.status(200).send(familles);
-        } catch (error) {
-            console.error(error);
-            res.status(500).send({ error: "Internal server error" });
-        }
-    });
-
-    // Supprimer une famille par ID
-    app.delete("/familles/:id", async (req: Request, res: Response) => {
-        const validation = FamilleIdValidation.validate(req.params);
-
-        if (validation.error) {
-            res.status(400).send({ error: validation.error.details });
+        if (validationResult.error) {
+            res.status(400).send(generateValidationErrorMessage(validationResult.error.details));
             return;
         }
 
-        const familleRepo = AppDataSource.getRepository(Famille);
-        const { id } = validation.value;
+        const updateFamilleRequest = validationResult.value;
 
-        try {
-            const famille = await familleRepo.findOneBy({ idFamille: id });
+        const familleUsecase = new FamilleUsecase(AppDataSource);
+        const updatedFamille = await familleUsecase.updateFamille(updateFamilleRequest.id, updateFamilleRequest);
 
-            if (!famille) {
-                res.status(404).send({ error: "Famille not found" });
-                return;
-            }
-
-            await familleRepo.remove(famille);
-            res.status(200).send({ message: "Famille deleted successfully" });
-        } catch (error) {
-            console.error(error);
-            res.status(500).send({ error: "Internal server error" });
-        }
-    });
-    app.put("/familles/:id", async (req: Request, res: Response) => {
-        const validation = updateFamilleValidation.validate({ id: req.params.id, ...req.body });
-    
-        if (validation.error) {
-            res.status(400).send({ error: validation.error.details });
+        if (!updatedFamille) {
+            res.status(404).send({ "error": `Famille ${updateFamilleRequest.id} not found` });
             return;
         }
-    
-        const familleRepo = AppDataSource.getRepository(Famille);
-        const { id, nom } = validation.value;
-    
-        try {
-            const famille = await familleRepo.findOneBy({ idFamille: id });
-    
-            if (!famille) {
-                res.status(404).send({ error: "Famille not found" });
-                return;
-            }
-    
-            if (nom) famille.nom = nom;
-    
-            const updatedFamille = await familleRepo.save(famille);
-            res.status(200).send(updatedFamille);
-        } catch (error) {
-            console.error(error);
-            res.status(500).send({ error: "Internal server error" });
-        }
-    });
-    
+
+        res.status(200).send(updatedFamille);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ error: "Internal error" });
+    }
+});
 };

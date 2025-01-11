@@ -1,9 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from "typeorm";
-import { User } from "./user"; 
-import { Famille } from "./famille"; 
-import { Notification } from "./notification"; // Ajoutez cette ligne
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+import { Famille } from './famille';
+import { User } from './user';
+import { CategorieTache } from './CategorieTache';
+import { Notification } from './notification';
 
-@Entity("taches")
+@Entity()
 export class Tache {
     @PrimaryGeneratedColumn()
     idTache: number;
@@ -11,10 +12,10 @@ export class Tache {
     @Column({ length: 255 })
     nom: string;
 
-    @Column({ type: "date", nullable: true })
+    @Column({ type: 'date', nullable: true })
     date_debut: Date;
 
-    @Column({ type: "date", nullable: true })
+    @Column({ type: 'date', nullable: true })
     date_fin: Date;
 
     @Column({ length: 50, nullable: true })
@@ -23,34 +24,37 @@ export class Tache {
     @Column({ length: 100, nullable: true })
     type: string;
 
-    @Column({ type: "text", nullable: true })
+    @Column({ type: 'text', nullable: true })
     description: string;
 
-    @Column({ name: "idUser", nullable: true }) // Ajoutez name: "idUser"
-    userId?: number;
+    @Column({ type: 'enum', enum: ['Haute', 'Moyenne', 'Basse'], nullable: true })
+    priorite: 'Haute' | 'Moyenne' | 'Basse';
 
-    @ManyToOne(() => User, (user) => user.taches)
-    @JoinColumn({ name: "idUser" }) // Vérifiez que c'est bien "idUser"
+    @ManyToOne(() => CategorieTache, categorie => categorie.taches)
+    categorie: CategorieTache;
+
+    @ManyToOne(() => User, user => user.taches)
     user: User;
 
-    @OneToMany(() => Notification, (notification) => notification.tache) // Relation OneToMany vers Notification
+    @ManyToOne(() => Famille, famille => famille.taches)
+    famille: Famille;
+
+    @OneToMany(() => Notification, notification => notification.tache)
     notifications: Notification[];
 
-
-    @ManyToOne(() => Famille, (famille) => famille.taches)
-    @JoinColumn({ name: "idFamille" })
-    famille: Famille;
     constructor(
         idTache: number,
         nom: string,
         date_debut: Date,
         date_fin: Date,
         status: string,
-        notifications: Notification[],
         type: string,
         description: string,
+        priorite: 'Haute' | 'Moyenne' | 'Basse',
+        categorie: CategorieTache,
         user: User,
-        famille: Famille
+        famille: Famille,
+        notifications: Notification[] = []
     ) {
         this.idTache = idTache;
         this.nom = nom;
@@ -59,6 +63,8 @@ export class Tache {
         this.status = status;
         this.type = type;
         this.description = description;
+        this.priorite = priorite;
+        this.categorie = categorie;
         this.user = user;
         this.famille = famille;
         this.notifications = notifications;

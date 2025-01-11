@@ -1,167 +1,108 @@
-import { DataSource, DeleteResult } from "typeorm";
-import { User ,UserRole} from "../database/entities/user";
-import { Token } from "../database/entities/token";
-
-export interface ListUserRequest {
-    page: number
-    limit: number
-    nom?: string
-    prenom?: string
-    email?: string
-    numTel?: string
-    role?: UserRole
-    dateInscription?: Date
-}
-
-export interface UpdateUserParams {
-    nom?: string
-    prenom?: string
-    email?: string
-    motDePasse?: string
-    numTel?: string
-    profession?: string
-    role?: UserRole
-    dateInscription?: Date
-   
-}
+import { DataSource } from "typeorm";
+import { User,UserRole } from "../database/entities/user";
+import { Famille } from "../database/entities/famille";
+import { TransactionCoins } from "../database/entities/transactionCoins";
 
 export class UserUsecase {
-    constructor(private readonly db: DataSource) { }
+    constructor(private readonly db: DataSource) {}
 
-
-
-
-    async deleteToken(id: number): Promise<DeleteResult> {
-
-        const TokenDelete = await this.db.createQueryBuilder().delete().from(Token).where("userId = :id", { id: id }).execute();
-
-        return TokenDelete;
-
-    }
-
-    async verifUser(id: number, token: string): Promise<boolean> { 
-        const user = await this.getOneUser(id);
-        if (!user) {
-            return false;
-        }
-    
-        for (const element of user.tokens) {
-            if (element.token === token) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    async verifAcces(userId:number, funcId:number):Promise<boolean>{
-        const entityManager = this.db;
-
-        const sqlQuery = `
-        select count(*) from droit where userId = ? and fonctionnaliteId = ?;`;
-
-        const query = await entityManager.query(sqlQuery, [userId, funcId]);
-
-        return query;
-    }
-
-    async listUsers(listUserRequest: ListUserRequest): Promise<{ Users: User[]; totalCount: number; }> {
-        const query = this.db.createQueryBuilder(User, 'user');
-        if (listUserRequest.nom) {
-            query.andWhere("user.nom = :nom", { nom: listUserRequest.nom });
-        }
-
-        if (listUserRequest.prenom) {
-            query.andWhere("user.prenom = :prenom", { prenom: listUserRequest.prenom });
-        }
-
-        if (listUserRequest.email) {
-            query.andWhere("user.email = :email", { email: listUserRequest.email });
-        }
-
-        if (listUserRequest.numTel) {
-            query.andWhere("user.numTel = :numTel", { numTel: listUserRequest.numTel });
-        }
-
-    
-
-        if (listUserRequest.role) {
-            query.andWhere("user.role = :role", { role: listUserRequest.role });
-        }
-
-        if (listUserRequest.dateInscription) {
-            query.andWhere("user.dateInscription = :dateInscription", { dateInscription: listUserRequest.dateInscription });
-        }
-
-
-       //.leftJoinAndSelect('user.taches', 'taches')
-       query.leftJoinAndSelect('user.tokens', 'tokens')
-            .skip((listUserRequest.page - 1) * listUserRequest.limit)
-            .take(listUserRequest.limit);
-
-        const [Users, totalCount] = await query.getManyAndCount();
-        return {
-            Users,
-            totalCount
-        };
-    }
-
-    async getOneUser(id: number): Promise<User | null> {
-        const query = this.db.createQueryBuilder(User, 'user')
-         //   .leftJoinAndSelect('user.taches', 'taches')
-            .leftJoinAndSelect('user.tokens', 'tokens')
-            .where("user.id = :id", { id: id });
-
-        const user = await query.getOne();
-
-        if (!user) {
-            console.log({ error: `User ${id} not found` });
-            return null;
-        }
-        return user;
-    }
-
-    async updateUser(id: number, { nom, prenom, email, motDePasse, numTel, profession, role, dateInscription }: UpdateUserParams): Promise<User | string | null> {
+    // Créer un utilisateur
+    async createUser(userData: Partial<User>) {
         const repo = this.db.getRepository(User);
-        const userFound = await repo.findOneBy({ id });
-        if (userFound === null) return null;
+        const user = repo.create(userData);
+        return await repo.save(user);
+    }
 
-        if (nom === undefined && prenom === undefined && email === undefined && motDePasse === undefined && numTel === undefined && profession === undefined && role === undefined && dateInscription === undefined ) {
-            return "No changes";
+    // Obtenir un utilisateur par son ID
+    async getUserById(id: number) {
+        const repo = this.db.getRepository(User);
+        return await repo.findOneBy({ id });
+    }
+
+    // Mettre à jour un utilisateur
+    async updateUser(id: number, updateData: Partial<User>) {
+        const repo = this.db.getRepository(User);
+        const user = await repo.findOneBy({ id });
+        if (!user) throw new Error("User not found");
+        Object.assign(user, updateData);
+        return await repo.save(user);
+    }
+
+    // Supprimer un utilisateur
+    async deleteUser(id: number) {
+        const repo = this.db.getRepository(User);
+        const user = await repo.findOneBy({ id });
+        if (!user) throw new Error("User not found");
+        return await repo.remove(user);
+    }
+
+    // Ajouter un utilisateur à une famille
+    async addUserToFamille(idUser: number, idFamille: number) {
+        const userRepo = this.db.getRepository(User);
+        const familleRepo = this.db.getRepository(Famille);
+
+        const user = await userRepo.findOneBy({ id: idUser });
+        const famille = await familleRepo.findOneBy({ idFamille });
+
+        if (!user || !famille) throw new Error("User or Famille not found");
+
+        user.famille = famille;
+        return await userRepo.save(user);
+    }
+
+    // Obtenir le solde de points d'un utilisateur
+    async getUserCoins(idUser: number) {
+        const user = await this.getUserById(idUser);
+        if (!user ) throw new Error("User  not found");
+        return user.coins;
+    }
+
+    // Ajouter des points à un utilisateur
+    async addCoinsToUser(idUser: number, amount: number, reason: string) {
+        const userRepo = this.db.getRepository(User);
+        const transactionRepo = this.db.getRepository(TransactionCoins);
+
+        const user = await userRepo.findOneBy({ id: idUser });
+        if (!user) throw new Error("User not found");
+
+        user.coins += amount;
+        await userRepo.save(user);
+
+        // Enregistrer la transaction
+        const transaction = transactionRepo.create({
+            user: user,
+            type: "Gain",
+            montant: amount,
+            description: reason,
+        });
+        await transactionRepo.save(transaction);
+
+        return user.coins;
+    }
+
+    // Lister les utilisateurs avec pagination et filtres
+    async listUsers(options: { page: number; limit: number; nom?: string; prenom?: string; email?: string; role?: UserRole }) {
+        const repo = this.db.getRepository(User);
+        const query = repo.createQueryBuilder("user");
+
+        if (options.nom) {
+            query.andWhere("user.nom LIKE :nom", { nom: `%${options.nom}%` });
+        }
+        if (options.prenom) {
+            query.andWhere("user.prenom LIKE :prenom", { prenom: `%${options.prenom}%` });
+        }
+        if (options.email) {
+            query.andWhere("user.email = :email", { email: options.email });
+        }
+        if (options.role) {
+            query.andWhere("user.role = :role", { role: options.role });
         }
 
-        if (nom) {
-            userFound.nom = nom;
-        }
-        if (prenom) {
-            userFound.prenom = prenom;
-        }
-        if (email) {
-            userFound.email = email;
-        }
-        if (motDePasse) {
-            userFound.motDePasse = motDePasse;
-        }
-        if (numTel) {
-            userFound.numTel = numTel;
-        }
-    
-        if (role) {
-            userFound.role = role;
-        }
-        if (dateInscription) {
-            userFound.dateInscription = dateInscription;
-        }
-  
-        const userUpdate = await repo.save(userFound);
-        return userUpdate;
+        const [users, total] = await query
+            .skip((options.page - 1) * options.limit)
+            .take(options.limit)
+            .getManyAndCount();
+
+        return { users, total, page: options.page, limit: options.limit };
     }
 }
-
-    
-    
-
-    
-
-    
-
-

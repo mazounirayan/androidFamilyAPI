@@ -8,6 +8,8 @@ import { MessageHandler } from "./message";
 import { ChatHandler } from "./chat";
 import { RecompenseHandler } from "./recompense";
 import { NotificationHandler } from "./notification";
+import { TransactionCoinsHandler } from "./transactioncoin";
+import { BadgeHandler } from "./badge";
 
 
 
@@ -30,5 +32,7 @@ export const initRoutes = (app: express.Express) => {
     ChatHandler(app)
     RecompenseHandler(app)
     NotificationHandler(app)
+    TransactionCoinsHandler(app)
+    BadgeHandler(app)
     app.use(invalidPathHandler);
 }

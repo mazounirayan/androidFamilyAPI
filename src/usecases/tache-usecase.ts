@@ -1,106 +1,100 @@
 import { DataSource } from "typeorm";
 import { Tache } from "../database/entities/tache";
 import { User } from "../database/entities/user";
-import { Famille } from "../database/entities/famille";
+import { TransactionCoins } from "../database/entities/transactionCoins";
 
 export class TacheUsecase {
     constructor(private readonly db: DataSource) {}
 
-    async verifTache(id: number): Promise<boolean> { 
-        const user = await this.getTacheById(id);
-        if (!user) {
-            return false;
-        }
-    
-    
-        return true;
+    // Créer une tâche
+    async createTache(tacheData: Partial<Tache>) {
+        const repo = this.db.getRepository(Tache);
+        const tache = repo.create(tacheData);
+        return await repo.save(tache);
     }
-   
-    // Mettre à jour une tâche
-    async updateTache(idTache: number, updates: Partial<Tache>): Promise<Tache | string |null> {
-        const tacheRepo = this.db.getRepository(Tache);
 
-        const tache = await tacheRepo.findOneBy({ idTache });
-        if (!tache) {
-            throw new Error(`Tache with id ${idTache} not found`);
-        }
-        if (tache.date_debut === undefined &&tache.date_fin === undefined &&tache.description === undefined &&tache.famille === undefined && tache.nom === undefined &&tache.status === undefined && tache.type === undefined && tache.user === undefined && tache.idTache === undefined  ) {
-            return "No changes";
-        }
+    // Marquer une tâche comme terminée
+    async markTacheAsCompleted(idTache: number) {
+        const repo = this.db.getRepository(Tache);
+        const tache = await repo.findOneBy({ idTache });
+        if (!tache) return null; // Return null if task is not found
+
+        tache.status = "Completed";
+        await repo.save(tache);
+
+        // Ajouter des points à l'utilisateur
         const userRepo = this.db.getRepository(User);
-        const familleRepo = this.db.getRepository(Famille);
+        const user = await userRepo.findOneBy({ id: tache.user.id });
+        if (!user) throw new Error("User not found");
 
-        if (updates.user && updates.user.id) {
-            updates.user = await userRepo.findOneBy({ id: updates.user.id }) || undefined;
-        }
+        user.coins += 10; // Exemple : 10 points pour une tâche terminée
+        await userRepo.save(user);
 
-        if (updates.famille && updates.famille.idFamille) {
-            updates.famille = await familleRepo.findOneBy({ idFamille: updates.famille.idFamille }) || undefined;
-        }
-
-        Object.assign(tache, updates);
-        return tacheRepo.save(tache);
-    }
-
-    // Obtenir une tâche par ID
-    async getTacheById(idTache: number): Promise<Tache | null> {
-        const tacheRepo = this.db.getRepository(Tache);
-        return tacheRepo.findOne({
-            where: { idTache },
-            relations: ["user", "famille"],
+        // Enregistrer la transaction
+        const transactionRepo = this.db.getRepository(TransactionCoins);
+        const transaction = transactionRepo.create({
+            user: tache.user,
+            type: "Gain",
+            montant: 10,
+            description: `Tâche terminée : ${tache.nom}`,
         });
+        await transactionRepo.save(transaction);
+
+        return tache;
     }
 
-    // Lister les tâches avec pagination et filtres
-    async listTaches(filters: {
-        page?: number;
-        limit?: number;
-        status?: string;
-        type?: string;
-        idFamille?: number;
-        idTache?: number;
-        nom?: string;
-    }): Promise<{ data: Tache[]; total: number }> {
-        const tacheRepo = this.db.getRepository(Tache);
-
-        const query = tacheRepo.createQueryBuilder("tache")
-            .leftJoinAndSelect("tache.user", "user")
-            .leftJoinAndSelect("tache.famille", "famille");
-
-        if (filters.status) {
-            query.andWhere("tache.status = :status", { status: filters.status });
-        }
-
-        if (filters.type) {
-            query.andWhere("tache.type = :type", { type: filters.type });
-        }
-
-        if (filters.idFamille) {
-            query.andWhere("tache.famille.idFamille = :idFamille", { idFamille: filters.idFamille });
-        }
-
-        if (filters.nom) {
-            query.andWhere("tache.nom LIKE :nom", { nom: `%${filters.nom}%` });
-        }
-
-        const page = filters.page || 1;
-        const limit = filters.limit || 10;
-        query.skip((page - 1) * limit).take(limit);
-
-        const [data, total] = await query.getManyAndCount();
-
-        return { data, total };
+    // Lister les tâches d'un utilisateur
+    async listTachesByUser(idUser: number) {
+        const repo = this.db.getRepository(Tache);
+        return await repo.find({ where: { user: { id: idUser } } });
     }
 
     // Supprimer une tâche
-    async deleteTache(idTache: number): Promise<void> {
-        const tacheRepo = this.db.getRepository(Tache);
-        const tache = await tacheRepo.findOneBy({ idTache });
+    async deleteTache(idTache: number) {
+        const repo = this.db.getRepository(Tache);
+        const tache = await repo.findOneBy({ idTache });
+        if (!tache) throw new Error("Tache not found");
+        return await repo.remove(tache);
+    }
 
-        if (!tache) {
-            throw new Error(`Tache with id ${idTache} not found`);
+    // Mettre à jour une tâche
+    async updateTache(idTache: number, tacheData: Partial<Tache>) {
+        const repo = this.db.getRepository(Tache);
+        const tache = await repo.findOneBy({ idTache });
+        if (!tache) throw new Error("Tâche non trouvée");
+        Object.assign(tache, tacheData);
+        return await repo.save(tache);
+    }
+
+    // Lister les tâches avec pagination et filtres
+    async listTaches(options: { page: number; limit: number; status?: string; type?: string; idFamille?: number; nom?: string }) {
+        const repo = this.db.getRepository(Tache);
+        const query = repo.createQueryBuilder("tache");
+
+        if (options.status) {
+            query.andWhere("tache.status = :status", { status: options.status });
+        }
+        if (options.type) {
+            query.andWhere("tache.type = :type", { type: options.type });
+        }
+        if (options.idFamille) {
+            query.andWhere("tache.idFamille = :idFamille", { idFamille: options.idFamille });
+        }
+        if (options.nom) {
+            query.andWhere("tache.nom LIKE :nom", { nom: `%${options.nom}%` });
         }
 
-        await tacheRepo.remove(tache);
+        const [taches, total] = await query
+            .skip((options.page - 1) * options.limit)
+            .take(options.limit)
+            .getManyAndCount();
+
+        return { taches, total, page: options.page, limit: options.limit };
+    }
+
+    // Obtenir une tâche par son ID
+    async getTacheById(idTache: number) {
+        const repo = this.db.getRepository(Tache);
+        return await repo.findOneBy({ idTache });
     }
 }
