@@ -46,7 +46,7 @@ __decorate([
     __metadata("design:type", Badge_1.Badge)
 ], UserBadge.prototype, "badge", void 0);
 exports.UserBadge = UserBadge = __decorate([
-    (0, typeorm_1.Entity)(),
+    (0, typeorm_1.Entity)('UserBadge'),
     __metadata("design:paramtypes", [Number, Number, Date,
         user_1.User,
         Badge_1.Badge])

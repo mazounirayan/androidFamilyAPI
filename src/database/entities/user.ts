@@ -9,7 +9,7 @@ import { UserBadge } from './userBadge';
 import { TransactionCoins } from './transactionCoins';
 export type UserRole = 'Parent' | 'Enfant';
 
-@Entity()
+@Entity('User')
 export class User {
     @PrimaryGeneratedColumn()
     id: number;

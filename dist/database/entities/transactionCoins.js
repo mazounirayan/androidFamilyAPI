@@ -48,6 +48,6 @@ __decorate([
     __metadata("design:type", String)
 ], TransactionCoins.prototype, "description", void 0);
 exports.TransactionCoins = TransactionCoins = __decorate([
-    (0, typeorm_1.Entity)(),
+    (0, typeorm_1.Entity)('TransactionCoins'),
     __metadata("design:paramtypes", [Number, user_1.User, String, Number, Date, String])
 ], TransactionCoins);

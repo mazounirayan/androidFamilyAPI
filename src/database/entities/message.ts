@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { User } from './user';
 import { Chat } from './chat';
 
-@Entity()
+@Entity('Message')
 export class Message {
     @PrimaryGeneratedColumn()
     idMessage: number;

@@ -53,6 +53,6 @@ __decorate([
     __metadata("design:type", Array)
 ], Recompense.prototype, "userRecompenses", void 0);
 exports.Recompense = Recompense = __decorate([
-    (0, typeorm_1.Entity)(),
+    (0, typeorm_1.Entity)('Recompense'),
     __metadata("design:paramtypes", [Number, String, Number, Number, Boolean, Array, String])
 ], Recompense);

@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { UserRecompense } from './userRecompense'; // Assurez-vous de créer cette entité
 
-@Entity()
+@Entity('Recompense')
 export class Recompense {
     @PrimaryGeneratedColumn()
     idRecompense: number;

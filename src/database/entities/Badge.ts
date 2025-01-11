@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { UserBadge } from './userBadge'; 
 
-@Entity()
+@Entity('Badge')
 export class Badge {
     @PrimaryGeneratedColumn()
     idBadge: number;

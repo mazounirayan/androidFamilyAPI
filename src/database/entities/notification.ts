@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 't
 import { User } from './user';
 import { Tache } from './tache';
 
-@Entity('notification')
+@Entity('Notification')
 export class Notification {
   @PrimaryGeneratedColumn()
   idNotification: number;

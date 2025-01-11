@@ -49,7 +49,7 @@ __decorate([
     __metadata("design:type", chat_1.Chat)
 ], Message.prototype, "chat", void 0);
 exports.Message = Message = __decorate([
-    (0, typeorm_1.Entity)(),
+    (0, typeorm_1.Entity)('Message'),
     __metadata("design:paramtypes", [Number, String, Date, Boolean, user_1.User,
         chat_1.Chat])
 ], Message);

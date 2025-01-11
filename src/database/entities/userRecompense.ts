@@ -2,7 +2,7 @@ import { Entity, PrimaryColumn, ManyToOne, Column } from 'typeorm';
 import { User } from './user';
 import { Recompense } from './recompense';
 
-@Entity()
+@Entity('UserRecompense')
 export class UserRecompense {
     @PrimaryColumn()
     idUser: number;

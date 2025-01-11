@@ -43,6 +43,6 @@ __decorate([
     __metadata("design:type", Array)
 ], Badge.prototype, "userBadges", void 0);
 exports.Badge = Badge = __decorate([
-    (0, typeorm_1.Entity)(),
+    (0, typeorm_1.Entity)('Badge'),
     __metadata("design:paramtypes", [Number, String, Array, String, String])
 ], Badge);

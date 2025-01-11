@@ -95,7 +95,7 @@ __decorate([
     __metadata("design:type", Array)
 ], Tache.prototype, "notifications", void 0);
 exports.Tache = Tache = __decorate([
-    (0, typeorm_1.Entity)(),
+    (0, typeorm_1.Entity)('Tache'),
     __metadata("design:paramtypes", [Number, String, user_1.User,
         famille_1.Famille,
         Date,

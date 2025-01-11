@@ -2,7 +2,7 @@ import { Entity, PrimaryColumn, ManyToOne, Column, JoinColumn } from 'typeorm';
 import { User } from './user';
 import { Badge } from './Badge';
 
-@Entity()
+@Entity('UserBadge')
 export class UserBadge {
     @PrimaryColumn()
     idUser: number;

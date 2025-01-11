@@ -33,6 +33,6 @@ __decorate([
     __metadata("design:type", Array)
 ], Chat.prototype, "messages", void 0);
 exports.Chat = Chat = __decorate([
-    (0, typeorm_1.Entity)('chat'),
+    (0, typeorm_1.Entity)('Chat'),
     __metadata("design:paramtypes", [Number, String, Array])
 ], Chat);

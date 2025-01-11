@@ -115,6 +115,6 @@ __decorate([
     __metadata("design:type", Array)
 ], User.prototype, "transactions", void 0);
 exports.User = User = __decorate([
-    (0, typeorm_1.Entity)(),
+    (0, typeorm_1.Entity)('User'),
     __metadata("design:paramtypes", [Number, String, String, String, String, String, Date, String, Number, Number, famille_1.Famille, Array, Array, Array, Array, Array, Array, String])
 ], User);

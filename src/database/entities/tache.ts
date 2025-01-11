@@ -11,7 +11,7 @@ export enum PrioriteTache {
     BASSE = 'Basse'
 }
 
-@Entity()
+@Entity('Tache')
 export class Tache {
     @PrimaryGeneratedColumn()
     idTache: number;

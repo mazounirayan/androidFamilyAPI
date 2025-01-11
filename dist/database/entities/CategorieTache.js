@@ -33,6 +33,6 @@ __decorate([
     __metadata("design:type", Array)
 ], CategorieTache.prototype, "taches", void 0);
 exports.CategorieTache = CategorieTache = __decorate([
-    (0, typeorm_1.Entity)(),
+    (0, typeorm_1.Entity)('CategorieTache'),
     __metadata("design:paramtypes", [Number, String, Array])
 ], CategorieTache);
