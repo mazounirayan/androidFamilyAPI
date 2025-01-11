@@ -130,4 +130,15 @@ export const TransactionCoinsHandler = (app: express.Express) => {
             res.status(500).send({ error: "Internal error" });
         }
     });
+    app.get("/transactions/user/:id", async (req: Request, res: Response) => {
+        try {
+            const userId = parseInt(req.params.id, 10);
+            const transactionUsecase = new TransactionCoinsUsecase(AppDataSource);
+            const transactions = await transactionUsecase.listTransactionsByUserId(userId);
+            res.status(200).send(transactions);
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    });
 };

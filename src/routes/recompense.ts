@@ -163,4 +163,15 @@ export const RecompenseHandler = (app: express.Express) => {
             res.status(500).send({ error: "Internal error" });
         }
     });
+    app.get("/recompenses/user/:id", async (req: Request, res: Response) => {
+        try {
+            const userId = parseInt(req.params.id, 10);
+            const recompenseUsecase = new RecompenseUsecase(AppDataSource);
+            const recompenses = await recompenseUsecase.listRecompensesByUserId(userId);
+            res.status(200).send(recompenses);
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    });
 };

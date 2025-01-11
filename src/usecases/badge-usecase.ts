@@ -71,4 +71,30 @@ export class BadgeUsecase {
         const repo = this.db.getRepository(UserBadge);
         return await repo.find({ where: { idUser }, relations: ["badge"] });
     }
+    async getBadgesByUserId(userId: number): Promise<Badge[]> {
+        const repo = this.db.getRepository(Badge);
+        const badges = await repo
+            .createQueryBuilder("badge")
+            .innerJoin("badge.userBadges", "userBadge")
+            .where("userBadge.idUser = :userId", { userId })
+            .getMany();
+    
+        if (!badges || badges.length === 0) {
+            throw new Error("No badges found for this user");
+        }
+    
+        return badges;
+    }
+    async unassignBadgeFromUser(userId: number, badgeId: number): Promise<void> {
+        const repo = this.db.getRepository(UserBadge);
+        const result = await repo
+            .createQueryBuilder()
+            .delete()
+            .where("idUser = :userId AND idBadge = :badgeId", { userId, badgeId })
+            .execute();
+    
+        if (result.affected === 0) {
+            throw new Error("Badge assignment not found or already removed");
+        }
+    }
 }

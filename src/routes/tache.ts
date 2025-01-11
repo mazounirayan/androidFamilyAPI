@@ -169,4 +169,46 @@ app.patch("/taches/:id", async (req: Request, res: Response) => {
             res.status(500).send({ error: "Internal error" });
         }
     });
+    app.get("/taches/user/:id", async (req: Request, res: Response) => {
+        try {
+            const userId = parseInt(req.params.id, 10);
+            const tacheUsecase = new TacheUsecase(AppDataSource);
+            const taches = await tacheUsecase.listTachesByUserId(userId);
+            res.status(200).send(taches);
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    });
+
+    app.get("/taches/famille/:id", async (req: Request, res: Response) => {
+        try {
+            const familleId = parseInt(req.params.id, 10);
+            const tacheUsecase = new TacheUsecase(AppDataSource);
+            const taches = await tacheUsecase.listTachesByFamilleId(familleId);
+            res.status(200).send(taches);
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    });
+    app.post("/taches/:id/assign", async (req: Request, res: Response) => {
+        try {
+            const tacheId = parseInt(req.params.id, 10);
+            const { userId } = req.body;
+    
+            if (!userId) {
+                res.status(400).send({ error: "User ID is required" });
+                return;
+            }
+    
+            const tacheUsecase = new TacheUsecase(AppDataSource);
+            await tacheUsecase.assignTacheToUser(tacheId, userId);
+    
+            res.status(200).send({ message: "Task assigned successfully" });
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    });
 };

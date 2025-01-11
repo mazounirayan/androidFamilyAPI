@@ -4,6 +4,7 @@ import { Badge } from '../database/entities/Badge';
 import { BadgeUsecase } from '../usecases/badge-usecase';
 import { generateValidationErrorMessage } from '../validators/generate-validation-message';
 import { listBadgeValidation, createBadgeValidation, badgeIdValidation, updateBadgeValidation } from '../validators/badge-validator';
+import { userIdValidation } from '../validators/user-validator';
 
 
 export const BadgeHandler = (app: express.Express) => {
@@ -165,5 +166,51 @@ export const BadgeHandler = (app: express.Express) => {
             res.status(500).send({ error: "Internal error" });
         }
     });
-
+    app.get("/badges/user/:id", async (req: Request, res: Response) => {
+        try {
+            const validationResult = userIdValidation.validate(req.params);
+    
+            if (validationResult.error) {
+                res.status(400).send(generateValidationErrorMessage(validationResult.error.details));
+                return;
+            }
+    
+            const userId = validationResult.value.id;
+    
+            const badgeUsecase = new BadgeUsecase(AppDataSource);
+            const badges = await badgeUsecase.getBadgesByUserId(userId);
+    
+            res.status(200).send(badges);
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    });
+    app.delete("/badges/:id/unassign", async (req: Request, res: Response) => {
+        try {
+            const validationResult = badgeIdValidation.validate(req.params);
+    
+            if (validationResult.error) {
+                res.status(400).send(generateValidationErrorMessage(validationResult.error.details));
+                return;
+            }
+    
+            const badgeId = validationResult.value.id;
+    
+            const { userId } = req.body;
+    
+            if (!userId) {
+                res.status(400).send({ error: "User ID is required" });
+                return;
+            }
+    
+            const badgeUsecase = new BadgeUsecase(AppDataSource);
+            await badgeUsecase.unassignBadgeFromUser(userId, badgeId);
+    
+            res.status(200).send({ message: "Badge unassigned successfully" });
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    });
 }

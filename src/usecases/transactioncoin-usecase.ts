@@ -44,7 +44,16 @@ export class TransactionCoinsUsecase {
             },
         });
     }
-
+    async listTransactionsByUserId(userId: number): Promise<TransactionCoins[]> {
+        const repo = this.db.getRepository(TransactionCoins);
+        const transactions = await repo.find({ where: { user: { id: userId } } });
+    
+        if (!transactions || transactions.length === 0) {
+            throw new Error("No transactions found for this user");
+        }
+    
+        return transactions;
+    }
     // Lister les transactions avec pagination et filtres
     async listTransactions(options: { page: number; limit: number; idUser?: number; type?: string }) {
         const repo = this.db.getRepository(TransactionCoins);

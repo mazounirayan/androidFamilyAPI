@@ -2,6 +2,7 @@ import { DataSource } from "typeorm";
 import { Recompense } from "../database/entities/recompense";
 import { User } from "../database/entities/user";
 import { TransactionCoins } from "../database/entities/transactionCoins";
+import { UserRecompense } from "../database/entities/userRecompense";
 
 export class RecompenseUsecase {
     constructor(private readonly db: DataSource) {}
@@ -82,4 +83,20 @@ export class RecompenseUsecase {
         Object.assign(recompense, recompenseData);
         return await repo.save(recompense);
     }
+
+
+    async listRecompensesByUserId(userId: number): Promise<Recompense[]> {
+        const repo = this.db.getRepository(UserRecompense);
+        const userRecompenses = await repo.find({
+            where: { idUser: userId },
+            relations: ["recompense"],
+        });
+    
+        if (!userRecompenses || userRecompenses.length === 0) {
+            throw new Error("No rewards found for this user");
+        }
+    
+        return userRecompenses.map(ur => ur.recompense);
+    }
+  
 }

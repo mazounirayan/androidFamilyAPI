@@ -65,7 +65,42 @@ export class TacheUsecase {
         Object.assign(tache, tacheData);
         return await repo.save(tache);
     }
+    async listTachesByUserId(idUser: number): Promise<Tache[]> {
+        const repo = this.db.getRepository(Tache);
+        const taches = await repo.find({ where: { user: { id: idUser } } });
+    
+        if (!taches || taches.length === 0) {
+            throw new Error("No tasks found for this user");
+        }
+    
+        return taches;
+    }
+    async assignTacheToUser(tacheId: number, userId: number): Promise<void> {
+        const repo = this.db.getRepository(Tache);
+        const Userrepo = this.db.getRepository(User);
+        const tache = await repo.findOneBy({ idTache: tacheId });
 
+       
+        if (!tache) {
+            throw new Error("Task not found");
+        }
+        const user = await Userrepo.findOneBy({ id: tache.user.id });
+        if (!user) {
+            throw new Error("user not found");
+        }
+        tache.user = user;
+        await repo.save(tache);
+    }
+    async listTachesByFamilleId(familleId: number): Promise<Tache[]> {
+        const repo = this.db.getRepository(Tache);
+        const taches = await repo.find({ where:   { famille: { idFamille: familleId }}});
+    
+        if (!taches || taches.length === 0) {
+            throw new Error("No tasks found for this famille");
+        }
+    
+        return taches;
+    }
     // Lister les tâches avec pagination et filtres
     async listTaches(options: { page: number; limit: number; status?: string; type?: string; idFamille?: number; nom?: string }) {
         const repo = this.db.getRepository(Tache);
