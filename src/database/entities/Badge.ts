@@ -21,9 +21,9 @@ export class Badge {
     constructor(
         idBadge: number,
         nom: string,
-        description?: string,
+       
+        userBadges: UserBadge[] , description?: string,
         image?: string,
-        userBadges: UserBadge[] = []
     ) {
         this.idBadge = idBadge;
         this.nom = nom;

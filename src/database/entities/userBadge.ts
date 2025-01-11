@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, ManyToOne, Column } from 'typeorm';
+import { Entity, PrimaryColumn, ManyToOne, Column, JoinColumn } from 'typeorm';
 import { User } from './user';
 import { Badge } from './Badge';
 
@@ -12,11 +12,12 @@ export class UserBadge {
 
     @Column({ type: 'date' })
     date_obtention: Date;
-
     @ManyToOne(() => User, user => user.userBadges)
+    @JoinColumn({ name: "idUser" })
     user: User;
 
     @ManyToOne(() => Badge, badge => badge.userBadges)
+    @JoinColumn({ name: "idBadge" })
     badge: Badge;
 
     constructor(

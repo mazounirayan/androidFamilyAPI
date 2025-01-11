@@ -9,21 +9,28 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Tache = void 0;
+exports.Tache = exports.PrioriteTache = void 0;
 const typeorm_1 = require("typeorm");
+const CategorieTache_1 = require("./CategorieTache");
 const famille_1 = require("./famille");
 const user_1 = require("./user");
-const CategorieTache_1 = require("./CategorieTache");
 const notification_1 = require("./notification");
+// Définition de l'enum pour la priorité
+var PrioriteTache;
+(function (PrioriteTache) {
+    PrioriteTache["HAUTE"] = "Haute";
+    PrioriteTache["MOYENNE"] = "Moyenne";
+    PrioriteTache["BASSE"] = "Basse";
+})(PrioriteTache || (exports.PrioriteTache = PrioriteTache = {}));
 let Tache = class Tache {
-    constructor(idTache, nom, date_debut, date_fin, status, type, description, priorite, categorie, user, famille, notifications = []) {
+    constructor(idTache, nom, user, famille, date_debut, date_fin, status, type, priorite, categorie, notifications, description) {
         this.idTache = idTache;
         this.nom = nom;
         this.date_debut = date_debut;
         this.date_fin = date_fin;
         this.status = status;
         this.type = type;
-        this.description = description;
+        this.description = description || "";
         this.priorite = priorite;
         this.categorie = categorie;
         this.user = user;
@@ -61,19 +68,26 @@ __decorate([
     __metadata("design:type", String)
 ], Tache.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'enum', enum: ['Haute', 'Moyenne', 'Basse'], nullable: true }),
+    (0, typeorm_1.Column)({
+        type: 'enum',
+        enum: PrioriteTache,
+        nullable: true
+    }),
     __metadata("design:type", String)
 ], Tache.prototype, "priorite", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => CategorieTache_1.CategorieTache, categorie => categorie.taches),
+    (0, typeorm_1.ManyToOne)(() => CategorieTache_1.CategorieTache, categorie => categorie.taches, { nullable: true }),
+    (0, typeorm_1.JoinColumn)({ name: 'idCategorie' }),
     __metadata("design:type", CategorieTache_1.CategorieTache)
 ], Tache.prototype, "categorie", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_1.User, user => user.taches),
+    (0, typeorm_1.ManyToOne)(() => user_1.User, user => user.taches, { nullable: false }),
+    (0, typeorm_1.JoinColumn)({ name: 'idUser' }),
     __metadata("design:type", user_1.User)
 ], Tache.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => famille_1.Famille, famille => famille.taches),
+    (0, typeorm_1.ManyToOne)(() => famille_1.Famille, famille => famille.taches, { nullable: false }),
+    (0, typeorm_1.JoinColumn)({ name: 'idFamille' }),
     __metadata("design:type", famille_1.Famille)
 ], Tache.prototype, "famille", void 0);
 __decorate([
@@ -82,8 +96,8 @@ __decorate([
 ], Tache.prototype, "notifications", void 0);
 exports.Tache = Tache = __decorate([
     (0, typeorm_1.Entity)(),
-    __metadata("design:paramtypes", [Number, String, Date,
-        Date, String, String, String, String, CategorieTache_1.CategorieTache,
-        user_1.User,
-        famille_1.Famille, Array])
+    __metadata("design:paramtypes", [Number, String, user_1.User,
+        famille_1.Famille,
+        Date,
+        Date, String, String, String, CategorieTache_1.CategorieTache, Array, String])
 ], Tache);

@@ -28,12 +28,10 @@ exports.createUserValidation = joi_1.default.object({
 // User ID Validation
 exports.userIdValidation = joi_1.default.object({
     id: joi_1.default.number().required(),
-    token: joi_1.default.string().required(), // Ensure this is intentional
 });
 // Update User Validation
 exports.updateUserValidation = joi_1.default.object({
     id: joi_1.default.number().required(),
-    token: joi_1.default.string().required(), // Ensure this is intentional
     nom: joi_1.default.string().optional(),
     prenom: joi_1.default.string().optional(),
     email: joi_1.default.string().email().optional(),

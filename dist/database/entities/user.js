@@ -19,7 +19,7 @@ const userRecompense_1 = require("./userRecompense");
 const userBadge_1 = require("./userBadge");
 const transactionCoins_1 = require("./transactionCoins");
 let User = class User {
-    constructor(id, nom, prenom, email, motDePasse, role, dateInscription, avatar, coins, totalPoints, famille, taches = [], notifications = [], messages = [], userRecompenses = [], userBadges = [], transactions = [], numTel) {
+    constructor(id, nom, prenom, email, motDePasse, role, dateInscription, avatar, coins, totalPoints, famille, taches, notifications, messages, userRecompenses, userBadges, transactions, numTel) {
         this.id = id;
         this.nom = nom;
         this.prenom = prenom;
@@ -87,6 +87,7 @@ __decorate([
 ], User.prototype, "totalPoints", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => famille_1.Famille, famille => famille.users),
+    (0, typeorm_1.JoinColumn)({ name: "idFamille" }),
     __metadata("design:type", famille_1.Famille)
 ], User.prototype, "famille", void 0);
 __decorate([

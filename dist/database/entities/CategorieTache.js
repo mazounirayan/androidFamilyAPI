@@ -13,7 +13,7 @@ exports.CategorieTache = void 0;
 const typeorm_1 = require("typeorm");
 const tache_1 = require("./tache");
 let CategorieTache = class CategorieTache {
-    constructor(idCategorie, nom, taches = []) {
+    constructor(idCategorie, nom, taches) {
         this.idCategorie = idCategorie;
         this.nom = nom;
         this.taches = taches;

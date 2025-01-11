@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { Famille } from './famille';
 import { Tache } from './tache';
 import { Notification } from './notification';
@@ -45,6 +45,7 @@ export class User {
     totalPoints: number; // Total des points accumulés
 
     @ManyToOne(() => Famille, famille => famille.users)
+    @JoinColumn({ name: "idFamille" })
     famille: Famille;
 
     @OneToMany(() => Tache, tache => tache.user)
@@ -79,12 +80,12 @@ export class User {
         coins: number,
         totalPoints: number,
         famille: Famille,
-        taches: Tache[] = [],
-        notifications: Notification[] = [],
-        messages: Message[] = [],
-        userRecompenses: UserRecompense[] = [],
-        userBadges: UserBadge[] = [],
-        transactions: TransactionCoins[] = [],
+        taches: Tache[] ,
+        notifications: Notification[] ,
+        messages: Message[] ,
+        userRecompenses: UserRecompense[] ,
+        userBadges: UserBadge[] ,
+        transactions: TransactionCoins[] ,
        
         numTel?: string
     ) {

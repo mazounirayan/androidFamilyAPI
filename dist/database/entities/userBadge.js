@@ -37,10 +37,12 @@ __decorate([
 ], UserBadge.prototype, "date_obtention", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => user_1.User, user => user.userBadges),
+    (0, typeorm_1.JoinColumn)({ name: "idUser" }),
     __metadata("design:type", user_1.User)
 ], UserBadge.prototype, "user", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => Badge_1.Badge, badge => badge.userBadges),
+    (0, typeorm_1.JoinColumn)({ name: "idBadge" }),
     __metadata("design:type", Badge_1.Badge)
 ], UserBadge.prototype, "badge", void 0);
 exports.UserBadge = UserBadge = __decorate([

@@ -26,9 +26,9 @@ export class Famille {
         idFamille: number,
         nom: string,
         code_invitation: string,
-        date_de_creation?: Date, // Optionnel
-        users: User[] = [], // Valeur par défaut
-        taches: Tache[] = [] // Valeur par défaut
+        // Optionnel
+        users: User[]  ,
+        taches: Tache[] , date_de_creation?: Date // Valeur par défaut
     ) {
         this.idFamille = idFamille;
         this.nom = nom;

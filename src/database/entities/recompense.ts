@@ -28,10 +28,10 @@ export class Recompense {
         idRecompense: number,
         nom: string,
         cout: number,
-        description?: string,
+       
         stock: number = 0,
         estDisponible: boolean = true,
-        userRecompenses: UserRecompense[] = []
+        userRecompenses: UserRecompense[], description?: string,
     ) {
         this.idRecompense = idRecompense;
         this.nom = nom;

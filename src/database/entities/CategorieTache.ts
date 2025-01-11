@@ -15,7 +15,7 @@ export class CategorieTache {
     constructor(
         idCategorie: number,
         nom: string,
-        taches: Tache[] = []
+        taches: Tache[] 
     ) {
         this.idCategorie = idCategorie;
         this.nom = nom;

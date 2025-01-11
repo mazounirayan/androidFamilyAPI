@@ -13,7 +13,7 @@ exports.Badge = void 0;
 const typeorm_1 = require("typeorm");
 const userBadge_1 = require("./userBadge");
 let Badge = class Badge {
-    constructor(idBadge, nom, description, image, userBadges = []) {
+    constructor(idBadge, nom, userBadges, description, image) {
         this.idBadge = idBadge;
         this.nom = nom;
         this.description = description || "null";
@@ -44,5 +44,5 @@ __decorate([
 ], Badge.prototype, "userBadges", void 0);
 exports.Badge = Badge = __decorate([
     (0, typeorm_1.Entity)(),
-    __metadata("design:paramtypes", [Number, String, String, String, Array])
+    __metadata("design:paramtypes", [Number, String, Array, String, String])
 ], Badge);
