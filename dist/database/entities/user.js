@@ -9,38 +9,35 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.User = exports.UserRole = void 0;
+exports.User = void 0;
 const typeorm_1 = require("typeorm");
-require("reflect-metadata");
-const token_1 = require("./token");
 const famille_1 = require("./famille");
 const tache_1 = require("./tache");
-const recompense_1 = require("./recompense");
+const notification_1 = require("./notification");
 const message_1 = require("./message");
-const chat_1 = require("./chat");
-const notification_1 = require("./notification"); // Ajoutez cette ligne
-var UserRole;
-(function (UserRole) {
-    UserRole["Enfant"] = "Enfant";
-    UserRole["Parent"] = "Parent";
-})(UserRole || (exports.UserRole = UserRole = {}));
+const userRecompense_1 = require("./userRecompense");
+const userBadge_1 = require("./userBadge");
+const transactionCoins_1 = require("./transactionCoins");
 let User = class User {
-    constructor(id, nom, prenom, email, role, motDePasse, taches, tokens, recompenses, messages, notifications, chats, dateInscription, numTel, idFamille) {
+    constructor(id, nom, prenom, email, motDePasse, role, dateInscription, avatar, coins, totalPoints, famille, taches = [], notifications = [], messages = [], userRecompenses = [], userBadges = [], transactions = [], numTel) {
         this.id = id;
         this.nom = nom;
-        this.tokens = tokens;
         this.prenom = prenom;
         this.email = email;
-        this.role = role;
         this.motDePasse = motDePasse;
-        this.numTel = numTel;
-        this.idFamille = idFamille;
+        this.role = role;
         this.dateInscription = dateInscription;
+        this.avatar = avatar;
+        this.coins = coins;
+        this.totalPoints = totalPoints;
+        this.famille = famille;
         this.taches = taches;
-        this.recompenses = recompenses;
-        this.messages = messages;
         this.notifications = notifications;
-        this.chats = chats;
+        this.messages = messages;
+        this.userRecompenses = userRecompenses;
+        this.userBadges = userBadges;
+        this.transactions = transactions;
+        this.numTel = numTel || "";
     }
 };
 exports.User = User;
@@ -49,72 +46,74 @@ __decorate([
     __metadata("design:type", Number)
 ], User.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ length: 100 }),
     __metadata("design:type", String)
 ], User.prototype, "nom", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ length: 100 }),
     __metadata("design:type", String)
 ], User.prototype, "prenom", void 0);
 __decorate([
-    (0, typeorm_1.Column)({
-        unique: true
-    }),
+    (0, typeorm_1.Column)({ length: 255, unique: true }),
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ length: 255 }),
     __metadata("design:type", String)
 ], User.prototype, "motDePasse", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ length: 10, nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "numTel", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => token_1.Token, token => token.user),
-    __metadata("design:type", Array)
-], User.prototype, "tokens", void 0);
-__decorate([
-    (0, typeorm_1.Column)({
-        type: 'enum',
-        enum: ['Parent', 'Enfant'],
-    }),
+    (0, typeorm_1.Column)({ type: 'enum', enum: ['Parent', 'Enfant'] }),
     __metadata("design:type", String)
 ], User.prototype, "role", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)({ type: "datetime" }),
+    (0, typeorm_1.Column)({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' }),
     __metadata("design:type", Date)
 ], User.prototype, "dateInscription", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", Number)
-], User.prototype, "idFamille", void 0);
+    (0, typeorm_1.Column)({ length: 255, nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "avatar", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => famille_1.Famille, (famille) => famille.utilisateurs, { nullable: true }),
-    (0, typeorm_1.JoinColumn)({ name: 'idFamille' }),
+    (0, typeorm_1.Column)({ default: 0 }),
+    __metadata("design:type", Number)
+], User.prototype, "coins", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: 0 }),
+    __metadata("design:type", Number)
+], User.prototype, "totalPoints", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => famille_1.Famille, famille => famille.users),
     __metadata("design:type", famille_1.Famille)
 ], User.prototype, "famille", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => tache_1.Tache, (tache) => tache.user),
+    (0, typeorm_1.OneToMany)(() => tache_1.Tache, tache => tache.user),
     __metadata("design:type", Array)
 ], User.prototype, "taches", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => recompense_1.Recompense, (recompense) => recompense.user),
-    __metadata("design:type", Array)
-], User.prototype, "recompenses", void 0);
-__decorate([
-    (0, typeorm_1.OneToMany)(() => message_1.Message, (message) => message.user),
-    __metadata("design:type", Array)
-], User.prototype, "messages", void 0);
-__decorate([
-    (0, typeorm_1.OneToMany)(() => notification_1.Notification, (notification) => notification.user),
+    (0, typeorm_1.OneToMany)(() => notification_1.Notification, notification => notification.user),
     __metadata("design:type", Array)
 ], User.prototype, "notifications", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => chat_1.Chat, (chat) => chat.idChat),
+    (0, typeorm_1.OneToMany)(() => message_1.Message, message => message.user),
     __metadata("design:type", Array)
-], User.prototype, "chats", void 0);
+], User.prototype, "messages", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => userRecompense_1.UserRecompense, userRecompense => userRecompense.user),
+    __metadata("design:type", Array)
+], User.prototype, "userRecompenses", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => userBadge_1.UserBadge, userBadge => userBadge.user),
+    __metadata("design:type", Array)
+], User.prototype, "userBadges", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => transactionCoins_1.TransactionCoins, transaction => transaction.user),
+    __metadata("design:type", Array)
+], User.prototype, "transactions", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)(),
-    __metadata("design:paramtypes", [Number, String, String, String, String, String, Array, Array, Array, Array, Array, Array, Date, String, Number])
+    __metadata("design:paramtypes", [Number, String, String, String, String, String, Date, String, Number, Number, famille_1.Famille, Array, Array, Array, Array, Array, Array, String])
 ], User);

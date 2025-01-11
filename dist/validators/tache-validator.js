@@ -7,8 +7,8 @@ exports.TacheIdValidation = exports.listTacheValidation = exports.updateTacheVal
 const joi_1 = __importDefault(require("joi"));
 exports.createTacheValidation = joi_1.default.object({
     nom: joi_1.default.string().max(255).required(),
-    date_debut: joi_1.default.date().optional(),
-    date_fin: joi_1.default.date().optional(),
+    date_debut: joi_1.default.date().iso().optional(), // Ensure the date is in ISO format
+    date_fin: joi_1.default.date().iso().optional(), // Ensure the date is in ISO format
     status: joi_1.default.string().max(50).optional(),
     type: joi_1.default.string().max(100).optional(),
     description: joi_1.default.string().optional(),
@@ -33,6 +33,7 @@ exports.listTacheValidation = joi_1.default.object({
     type: joi_1.default.string().optional(),
     idFamille: joi_1.default.number().integer().optional(),
 }).options({ abortEarly: false });
+// tache-validator.ts
 exports.TacheIdValidation = joi_1.default.object({
     id: joi_1.default.number().required(),
-});
+}).options({ abortEarly: false });

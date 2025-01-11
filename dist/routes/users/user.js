@@ -11,11 +11,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserHandler = void 0;
 const database_1 = require("../../database/database");
-const user_1 = require("../../database/entities/user");
 const user_usecase_1 = require("../../usecases/user-usecase");
 const generate_validation_message_1 = require("../../validators/generate-validation-message");
 const user_validator_1 = require("../../validators/user-validator");
 const UserHandler = (app) => {
+    // Lister les utilisateurs
     app.get("/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
         const validation = user_validator_1.listUserValidation.validate(req.query);
@@ -39,6 +39,7 @@ const UserHandler = (app) => {
             res.status(500).send({ error: "Internal error" });
         }
     }));
+    // Créer un utilisateur
     app.post("/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const validation = user_validator_1.createUserValidation.validate(req.body);
         if (validation.error) {
@@ -46,9 +47,9 @@ const UserHandler = (app) => {
             return;
         }
         const userRequest = validation.value;
-        const userRepo = database_1.AppDataSource.getRepository(user_1.User);
         try {
-            const userCreated = yield userRepo.save(userRequest);
+            const userUsecase = new user_usecase_1.UserUsecase(database_1.AppDataSource);
+            const userCreated = yield userUsecase.createUser(userRequest);
             res.status(201).send(userCreated);
         }
         catch (error) {
@@ -56,26 +57,22 @@ const UserHandler = (app) => {
             res.status(500).send({ error: "Internal error" });
         }
     }));
+    // Supprimer un utilisateur
     app.delete("/users/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const validationResult = user_validator_1.userIdValidation.validate(Object.assign(Object.assign({}, req.params), req.body));
+            const validationResult = user_validator_1.userIdValidation.validate(req.params);
             if (validationResult.error) {
                 res.status(400).send((0, generate_validation_message_1.generateValidationErrorMessage)(validationResult.error.details));
                 return;
             }
-            const userUsecase = new user_usecase_1.UserUsecase(database_1.AppDataSource);
-            if ((yield userUsecase.verifUser(+req.params.id, req.body.token)) === false) {
-                res.status(400).send({ "error": `Bad user` });
-                return;
-            }
             const userId = validationResult.value;
-            const userRepository = database_1.AppDataSource.getRepository(user_1.User);
-            const user = yield userRepository.findOneBy({ id: userId.id });
+            const userUsecase = new user_usecase_1.UserUsecase(database_1.AppDataSource);
+            const user = yield userUsecase.getUserById(userId.id);
             if (user === null) {
                 res.status(404).send({ "error": `User ${userId.id} not found` });
                 return;
             }
-            yield userRepository.remove(user);
+            yield userUsecase.deleteUser(userId.id);
             res.status(200).send("User supprimé avec succès");
         }
         catch (error) {
@@ -83,20 +80,17 @@ const UserHandler = (app) => {
             res.status(500).send({ error: "Internal error" });
         }
     }));
+    // Obtenir un utilisateur par son ID
     app.get("/users/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const validationResult = user_validator_1.userIdValidation.validate(Object.assign(Object.assign({}, req.params), req.body));
+            const validationResult = user_validator_1.userIdValidation.validate(req.params);
             if (validationResult.error) {
                 res.status(400).send((0, generate_validation_message_1.generateValidationErrorMessage)(validationResult.error.details));
                 return;
             }
-            const userUsecase = new user_usecase_1.UserUsecase(database_1.AppDataSource);
-            if ((yield userUsecase.verifUser(+req.params.id, req.body.token)) === false) {
-                res.status(400).send({ "error": `Bad user` });
-                return;
-            }
             const userId = validationResult.value;
-            const user = yield userUsecase.getOneUser(userId.id);
+            const userUsecase = new user_usecase_1.UserUsecase(database_1.AppDataSource);
+            const user = yield userUsecase.getUserById(userId.id);
             if (user === null) {
                 res.status(404).send({ "error": `User ${userId.id} not found` });
                 return;
@@ -108,6 +102,7 @@ const UserHandler = (app) => {
             res.status(500).send({ error: "Internal error" });
         }
     }));
+    // Mettre à jour un utilisateur
     app.patch("/users/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const validationResult = user_validator_1.updateUserValidation.validate(Object.assign(Object.assign({}, req.params), req.body));
@@ -115,22 +110,36 @@ const UserHandler = (app) => {
                 res.status(400).send((0, generate_validation_message_1.generateValidationErrorMessage)(validationResult.error.details));
                 return;
             }
-            const userUsecase = new user_usecase_1.UserUsecase(database_1.AppDataSource);
-            if ((yield userUsecase.verifUser(+req.params.id, req.body.token)) === false) {
-                res.status(400).send({ "error": `Bad user` });
-                return;
-            }
             const updateUserRequest = validationResult.value;
-            const updatedUser = yield userUsecase.updateUser(updateUserRequest.id, Object.assign({}, updateUserRequest));
+            const userUsecase = new user_usecase_1.UserUsecase(database_1.AppDataSource);
+            const updatedUser = yield userUsecase.updateUser(updateUserRequest.id, updateUserRequest);
             if (updatedUser === null) {
                 res.status(404).send({ "error": `User ${updateUserRequest.id} not found` });
                 return;
             }
-            if (updatedUser === "No update provided") {
-                res.status(400).send({ "error": `No update provided` });
+            res.status(200).send(updatedUser);
+        }
+        catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    }));
+    // Ajouter un utilisateur à une famille
+    app.post("/users/:id/famille", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const validationResult = user_validator_1.userIdValidation.validate(req.params);
+            if (validationResult.error) {
+                res.status(400).send((0, generate_validation_message_1.generateValidationErrorMessage)(validationResult.error.details));
                 return;
             }
-            res.status(200).send(updatedUser);
+            const userId = validationResult.value;
+            const userUsecase = new user_usecase_1.UserUsecase(database_1.AppDataSource);
+            const user = yield userUsecase.addUserToFamille(userId.id, req.body.idFamille);
+            if (user === null) {
+                res.status(404).send({ "error": `User ${userId.id} not found` });
+                return;
+            }
+            res.status(200).send(user);
         }
         catch (error) {
             console.log(error);

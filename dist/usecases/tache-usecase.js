@@ -12,88 +12,140 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TacheUsecase = void 0;
 const tache_1 = require("../database/entities/tache");
 const user_1 = require("../database/entities/user");
-const famille_1 = require("../database/entities/famille");
+const transactionCoins_1 = require("../database/entities/transactionCoins");
 class TacheUsecase {
     constructor(db) {
         this.db = db;
     }
-    verifTache(id) {
+    // Créer une tâche
+    createTache(tacheData) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.getTacheById(id);
-            if (!user) {
-                return false;
-            }
-            return true;
+            const repo = this.db.getRepository(tache_1.Tache);
+            const tache = repo.create(tacheData);
+            return yield repo.save(tache);
         });
     }
-    // Mettre à jour une tâche
-    updateTache(idTache, updates) {
+    // Marquer une tâche comme terminée
+    markTacheAsCompleted(idTache) {
         return __awaiter(this, void 0, void 0, function* () {
-            const tacheRepo = this.db.getRepository(tache_1.Tache);
-            const tache = yield tacheRepo.findOneBy({ idTache });
-            if (!tache) {
-                throw new Error(`Tache with id ${idTache} not found`);
-            }
-            if (tache.date_debut === undefined && tache.date_fin === undefined && tache.description === undefined && tache.famille === undefined && tache.nom === undefined && tache.status === undefined && tache.type === undefined && tache.user === undefined && tache.idTache === undefined) {
-                return "No changes";
-            }
+            const repo = this.db.getRepository(tache_1.Tache);
+            const tache = yield repo.findOneBy({ idTache });
+            if (!tache)
+                return null; // Return null if task is not found
+            tache.status = "Completed";
+            yield repo.save(tache);
+            // Ajouter des points à l'utilisateur
             const userRepo = this.db.getRepository(user_1.User);
-            const familleRepo = this.db.getRepository(famille_1.Famille);
-            if (updates.user && updates.user.id) {
-                updates.user = (yield userRepo.findOneBy({ id: updates.user.id })) || undefined;
-            }
-            if (updates.famille && updates.famille.idFamille) {
-                updates.famille = (yield familleRepo.findOneBy({ idFamille: updates.famille.idFamille })) || undefined;
-            }
-            Object.assign(tache, updates);
-            return tacheRepo.save(tache);
-        });
-    }
-    // Obtenir une tâche par ID
-    getTacheById(idTache) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const tacheRepo = this.db.getRepository(tache_1.Tache);
-            return tacheRepo.findOne({
-                where: { idTache },
-                relations: ["user", "famille"],
+            const user = yield userRepo.findOneBy({ id: tache.user.id });
+            if (!user)
+                throw new Error("User not found");
+            user.coins += 10; // Exemple : 10 points pour une tâche terminée
+            yield userRepo.save(user);
+            // Enregistrer la transaction
+            const transactionRepo = this.db.getRepository(transactionCoins_1.TransactionCoins);
+            const transaction = transactionRepo.create({
+                user: tache.user,
+                type: "Gain",
+                montant: 10,
+                description: `Tâche terminée : ${tache.nom}`,
             });
+            yield transactionRepo.save(transaction);
+            return tache;
         });
     }
-    // Lister les tâches avec pagination et filtres
-    listTaches(filters) {
+    // Lister les tâches d'un utilisateur
+    listTachesByUser(idUser) {
         return __awaiter(this, void 0, void 0, function* () {
-            const tacheRepo = this.db.getRepository(tache_1.Tache);
-            const query = tacheRepo.createQueryBuilder("tache")
-                .leftJoinAndSelect("tache.user", "user")
-                .leftJoinAndSelect("tache.famille", "famille");
-            if (filters.status) {
-                query.andWhere("tache.status = :status", { status: filters.status });
-            }
-            if (filters.type) {
-                query.andWhere("tache.type = :type", { type: filters.type });
-            }
-            if (filters.idFamille) {
-                query.andWhere("tache.famille.idFamille = :idFamille", { idFamille: filters.idFamille });
-            }
-            if (filters.nom) {
-                query.andWhere("tache.nom LIKE :nom", { nom: `%${filters.nom}%` });
-            }
-            const page = filters.page || 1;
-            const limit = filters.limit || 10;
-            query.skip((page - 1) * limit).take(limit);
-            const [data, total] = yield query.getManyAndCount();
-            return { data, total };
+            const repo = this.db.getRepository(tache_1.Tache);
+            return yield repo.find({ where: { user: { id: idUser } } });
         });
     }
     // Supprimer une tâche
     deleteTache(idTache) {
         return __awaiter(this, void 0, void 0, function* () {
-            const tacheRepo = this.db.getRepository(tache_1.Tache);
-            const tache = yield tacheRepo.findOneBy({ idTache });
-            if (!tache) {
-                throw new Error(`Tache with id ${idTache} not found`);
+            const repo = this.db.getRepository(tache_1.Tache);
+            const tache = yield repo.findOneBy({ idTache });
+            if (!tache)
+                throw new Error("Tache not found");
+            return yield repo.remove(tache);
+        });
+    }
+    // Mettre à jour une tâche
+    updateTache(idTache, tacheData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(tache_1.Tache);
+            const tache = yield repo.findOneBy({ idTache });
+            if (!tache)
+                throw new Error("Tâche non trouvée");
+            Object.assign(tache, tacheData);
+            return yield repo.save(tache);
+        });
+    }
+    listTachesByUserId(idUser) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(tache_1.Tache);
+            const taches = yield repo.find({ where: { user: { id: idUser } } });
+            if (!taches || taches.length === 0) {
+                throw new Error("No tasks found for this user");
             }
-            yield tacheRepo.remove(tache);
+            return taches;
+        });
+    }
+    assignTacheToUser(tacheId, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(tache_1.Tache);
+            const Userrepo = this.db.getRepository(user_1.User);
+            const tache = yield repo.findOneBy({ idTache: tacheId });
+            if (!tache) {
+                throw new Error("Task not found");
+            }
+            const user = yield Userrepo.findOneBy({ id: tache.user.id });
+            if (!user) {
+                throw new Error("user not found");
+            }
+            tache.user = user;
+            yield repo.save(tache);
+        });
+    }
+    listTachesByFamilleId(familleId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(tache_1.Tache);
+            const taches = yield repo.find({ where: { famille: { idFamille: familleId } } });
+            if (!taches || taches.length === 0) {
+                throw new Error("No tasks found for this famille");
+            }
+            return taches;
+        });
+    }
+    // Lister les tâches avec pagination et filtres
+    listTaches(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(tache_1.Tache);
+            const query = repo.createQueryBuilder("tache");
+            if (options.status) {
+                query.andWhere("tache.status = :status", { status: options.status });
+            }
+            if (options.type) {
+                query.andWhere("tache.type = :type", { type: options.type });
+            }
+            if (options.idFamille) {
+                query.andWhere("tache.idFamille = :idFamille", { idFamille: options.idFamille });
+            }
+            if (options.nom) {
+                query.andWhere("tache.nom LIKE :nom", { nom: `%${options.nom}%` });
+            }
+            const [taches, total] = yield query
+                .skip((options.page - 1) * options.limit)
+                .take(options.limit)
+                .getManyAndCount();
+            return { taches, total, page: options.page, limit: options.limit };
+        });
+    }
+    // Obtenir une tâche par son ID
+    getTacheById(idTache) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(tache_1.Tache);
+            return yield repo.findOneBy({ idTache });
         });
     }
 }

@@ -14,11 +14,15 @@ const typeorm_1 = require("typeorm");
 const user_1 = require("./user");
 const tache_1 = require("./tache");
 let Famille = class Famille {
-    constructor(nom, taches, utilisateurs, idFamille, date_de_creation) {
-        this.nom = nom;
-        this.utilisateurs = utilisateurs;
+    constructor(idFamille, nom, code_invitation, date_de_creation, // Optionnel
+    users = [], // Valeur par défaut
+    taches = [] // Valeur par défaut
+    ) {
         this.idFamille = idFamille;
-        this.date_de_creation = date_de_creation;
+        this.nom = nom;
+        this.date_de_creation = date_de_creation || null;
+        this.code_invitation = code_invitation;
+        this.users = users;
         this.taches = taches;
     }
 };
@@ -32,18 +36,22 @@ __decorate([
     __metadata("design:type", String)
 ], Famille.prototype, "nom", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "date", default: () => "CURRENT_TIMESTAMP" }),
-    __metadata("design:type", Date)
+    (0, typeorm_1.Column)({ type: 'date', nullable: true }),
+    __metadata("design:type", Object)
 ], Famille.prototype, "date_de_creation", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => user_1.User, (user) => user.famille),
-    __metadata("design:type", Array)
-], Famille.prototype, "utilisateurs", void 0);
+    (0, typeorm_1.Column)({ length: 20, unique: true }),
+    __metadata("design:type", String)
+], Famille.prototype, "code_invitation", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => tache_1.Tache, (tache) => tache.famille),
+    (0, typeorm_1.OneToMany)(() => user_1.User, user => user.famille),
+    __metadata("design:type", Array)
+], Famille.prototype, "users", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => tache_1.Tache, tache => tache.famille),
     __metadata("design:type", Array)
 ], Famille.prototype, "taches", void 0);
 exports.Famille = Famille = __decorate([
-    (0, typeorm_1.Entity)('famille'),
-    __metadata("design:paramtypes", [String, Array, Array, Number, Date])
+    (0, typeorm_1.Entity)(),
+    __metadata("design:paramtypes", [Number, String, String, Date, Array, Array])
 ], Famille);

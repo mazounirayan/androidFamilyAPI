@@ -10,6 +10,9 @@ const message_1 = require("./message");
 const chat_1 = require("./chat");
 const recompense_1 = require("./recompense");
 const notification_1 = require("./notification");
+const transactioncoin_1 = require("./transactioncoin");
+const badge_1 = require("./badge");
+const CategorieTache_1 = require("./CategorieTache");
 const initRoutes = (app) => {
     app.get("/health", (req, res) => {
         res.send({ "message": "succes" });
@@ -22,6 +25,9 @@ const initRoutes = (app) => {
     (0, chat_1.ChatHandler)(app);
     (0, recompense_1.RecompenseHandler)(app);
     (0, notification_1.NotificationHandler)(app);
+    (0, transactioncoin_1.TransactionCoinsHandler)(app);
+    (0, badge_1.BadgeHandler)(app);
+    (0, CategorieTache_1.CategorieTache)(app);
     app.use(invalid_path_handler_1.invalidPathHandler);
 };
 exports.initRoutes = initRoutes;

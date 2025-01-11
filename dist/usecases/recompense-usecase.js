@@ -11,11 +11,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RecompenseUsecase = void 0;
 const recompense_1 = require("../database/entities/recompense");
+const user_1 = require("../database/entities/user");
+const transactionCoins_1 = require("../database/entities/transactionCoins");
+const userRecompense_1 = require("../database/entities/userRecompense");
 class RecompenseUsecase {
     constructor(db) {
         this.db = db;
     }
-    // Create a new reward
+    // Créer une récompense
     createRecompense(recompenseData) {
         return __awaiter(this, void 0, void 0, function* () {
             const repo = this.db.getRepository(recompense_1.Recompense);
@@ -23,16 +26,90 @@ class RecompenseUsecase {
             return yield repo.save(recompense);
         });
     }
-    // Get all rewards for a user
-    listRecompenses() {
-        return __awaiter(this, arguments, void 0, function* (page = 1, limit = 10, idUser) {
+    // Acheter une récompense
+    buyRecompense(idUser, idRecompense) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userRepo = this.db.getRepository(user_1.User);
+            const recompenseRepo = this.db.getRepository(recompense_1.Recompense);
+            const transactionRepo = this.db.getRepository(transactionCoins_1.TransactionCoins);
+            const user = yield userRepo.findOneBy({ id: idUser });
+            const recompense = yield recompenseRepo.findOneBy({ idRecompense });
+            if (!user || !recompense)
+                throw new Error("User or Recompense not found");
+            if (user.coins < recompense.cout)
+                throw new Error("Not enough coins");
+            user.coins -= recompense.cout;
+            recompense.stock -= 1;
+            yield userRepo.save(user);
+            yield recompenseRepo.save(recompense);
+            // Enregistrer la transaction
+            const transaction = transactionRepo.create({
+                user: { id: idUser }, // Utilisez la relation `user` avec une référence à l'utilisateur
+                type: "Depense",
+                montant: recompense.cout,
+                description: `Achat de la récompense : ${recompense.nom}`,
+            });
+            yield transactionRepo.save(transaction);
+            return recompense;
+        });
+    }
+    // Lister toutes les récompenses disponibles
+    listAvailableRecompenses() {
+        return __awaiter(this, void 0, void 0, function* () {
             const repo = this.db.getRepository(recompense_1.Recompense);
-            const query = repo.createQueryBuilder("recompense");
-            if (idUser) {
-                query.where("recompense.idUser LIKE :idUser", { idUser: `%${idUser}%` });
+            return yield repo.find({ where: { estDisponible: true } });
+        });
+    }
+    // Lister les récompenses avec pagination
+    listRecompenses(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(recompense_1.Recompense);
+            const [recompenses, total] = yield repo.findAndCount({
+                skip: (options.page - 1) * options.limit,
+                take: options.limit,
+            });
+            return { recompenses, total, page: options.page, limit: options.limit };
+        });
+    }
+    // Récupérer une récompense par son ID
+    getRecompenseById(idRecompense) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(recompense_1.Recompense);
+            return yield repo.findOneBy({ idRecompense });
+        });
+    }
+    // Supprimer une récompense
+    deleteRecompense(idRecompense) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(recompense_1.Recompense);
+            const recompense = yield repo.findOneBy({ idRecompense });
+            if (!recompense)
+                throw new Error("Recompense not found");
+            yield repo.remove(recompense);
+        });
+    }
+    // Mettre à jour une récompense
+    updateRecompense(idRecompense, recompenseData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(recompense_1.Recompense);
+            const recompense = yield repo.findOneBy({ idRecompense });
+            if (!recompense)
+                throw new Error("Recompense not found");
+            Object.assign(recompense, recompenseData);
+            return yield repo.save(recompense);
+        });
+    }
+    listRecompensesByUserId(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(userRecompense_1.UserRecompense);
+            const userRecompenses = yield repo.find({
+                where: { idUser: userId },
+                relations: ["recompense"],
+            });
+            if (!userRecompenses || userRecompenses.length === 0) {
+                throw new Error("No rewards found for this user");
             }
-            query.skip((page - 1) * limit).take(limit);
-            return query.getMany();
+            return userRecompenses.map(ur => ur.recompense);
         });
     }
 }

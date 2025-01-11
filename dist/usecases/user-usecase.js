@@ -11,118 +11,129 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserUsecase = void 0;
 const user_1 = require("../database/entities/user");
-const token_1 = require("../database/entities/token");
+const famille_1 = require("../database/entities/famille");
+const transactionCoins_1 = require("../database/entities/transactionCoins");
 class UserUsecase {
     constructor(db) {
         this.db = db;
     }
-    deleteToken(id) {
+    // Créer un utilisateur
+    createUser(userData) {
         return __awaiter(this, void 0, void 0, function* () {
-            const TokenDelete = yield this.db.createQueryBuilder().delete().from(token_1.Token).where("userId = :id", { id: id }).execute();
-            return TokenDelete;
-        });
-    }
-    verifUser(id, token) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.getOneUser(id);
-            if (!user) {
-                return false;
-            }
-            for (const element of user.tokens) {
-                if (element.token === token) {
-                    return true;
-                }
-            }
-            return false;
-        });
-    }
-    verifAcces(userId, funcId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const entityManager = this.db;
-            const sqlQuery = `
-        select count(*) from droit where userId = ? and fonctionnaliteId = ?;`;
-            const query = yield entityManager.query(sqlQuery, [userId, funcId]);
-            return query;
-        });
-    }
-    listUsers(listUserRequest) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const query = this.db.createQueryBuilder(user_1.User, 'user');
-            if (listUserRequest.nom) {
-                query.andWhere("user.nom = :nom", { nom: listUserRequest.nom });
-            }
-            if (listUserRequest.prenom) {
-                query.andWhere("user.prenom = :prenom", { prenom: listUserRequest.prenom });
-            }
-            if (listUserRequest.email) {
-                query.andWhere("user.email = :email", { email: listUserRequest.email });
-            }
-            if (listUserRequest.numTel) {
-                query.andWhere("user.numTel = :numTel", { numTel: listUserRequest.numTel });
-            }
-            if (listUserRequest.role) {
-                query.andWhere("user.role = :role", { role: listUserRequest.role });
-            }
-            if (listUserRequest.dateInscription) {
-                query.andWhere("user.dateInscription = :dateInscription", { dateInscription: listUserRequest.dateInscription });
-            }
-            //.leftJoinAndSelect('user.taches', 'taches')
-            query.leftJoinAndSelect('user.tokens', 'tokens')
-                .skip((listUserRequest.page - 1) * listUserRequest.limit)
-                .take(listUserRequest.limit);
-            const [Users, totalCount] = yield query.getManyAndCount();
-            return {
-                Users,
-                totalCount
-            };
-        });
-    }
-    getOneUser(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const query = this.db.createQueryBuilder(user_1.User, 'user')
-                //   .leftJoinAndSelect('user.taches', 'taches')
-                .leftJoinAndSelect('user.tokens', 'tokens')
-                .where("user.id = :id", { id: id });
-            const user = yield query.getOne();
-            if (!user) {
-                console.log({ error: `User ${id} not found` });
-                return null;
-            }
-            return user;
-        });
-    }
-    updateUser(id_1, _a) {
-        return __awaiter(this, arguments, void 0, function* (id, { nom, prenom, email, motDePasse, numTel, profession, role, dateInscription }) {
             const repo = this.db.getRepository(user_1.User);
-            const userFound = yield repo.findOneBy({ id });
-            if (userFound === null)
-                return null;
-            if (nom === undefined && prenom === undefined && email === undefined && motDePasse === undefined && numTel === undefined && profession === undefined && role === undefined && dateInscription === undefined) {
-                return "No changes";
+            const user = repo.create(userData);
+            return yield repo.save(user);
+        });
+    }
+    // Obtenir un utilisateur par son ID
+    getUserById(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(user_1.User);
+            return yield repo.findOneBy({ id });
+        });
+    }
+    // Mettre à jour un utilisateur
+    updateUser(id, updateData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(user_1.User);
+            const user = yield repo.findOneBy({ id });
+            if (!user)
+                throw new Error("User not found");
+            Object.assign(user, updateData);
+            return yield repo.save(user);
+        });
+    }
+    // Supprimer un utilisateur
+    deleteUser(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(user_1.User);
+            const user = yield repo.findOneBy({ id });
+            if (!user)
+                throw new Error("User not found");
+            return yield repo.remove(user);
+        });
+    }
+    // Ajouter un utilisateur à une famille
+    addUserToFamille(idUser, idFamille) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userRepo = this.db.getRepository(user_1.User);
+            const familleRepo = this.db.getRepository(famille_1.Famille);
+            const user = yield userRepo.findOneBy({ id: idUser });
+            const famille = yield familleRepo.findOneBy({ idFamille });
+            if (!user || !famille)
+                throw new Error("User or Famille not found");
+            user.famille = famille;
+            return yield userRepo.save(user);
+        });
+    }
+    // Obtenir le solde de points d'un utilisateur
+    getUserCoins(idUser) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield this.getUserById(idUser);
+            if (!user)
+                throw new Error("User  not found");
+            return user.coins;
+        });
+    }
+    // Ajouter des points à un utilisateur
+    addCoinsToUser(idUser, amount, reason) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userRepo = this.db.getRepository(user_1.User);
+            const transactionRepo = this.db.getRepository(transactionCoins_1.TransactionCoins);
+            const user = yield userRepo.findOneBy({ id: idUser });
+            if (!user)
+                throw new Error("User not found");
+            user.coins += amount;
+            yield userRepo.save(user);
+            // Enregistrer la transaction
+            const transaction = transactionRepo.create({
+                user: user,
+                type: "Gain",
+                montant: amount,
+                description: reason,
+            });
+            yield transactionRepo.save(transaction);
+            return user.coins;
+        });
+    }
+    // Lister les utilisateurs avec pagination et filtres
+    listUsers(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(user_1.User);
+            const query = repo.createQueryBuilder("user");
+            if (options.nom) {
+                query.andWhere("user.nom LIKE :nom", { nom: `%${options.nom}%` });
             }
-            if (nom) {
-                userFound.nom = nom;
+            if (options.prenom) {
+                query.andWhere("user.prenom LIKE :prenom", { prenom: `%${options.prenom}%` });
             }
-            if (prenom) {
-                userFound.prenom = prenom;
+            if (options.email) {
+                query.andWhere("user.email = :email", { email: options.email });
             }
-            if (email) {
-                userFound.email = email;
+            if (options.role) {
+                query.andWhere("user.role = :role", { role: options.role });
             }
-            if (motDePasse) {
-                userFound.motDePasse = motDePasse;
-            }
-            if (numTel) {
-                userFound.numTel = numTel;
-            }
-            if (role) {
-                userFound.role = role;
-            }
-            if (dateInscription) {
-                userFound.dateInscription = dateInscription;
-            }
-            const userUpdate = yield repo.save(userFound);
-            return userUpdate;
+            const [users, total] = yield query
+                .skip((options.page - 1) * options.limit)
+                .take(options.limit)
+                .getManyAndCount();
+            return { users, total, page: options.page, limit: options.limit };
+        });
+    }
+    verifUser(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(user_1.User);
+            // Recherche de l'utilisateur par ID
+            const user = yield repo.findOneBy({ id: userId });
+            return !!user; // Retourne true si l'utilisateur existe, sinon false
+        });
+    }
+    getOneUser(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(user_1.User);
+            // Recherche de l'utilisateur par ID
+            const user = yield repo.findOneBy({ id: userId });
+            return user;
         });
     }
 }

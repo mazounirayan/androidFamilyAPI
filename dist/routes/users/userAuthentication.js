@@ -15,8 +15,6 @@ const bcrypt_1 = require("bcrypt");
 const user_validator_1 = require("../../validators/user-validator");
 const generate_validation_message_1 = require("../../validators/generate-validation-message");
 const user_1 = require("../../database/entities/user");
-const jsonwebtoken_1 = require("jsonwebtoken");
-const token_1 = require("../../database/entities/token");
 const user_usecase_1 = require("../../usecases/user-usecase");
 const UserHandlerAuthentication = (app) => {
     app.post('/auth/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -67,7 +65,6 @@ const UserHandlerAuthentication = (app) => {
         }
     }));
     app.post('/auth/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        var _a;
         try {
             console.error("Body reçu :", req.body);
             const validationResult = user_validator_1.LoginUserValidation.validate(req.body);
@@ -100,11 +97,8 @@ const UserHandlerAuthentication = (app) => {
                 res.status(404).send({ "error": `user not found` });
                 return;
             }
-            const secret = (_a = process.env.JWT_SECRET) !== null && _a !== void 0 ? _a : "azerty";
-            const token = (0, jsonwebtoken_1.sign)({ userId: user.id, email: user.email }, secret, { expiresIn: '1d' });
-            yield database_1.AppDataSource.getRepository(token_1.Token).save({ token: token, user: user });
             yield userUsecase.updateUser(user.id, Object.assign({}, user));
-            res.status(200).json({ token, user });
+            res.status(200).json({ user });
         }
         catch (error) {
             console.log(error);
@@ -120,7 +114,7 @@ const UserHandlerAuthentication = (app) => {
                 return;
             }
             const userUsecase = new user_usecase_1.UserUsecase(database_1.AppDataSource);
-            if ((yield userUsecase.verifUser(+req.params.id, req.body.token)) === false) {
+            if ((yield userUsecase.verifUser(+req.params.id)) === false) {
                 res.status(400).send({ "error": `Bad user` });
                 return;
             }
@@ -131,7 +125,6 @@ const UserHandlerAuthentication = (app) => {
                 res.status(404).send({ "error": `user ${userId.id} not found` });
                 return;
             }
-            userUsecase.deleteToken(user.id);
             yield userUsecase.updateUser(user.id, Object.assign({}, user));
             res.status(201).send({ "message": "logout success" });
             return;

@@ -11,11 +11,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Tache = void 0;
 const typeorm_1 = require("typeorm");
-const user_1 = require("./user");
 const famille_1 = require("./famille");
-const notification_1 = require("./notification"); // Ajoutez cette ligne
+const user_1 = require("./user");
+const CategorieTache_1 = require("./CategorieTache");
+const notification_1 = require("./notification");
 let Tache = class Tache {
-    constructor(idTache, nom, date_debut, date_fin, status, notifications, type, description, user, famille) {
+    constructor(idTache, nom, date_debut, date_fin, status, type, description, priorite, categorie, user, famille, notifications = []) {
         this.idTache = idTache;
         this.nom = nom;
         this.date_debut = date_debut;
@@ -23,6 +24,8 @@ let Tache = class Tache {
         this.status = status;
         this.type = type;
         this.description = description;
+        this.priorite = priorite;
+        this.categorie = categorie;
         this.user = user;
         this.famille = famille;
         this.notifications = notifications;
@@ -38,11 +41,11 @@ __decorate([
     __metadata("design:type", String)
 ], Tache.prototype, "nom", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "date", nullable: true }),
+    (0, typeorm_1.Column)({ type: 'date', nullable: true }),
     __metadata("design:type", Date)
 ], Tache.prototype, "date_debut", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "date", nullable: true }),
+    (0, typeorm_1.Column)({ type: 'date', nullable: true }),
     __metadata("design:type", Date)
 ], Tache.prototype, "date_fin", void 0);
 __decorate([
@@ -54,33 +57,33 @@ __decorate([
     __metadata("design:type", String)
 ], Tache.prototype, "type", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "text", nullable: true }),
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
     __metadata("design:type", String)
 ], Tache.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: "idUser", nullable: true }) // Ajoutez name: "idUser"
-    ,
-    __metadata("design:type", Number)
-], Tache.prototype, "userId", void 0);
+    (0, typeorm_1.Column)({ type: 'enum', enum: ['Haute', 'Moyenne', 'Basse'], nullable: true }),
+    __metadata("design:type", String)
+], Tache.prototype, "priorite", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_1.User, (user) => user.taches),
-    (0, typeorm_1.JoinColumn)({ name: "idUser" }) // Vérifiez que c'est bien "idUser"
-    ,
+    (0, typeorm_1.ManyToOne)(() => CategorieTache_1.CategorieTache, categorie => categorie.taches),
+    __metadata("design:type", CategorieTache_1.CategorieTache)
+], Tache.prototype, "categorie", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => user_1.User, user => user.taches),
     __metadata("design:type", user_1.User)
 ], Tache.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => notification_1.Notification, (notification) => notification.tache) // Relation OneToMany vers Notification
-    ,
-    __metadata("design:type", Array)
-], Tache.prototype, "notifications", void 0);
-__decorate([
-    (0, typeorm_1.ManyToOne)(() => famille_1.Famille, (famille) => famille.taches),
-    (0, typeorm_1.JoinColumn)({ name: "idFamille" }),
+    (0, typeorm_1.ManyToOne)(() => famille_1.Famille, famille => famille.taches),
     __metadata("design:type", famille_1.Famille)
 ], Tache.prototype, "famille", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => notification_1.Notification, notification => notification.tache),
+    __metadata("design:type", Array)
+], Tache.prototype, "notifications", void 0);
 exports.Tache = Tache = __decorate([
-    (0, typeorm_1.Entity)("taches"),
+    (0, typeorm_1.Entity)(),
     __metadata("design:paramtypes", [Number, String, Date,
-        Date, String, Array, String, String, user_1.User,
-        famille_1.Famille])
+        Date, String, String, String, String, CategorieTache_1.CategorieTache,
+        user_1.User,
+        famille_1.Famille, Array])
 ], Tache);

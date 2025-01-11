@@ -22,25 +22,58 @@ class NotificationUsecase {
             return yield repo.save(notification);
         });
     }
+    // Marquer une notification comme vue
     markAsViewed(idNotification) {
         return __awaiter(this, void 0, void 0, function* () {
             const repo = this.db.getRepository(notification_1.Notification);
-            const notification = yield repo.findOneBy({ idNotification });
+            const notification = yield repo.findOneBy({ idNotification }); // Correction ici
             if (!notification)
                 throw new Error("Notification not found");
             notification.isVue = true;
             return yield repo.save(notification);
         });
     }
-    listNotifications() {
-        return __awaiter(this, arguments, void 0, function* (page = 1, limit = 10, idUser) {
+    // Lister les notifications avec pagination
+    listNotifications(options) {
+        return __awaiter(this, void 0, void 0, function* () {
             const repo = this.db.getRepository(notification_1.Notification);
             const query = repo.createQueryBuilder("notification");
-            if (idUser) {
-                query.where("notification.idUser LIKE :idUser", { idUser: `%${idUser}%` });
+            if (options.idUser) {
+                query.where("notification.idUser = :idUser", { idUser: options.idUser });
             }
-            query.skip((page - 1) * limit).take(limit);
-            return query.getMany();
+            const [notifications, total] = yield query
+                .skip((options.page - 1) * options.limit)
+                .take(options.limit)
+                .getManyAndCount();
+            return { notifications, total, page: options.page, limit: options.limit };
+        });
+    }
+    // Récupérer une notification par son ID
+    getNotificationById(idNotification) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(notification_1.Notification);
+            return yield repo.findOneBy({ idNotification });
+        });
+    }
+    // Supprimer une notification
+    deleteNotification(idNotification) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(notification_1.Notification);
+            const notification = yield repo.findOneBy({ idNotification });
+            if (!notification)
+                throw new Error("Notification not found");
+            yield repo.remove(notification);
+        });
+    }
+    // Mettre à jour une notification
+    updateNotification(idNotification, notificationData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(notification_1.Notification);
+            const notification = yield repo.findOneBy({ idNotification });
+            if (!notification)
+                throw new Error("Notification not found");
+            Object.assign(notification, notificationData);
+            return yield repo.save(notification);
         });
     }
 }

@@ -11,12 +11,16 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Recompense = void 0;
 const typeorm_1 = require("typeorm");
-const user_1 = require("./user");
+const userRecompense_1 = require("./userRecompense"); // Assurez-vous de créer cette entité
 let Recompense = class Recompense {
-    constructor(idRecompense, coin, user) {
-        this.coin = coin;
+    constructor(idRecompense, nom, cout, description, stock = 0, estDisponible = true, userRecompenses = []) {
         this.idRecompense = idRecompense;
-        this.user = user;
+        this.nom = nom;
+        this.cout = cout;
+        this.description = description || "";
+        this.stock = stock;
+        this.estDisponible = estDisponible;
+        this.userRecompenses = userRecompenses;
     }
 };
 exports.Recompense = Recompense;
@@ -25,14 +29,30 @@ __decorate([
     __metadata("design:type", Number)
 ], Recompense.prototype, "idRecompense", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", Number)
-], Recompense.prototype, "coin", void 0);
+    (0, typeorm_1.Column)({ length: 255 }),
+    __metadata("design:type", String)
+], Recompense.prototype, "nom", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_1.User, (user) => user.recompenses),
-    __metadata("design:type", user_1.User)
-], Recompense.prototype, "user", void 0);
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], Recompense.prototype, "description", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'int' }),
+    __metadata("design:type", Number)
+], Recompense.prototype, "cout", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'int', default: 0 }),
+    __metadata("design:type", Number)
+], Recompense.prototype, "stock", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'boolean', default: true }),
+    __metadata("design:type", Boolean)
+], Recompense.prototype, "estDisponible", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => userRecompense_1.UserRecompense, userRecompense => userRecompense.recompense),
+    __metadata("design:type", Array)
+], Recompense.prototype, "userRecompenses", void 0);
 exports.Recompense = Recompense = __decorate([
-    (0, typeorm_1.Entity)('recompense'),
-    __metadata("design:paramtypes", [Number, Number, user_1.User])
+    (0, typeorm_1.Entity)(),
+    __metadata("design:paramtypes", [Number, String, Number, String, Number, Boolean, Array])
 ], Recompense);

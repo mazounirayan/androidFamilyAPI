@@ -4,8 +4,7 @@ import { compare, hash } from "bcrypt";
 import { createUserValidation, LoginUserValidation, userIdValidation } from "../../validators/user-validator"
 import { generateValidationErrorMessage } from "../../validators/generate-validation-message";
 import { User } from "../../database/entities/user";
-import { sign } from "jsonwebtoken";
-import { Token } from "../../database/entities/token";
+
 import { UserUsecase } from "../../usecases/user-usecase";
 
 
@@ -115,17 +114,14 @@ export const UserHandlerAuthentication = (app: express.Express) => {
                 return
             }
             
-            const secret = process.env.JWT_SECRET ?? "azerty"
-            const token = sign({ userId: user.id, email: user.email }, secret, { expiresIn: '1d' });
-            await AppDataSource.getRepository(Token).save({ token: token, user: user})
-            
+       
 
             await userUsecase.updateUser(
                 user.id,
                 { ...user }
             );
             
-            res.status(200).json({ token, user });
+            res.status(200).json({  user });
         } catch (error) {
             console.log(error)
             res.status(500).send({ "error": "internal error retry later" })
@@ -145,7 +141,7 @@ export const UserHandlerAuthentication = (app: express.Express) => {
 
             const userUsecase = new UserUsecase(AppDataSource);
             
-            if(await userUsecase.verifUser(+req.params.id, req.body.token) === false){
+            if(await userUsecase.verifUser(+req.params.id) === false){
                 res.status(400).send({ "error": `Bad user` });
                 return;
             } 
@@ -160,8 +156,6 @@ export const UserHandlerAuthentication = (app: express.Express) => {
                 return
             }
 
-
-            userUsecase.deleteToken(user.id)
 
             await userUsecase.updateUser(
                 user.id,

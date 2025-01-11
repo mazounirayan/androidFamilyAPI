@@ -105,4 +105,20 @@ export class UserUsecase {
 
         return { users, total, page: options.page, limit: options.limit };
     }
+    async verifUser(userId: number): Promise<boolean> {
+        const repo = this.db.getRepository(User);
+
+        // Recherche de l'utilisateur par ID
+        const user = await repo.findOneBy({ id: userId });
+
+        return !!user; // Retourne true si l'utilisateur existe, sinon false
+    }
+    async getOneUser(userId: number): Promise<User | null> {
+        const repo = this.db.getRepository(User);
+
+        // Recherche de l'utilisateur par ID
+        const user = await repo.findOneBy({ id: userId });
+
+        return user;
+    }
 }

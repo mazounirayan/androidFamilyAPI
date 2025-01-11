@@ -9,30 +9,30 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Token = void 0;
+exports.CategorieTache = void 0;
 const typeorm_1 = require("typeorm");
-const user_1 = require("./user");
-let Token = class Token {
-    constructor(id, token, user) {
-        this.id = id;
-        this.token = token;
-        this.user = user;
+const tache_1 = require("./tache");
+let CategorieTache = class CategorieTache {
+    constructor(idCategorie, nom, taches = []) {
+        this.idCategorie = idCategorie;
+        this.nom = nom;
+        this.taches = taches;
     }
 };
-exports.Token = Token;
+exports.CategorieTache = CategorieTache;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
-], Token.prototype, "id", void 0);
+], CategorieTache.prototype, "idCategorie", void 0);
 __decorate([
     (0, typeorm_1.Column)({ length: 255 }),
     __metadata("design:type", String)
-], Token.prototype, "token", void 0);
+], CategorieTache.prototype, "nom", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_1.User, user => user.tokens),
-    __metadata("design:type", user_1.User)
-], Token.prototype, "user", void 0);
-exports.Token = Token = __decorate([
+    (0, typeorm_1.OneToMany)(() => tache_1.Tache, tache => tache.categorie),
+    __metadata("design:type", Array)
+], CategorieTache.prototype, "taches", void 0);
+exports.CategorieTache = CategorieTache = __decorate([
     (0, typeorm_1.Entity)(),
-    __metadata("design:paramtypes", [Number, String, user_1.User])
-], Token);
+    __metadata("design:paramtypes", [Number, String, Array])
+], CategorieTache);

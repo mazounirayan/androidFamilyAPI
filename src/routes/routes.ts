@@ -10,6 +10,7 @@ import { RecompenseHandler } from "./recompense";
 import { NotificationHandler } from "./notification";
 import { TransactionCoinsHandler } from "./transactioncoin";
 import { BadgeHandler } from "./badge";
+import { CategorieTache } from "./CategorieTache";
 
 
 
@@ -34,5 +35,6 @@ export const initRoutes = (app: express.Express) => {
     NotificationHandler(app)
     TransactionCoinsHandler(app)
     BadgeHandler(app)
+    CategorieTache(app)
     app.use(invalidPathHandler);
 }

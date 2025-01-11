@@ -15,11 +15,11 @@ const user_1 = require("./user");
 const chat_1 = require("./chat");
 let Message = class Message {
     constructor(idMessage, contenu, date_envoie, isVue, user, chat) {
+        this.idMessage = idMessage;
         this.contenu = contenu;
         this.date_envoie = date_envoie;
         this.isVue = isVue;
         this.user = user;
-        this.idMessage = idMessage;
         this.chat = chat;
     }
 };
@@ -29,7 +29,7 @@ __decorate([
     __metadata("design:type", Number)
 ], Message.prototype, "idMessage", void 0);
 __decorate([
-    (0, typeorm_1.Column)('text'),
+    (0, typeorm_1.Column)({ type: 'text' }),
     __metadata("design:type", String)
 ], Message.prototype, "contenu", void 0);
 __decorate([
@@ -37,18 +37,19 @@ __decorate([
     __metadata("design:type", Date)
 ], Message.prototype, "date_envoie", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ default: false }),
+    (0, typeorm_1.Column)({ type: 'boolean' }),
     __metadata("design:type", Boolean)
 ], Message.prototype, "isVue", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_1.User, (user) => user.messages),
+    (0, typeorm_1.ManyToOne)(() => user_1.User, user => user.messages),
     __metadata("design:type", user_1.User)
 ], Message.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => chat_1.Chat, (chat) => chat.messages),
+    (0, typeorm_1.ManyToOne)(() => chat_1.Chat, chat => chat.messages),
     __metadata("design:type", chat_1.Chat)
 ], Message.prototype, "chat", void 0);
 exports.Message = Message = __decorate([
-    (0, typeorm_1.Entity)('message'),
-    __metadata("design:paramtypes", [Number, String, Date, Boolean, user_1.User, chat_1.Chat])
+    (0, typeorm_1.Entity)(),
+    __metadata("design:paramtypes", [Number, String, Date, Boolean, user_1.User,
+        chat_1.Chat])
 ], Message);

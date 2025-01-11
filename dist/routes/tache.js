@@ -12,91 +12,115 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TacheHandler = void 0;
 const database_1 = require("../database/database");
 const tache_usecase_1 = require("../usecases/tache-usecase");
-const tache_validator_1 = require("../validators/tache-validator");
-const tache_1 = require("../database/entities/tache");
 const generate_validation_message_1 = require("../validators/generate-validation-message");
+const tache_validator_1 = require("../validators/tache-validator");
 const TacheHandler = (app) => {
-    const tacheUsecase = new tache_usecase_1.TacheUsecase(database_1.AppDataSource);
-    // Créer une nouvelle tâche
-    app.post("/taches", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const validation = tache_validator_1.createTacheValidation.validate(req.body);
+    // Lister les tâches
+    app.get("/taches", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        var _a;
+        const validation = tache_validator_1.listTacheValidation.validate(req.query);
         if (validation.error) {
-            res.status(400).send({ error: validation.error.details });
+            res.status(400).send((0, generate_validation_message_1.generateValidationErrorMessage)(validation.error.details));
             return;
         }
-        const tacheRequest = validation.value;
-        const TacheRepo = database_1.AppDataSource.getRepository(tache_1.Tache);
+        const listTacheRequest = validation.value;
+        let limit = 20;
+        if (listTacheRequest.limit) {
+            limit = listTacheRequest.limit;
+        }
+        const page = (_a = listTacheRequest.page) !== null && _a !== void 0 ? _a : 1;
         try {
-            const userCreated = yield TacheRepo.save(tacheRequest);
-            res.status(201).send(userCreated);
+            const tacheUsecase = new tache_usecase_1.TacheUsecase(database_1.AppDataSource);
+            const listTaches = yield tacheUsecase.listTaches(Object.assign(Object.assign({}, listTacheRequest), { page, limit }));
+            res.status(200).send(listTaches);
         }
         catch (error) {
             console.log(error);
             res.status(500).send({ error: "Internal error" });
         }
     }));
-    // Récupérer une tâche par ID
-    app.get("/taches/:idTache", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const validation = tache_validator_1.TacheIdValidation.validate(req.params);
+    app.post("/taches", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const validation = tache_validator_1.createTacheValidation.validate(req.body);
         if (validation.error) {
-            res.status(400).send({ error: validation.error.details });
+            res.status(400).send((0, generate_validation_message_1.generateValidationErrorMessage)(validation.error.details));
             return;
         }
-        const { id } = validation.value;
+        const tacheRequest = validation.value;
+        // Convert string dates to Date objects
+        if (tacheRequest.date_debut) {
+            tacheRequest.date_debut = new Date(tacheRequest.date_debut);
+        }
+        if (tacheRequest.date_fin) {
+            tacheRequest.date_fin = new Date(tacheRequest.date_fin);
+        }
         try {
-            const tache = yield tacheUsecase.getTacheById(id);
-            if (!tache) {
-                res.status(404).send({ error: "Tache not found" });
+            const tacheUsecase = new tache_usecase_1.TacheUsecase(database_1.AppDataSource);
+            const tacheCreated = yield tacheUsecase.createTache(tacheRequest);
+            res.status(201).send(tacheCreated);
+        }
+        catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    }));
+    // Supprimer une tâche
+    app.delete("/taches/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const validationResult = tache_validator_1.TacheIdValidation.validate(req.params);
+            if (validationResult.error) {
+                res.status(400).send((0, generate_validation_message_1.generateValidationErrorMessage)(validationResult.error.details));
+                return;
+            }
+            const tacheId = validationResult.value;
+            const tacheUsecase = new tache_usecase_1.TacheUsecase(database_1.AppDataSource);
+            const tache = yield tacheUsecase.getTacheById(tacheId.id);
+            if (tache === null) {
+                res.status(404).send({ "error": `Tache ${tacheId.id} not found` });
+                return;
+            }
+            yield tacheUsecase.deleteTache(tacheId.id);
+            res.status(200).send("Tache supprimée avec succès");
+        }
+        catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    }));
+    // Obtenir une tâche par son ID
+    app.get("/taches/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const validationResult = tache_validator_1.TacheIdValidation.validate(req.params);
+            if (validationResult.error) {
+                res.status(400).send((0, generate_validation_message_1.generateValidationErrorMessage)(validationResult.error.details));
+                return;
+            }
+            const tacheId = validationResult.value;
+            const tacheUsecase = new tache_usecase_1.TacheUsecase(database_1.AppDataSource);
+            const tache = yield tacheUsecase.getTacheById(tacheId.id);
+            if (tache === null) {
+                res.status(404).send({ "error": `Tache ${tacheId.id} not found` });
                 return;
             }
             res.status(200).send(tache);
         }
         catch (error) {
-            console.error(error);
-            res.status(500).send({ error: "Internal server error" });
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
         }
-    }));
-    // Lister toutes les tâches (avec filtrage et pagination)
-    app.get("/taches", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const validation = tache_validator_1.listTacheValidation.validate(req.query);
-        if (validation.error) {
-            return res.status(400).json({
-                error: "Invalid filters",
-                details: validation.error.details
-            });
-        }
-        const { page, limit, status, type, nom } = validation.value;
-        const filters = {
-            page,
-            limit,
-            status,
-            type,
-            nom: nom ? `%${nom}%` : undefined
-        };
-        const taches = yield tacheUsecase.listTaches(filters);
-        res.status(200).json(taches);
     }));
     // Mettre à jour une tâche
-    app.patch("/taches/:idTache", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.patch("/taches/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const validationResult = tache_validator_1.updateTacheValidation.validate(Object.assign(Object.assign({}, req.params), req.body));
             if (validationResult.error) {
                 res.status(400).send((0, generate_validation_message_1.generateValidationErrorMessage)(validationResult.error.details));
                 return;
             }
-            const tacheUsecase = new tache_usecase_1.TacheUsecase(database_1.AppDataSource);
-            if ((yield tacheUsecase.verifTache(+req.params.id)) === false) {
-                res.status(400).send({ "error": `Bad user` });
-                return;
-            }
             const updateTacheRequest = validationResult.value;
-            const updatedTache = yield tacheUsecase.updateTache(updateTacheRequest.idTache, Object.assign({}, updateTacheRequest));
-            if (updatedTache === null) {
-                res.status(404).send({ "error": `User ${updateTacheRequest.idTache} not found` });
-                return;
-            }
-            if (updatedTache === "No changes") {
-                res.status(400).send({ "error": `No update provided` });
+            const tacheUsecase = new tache_usecase_1.TacheUsecase(database_1.AppDataSource);
+            const updatedTache = yield tacheUsecase.updateTache(updateTacheRequest.idTache, updateTacheRequest);
+            if (!updatedTache) {
+                res.status(404).send({ "error": `Tache ${updateTacheRequest.idTache} not found` });
                 return;
             }
             res.status(200).send(updatedTache);
@@ -106,21 +130,67 @@ const TacheHandler = (app) => {
             res.status(500).send({ error: "Internal error" });
         }
     }));
-    // Supprimer une tâche par ID
-    app.delete("/taches/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        const validation = tache_validator_1.TacheIdValidation.validate(req.params);
-        if (validation.error) {
-            res.status(400).send({ error: validation.error.details });
-            return;
-        }
-        const { id } = validation.value;
+    // Marquer une tâche comme terminée
+    app.post("/taches/:id/complete", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            yield tacheUsecase.deleteTache(id);
-            res.status(200).send({ message: "Tache deleted successfully" });
+            const validationResult = tache_validator_1.TacheIdValidation.validate(req.params);
+            if (validationResult.error) {
+                res.status(400).send((0, generate_validation_message_1.generateValidationErrorMessage)(validationResult.error.details));
+                return;
+            }
+            const tacheId = validationResult.value;
+            const tacheUsecase = new tache_usecase_1.TacheUsecase(database_1.AppDataSource);
+            const tache = yield tacheUsecase.markTacheAsCompleted(tacheId.id);
+            if (tache === null) {
+                res.status(404).send({ "error": `Tache ${tacheId.id} not found` });
+                return;
+            }
+            res.status(200).send(tache);
         }
         catch (error) {
-            console.error(error);
-            res.status(500).send({ error: "Internal server error" });
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    }));
+    app.get("/taches/user/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const userId = parseInt(req.params.id, 10);
+            const tacheUsecase = new tache_usecase_1.TacheUsecase(database_1.AppDataSource);
+            const taches = yield tacheUsecase.listTachesByUserId(userId);
+            res.status(200).send(taches);
+        }
+        catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    }));
+    app.get("/taches/famille/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const familleId = parseInt(req.params.id, 10);
+            const tacheUsecase = new tache_usecase_1.TacheUsecase(database_1.AppDataSource);
+            const taches = yield tacheUsecase.listTachesByFamilleId(familleId);
+            res.status(200).send(taches);
+        }
+        catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    }));
+    app.post("/taches/:id/assign", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const tacheId = parseInt(req.params.id, 10);
+            const { userId } = req.body;
+            if (!userId) {
+                res.status(400).send({ error: "User ID is required" });
+                return;
+            }
+            const tacheUsecase = new tache_usecase_1.TacheUsecase(database_1.AppDataSource);
+            yield tacheUsecase.assignTacheToUser(tacheId, userId);
+            res.status(200).send({ message: "Task assigned successfully" });
+        }
+        catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
         }
     }));
 };

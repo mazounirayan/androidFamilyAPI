@@ -9,30 +9,40 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Token = void 0;
+exports.Badge = void 0;
 const typeorm_1 = require("typeorm");
-const user_1 = require("./user");
-let Token = class Token {
-    constructor(id, token, user) {
-        this.id = id;
-        this.token = token;
-        this.user = user;
+const userBadge_1 = require("./userBadge");
+let Badge = class Badge {
+    constructor(idBadge, nom, description, image, userBadges = []) {
+        this.idBadge = idBadge;
+        this.nom = nom;
+        this.description = description || "null";
+        this.image = image || "null";
+        this.userBadges = userBadges;
     }
 };
-exports.Token = Token;
+exports.Badge = Badge;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
-], Token.prototype, "id", void 0);
+], Badge.prototype, "idBadge", void 0);
 __decorate([
     (0, typeorm_1.Column)({ length: 255 }),
     __metadata("design:type", String)
-], Token.prototype, "token", void 0);
+], Badge.prototype, "nom", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_1.User, user => user.tokens),
-    __metadata("design:type", user_1.User)
-], Token.prototype, "user", void 0);
-exports.Token = Token = __decorate([
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], Badge.prototype, "description", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ length: 255, nullable: true }),
+    __metadata("design:type", String)
+], Badge.prototype, "image", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => userBadge_1.UserBadge, userBadge => userBadge.badge),
+    __metadata("design:type", Array)
+], Badge.prototype, "userBadges", void 0);
+exports.Badge = Badge = __decorate([
     (0, typeorm_1.Entity)(),
-    __metadata("design:paramtypes", [Number, String, user_1.User])
-], Token);
+    __metadata("design:paramtypes", [Number, String, String, String, Array])
+], Badge);
