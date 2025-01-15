@@ -118,9 +118,9 @@ const TacheHandler = (app) => {
             }
             const updateTacheRequest = validationResult.value;
             const tacheUsecase = new tache_usecase_1.TacheUsecase(database_1.AppDataSource);
-            const updatedTache = yield tacheUsecase.updateTache(updateTacheRequest.idTache, updateTacheRequest);
+            const updatedTache = yield tacheUsecase.updateTache(updateTacheRequest.id, updateTacheRequest);
             if (!updatedTache) {
-                res.status(404).send({ "error": `Tache ${updateTacheRequest.idTache} not found` });
+                res.status(404).send({ "error": `Tache ${updateTacheRequest.id} not found` });
                 return;
             }
             res.status(200).send(updatedTache);

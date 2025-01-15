@@ -16,7 +16,7 @@ exports.createTacheValidation = joi_1.default.object({
     idFamille: joi_1.default.number().integer().optional(),
 }).options({ abortEarly: false });
 exports.updateTacheValidation = joi_1.default.object({
-    idTache: joi_1.default.number().required(),
+    id: joi_1.default.number().required(),
     nom: joi_1.default.string().max(255).optional(),
     date_debut: joi_1.default.date().optional(),
     date_fin: joi_1.default.date().optional(),

@@ -23,7 +23,7 @@ export interface CreateTacheRequest {
 }
 
 export const updateTacheValidation = Joi.object<UpdateTacheRequest>({
-    idTache: Joi.number().required(),
+    id: Joi.number().required(),
     nom: Joi.string().max(255).optional(),
     date_debut: Joi.date().optional(),
     date_fin: Joi.date().optional(),
@@ -35,7 +35,7 @@ export const updateTacheValidation = Joi.object<UpdateTacheRequest>({
 }).options({ abortEarly: false });
 
 export interface UpdateTacheRequest {
-    idTache: number;
+    id: number;
     nom?: string;
     date_debut?: Date;
     date_fin?: Date;

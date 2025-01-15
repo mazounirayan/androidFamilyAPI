@@ -129,10 +129,10 @@ app.patch("/taches/:id", async (req: Request, res: Response) => {
         const updateTacheRequest = validationResult.value;
 
         const tacheUsecase = new TacheUsecase(AppDataSource);
-        const updatedTache = await tacheUsecase.updateTache(updateTacheRequest.idTache, updateTacheRequest);
+        const updatedTache = await tacheUsecase.updateTache(updateTacheRequest.id, updateTacheRequest);
 
         if (!updatedTache) {
-            res.status(404).send({ "error": `Tache ${updateTacheRequest.idTache} not found` });
+            res.status(404).send({ "error": `Tache ${updateTacheRequest.id} not found` });
             return;
         }
 
