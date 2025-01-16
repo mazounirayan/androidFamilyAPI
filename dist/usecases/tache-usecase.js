@@ -85,9 +85,6 @@ class TacheUsecase {
         return __awaiter(this, void 0, void 0, function* () {
             const repo = this.db.getRepository(tache_1.Tache);
             const taches = yield repo.find({ where: { user: { id: idUser } } });
-            if (!taches || taches.length === 0) {
-                throw new Error("No tasks found for this user");
-            }
             return taches;
         });
     }
@@ -99,7 +96,7 @@ class TacheUsecase {
             if (!tache) {
                 throw new Error("Task not found");
             }
-            const user = yield Userrepo.findOneBy({ id: tache.user.id });
+            const user = yield Userrepo.findOneBy({ id: userId });
             if (!user) {
                 throw new Error("user not found");
             }
@@ -111,9 +108,6 @@ class TacheUsecase {
         return __awaiter(this, void 0, void 0, function* () {
             const repo = this.db.getRepository(tache_1.Tache);
             const taches = yield repo.find({ where: { famille: { idFamille: familleId } } });
-            if (!taches || taches.length === 0) {
-                throw new Error("No tasks found for this famille");
-            }
             return taches;
         });
     }

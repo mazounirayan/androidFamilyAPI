@@ -194,16 +194,31 @@ app.patch("/taches/:id", async (req: Request, res: Response) => {
     });
     app.post("/taches/:id/assign", async (req: Request, res: Response) => {
         try {
-            const tacheId = parseInt(req.params.id, 10);
-            const { userId } = req.body;
-    
+        const validationIdUser = updateTacheValidation.validate(req.body);
+        const validationResult = TacheIdValidation.validate(req.params);
+        if (validationResult.error) {
+            res.status(400).send(generateValidationErrorMessage(validationResult.error.details));
+            return;
+        }
+        
+            if (validationIdUser.error) {
+                res.status(400).send(generateValidationErrorMessage(validationIdUser.error.details));
+                return;
+            }
+
+
+            const userId = validationIdUser.value;
+
+            const tache =validationResult.value;
+         
+
             if (!userId) {
                 res.status(400).send({ error: "User ID is required" });
                 return;
             }
     
             const tacheUsecase = new TacheUsecase(AppDataSource);
-            await tacheUsecase.assignTacheToUser(tacheId, userId);
+            await tacheUsecase.assignTacheToUser(tache.id, userId.idUser!);
     
             res.status(200).send({ message: "Task assigned successfully" });
         } catch (error) {

@@ -178,14 +178,24 @@ const TacheHandler = (app) => {
     }));
     app.post("/taches/:id/assign", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const tacheId = parseInt(req.params.id, 10);
-            const { userId } = req.body;
+            const validationIdUser = tache_validator_1.updateTacheValidation.validate(req.body);
+            const validationResult = tache_validator_1.TacheIdValidation.validate(req.params);
+            if (validationResult.error) {
+                res.status(400).send((0, generate_validation_message_1.generateValidationErrorMessage)(validationResult.error.details));
+                return;
+            }
+            if (validationIdUser.error) {
+                res.status(400).send((0, generate_validation_message_1.generateValidationErrorMessage)(validationIdUser.error.details));
+                return;
+            }
+            const userId = validationIdUser.value;
+            const tache = validationResult.value;
             if (!userId) {
                 res.status(400).send({ error: "User ID is required" });
                 return;
             }
             const tacheUsecase = new tache_usecase_1.TacheUsecase(database_1.AppDataSource);
-            yield tacheUsecase.assignTacheToUser(tacheId, userId);
+            yield tacheUsecase.assignTacheToUser(tache.id, userId.idUser);
             res.status(200).send({ message: "Task assigned successfully" });
         }
         catch (error) {

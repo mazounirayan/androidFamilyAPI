@@ -69,10 +69,7 @@ export class TacheUsecase {
         const repo = this.db.getRepository(Tache);
         const taches = await repo.find({ where: { user: { id: idUser } } });
     
-        if (!taches || taches.length === 0) {
-            throw new Error("No tasks found for this user");
-        }
-    
+   
         return taches;
     }
     async assignTacheToUser(tacheId: number, userId: number): Promise<void> {
@@ -84,7 +81,7 @@ export class TacheUsecase {
         if (!tache) {
             throw new Error("Task not found");
         }
-        const user = await Userrepo.findOneBy({ id: tache.user.id });
+        const user = await Userrepo.findOneBy({ id:userId  });
         if (!user) {
             throw new Error("user not found");
         }
@@ -95,9 +92,7 @@ export class TacheUsecase {
         const repo = this.db.getRepository(Tache);
         const taches = await repo.find({ where:   { famille: { idFamille: familleId }}});
     
-        if (!taches || taches.length === 0) {
-            throw new Error("No tasks found for this famille");
-        }
+  
     
         return taches;
     }
