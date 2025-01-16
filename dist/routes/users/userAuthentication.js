@@ -8,6 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserHandlerAuthentication = void 0;
 const database_1 = require("../../database/database");
@@ -15,6 +18,7 @@ const bcrypt_1 = require("bcrypt");
 const user_validator_1 = require("../../validators/user-validator");
 const generate_validation_message_1 = require("../../validators/generate-validation-message");
 const user_1 = require("../../database/entities/user");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken")); // Importez jwt pour générer le token
 const user_usecase_1 = require("../../usecases/user-usecase");
 const UserHandlerAuthentication = (app) => {
     app.post('/auth/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -74,7 +78,6 @@ const UserHandlerAuthentication = (app) => {
                 return;
             }
             const loginUserRequest = validationResult.value;
-            // valid user exist
             let user = yield database_1.AppDataSource.getRepository(user_1.User).findOneBy({ email: loginUserRequest.email });
             console.error("Utilisateur trouvé :", user);
             console.error("Utilisateur trouvé (ou null) :", user);
@@ -90,6 +93,10 @@ const UserHandlerAuthentication = (app) => {
                 res.status(400).send({ error: "username or password not valid" });
                 return;
             }
+            const token = jsonwebtoken_1.default.sign({ userId: user.id, email: user.email }, // Payload (données à inclure dans le token)
+            process.env.JWT_SECRET || 'your_secret_key', // Clé secrète pour signer le token
+            { expiresIn: '365d' } // Durée de validité du token
+            );
             const userUsecase = new user_usecase_1.UserUsecase(database_1.AppDataSource);
             user = yield userUsecase.getOneUser(user.id);
             console.error("User récupéré par UserUsecase :", user);
@@ -98,7 +105,10 @@ const UserHandlerAuthentication = (app) => {
                 return;
             }
             yield userUsecase.updateUser(user.id, Object.assign({}, user));
-            res.status(200).json({ user });
+            res.status(200).json({
+                token,
+                user,
+            });
         }
         catch (error) {
             console.log(error);

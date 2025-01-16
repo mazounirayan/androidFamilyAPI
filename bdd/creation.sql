@@ -72,7 +72,12 @@ CREATE TABLE Badge (
     description TEXT,
     image VARCHAR(255)
 );
+CREATE TABLE token (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    token VARCHAR(255) NOT NULL,
+    userId INT REFERENCES User(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
+);
 CREATE TABLE UserBadge (
     idUser INT,
     idBadge INT,

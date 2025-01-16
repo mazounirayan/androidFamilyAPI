@@ -4,7 +4,7 @@ import { compare, hash } from "bcrypt";
 import { createUserValidation, LoginUserValidation, userIdValidation } from "../../validators/user-validator"
 import { generateValidationErrorMessage } from "../../validators/generate-validation-message";
 import { User } from "../../database/entities/user";
-
+import jwt from 'jsonwebtoken'; // Importez jwt pour générer le token
 import { UserUsecase } from "../../usecases/user-usecase";
 
 
@@ -76,7 +76,6 @@ export const UserHandlerAuthentication = (app: express.Express) => {
             }
             const loginUserRequest = validationResult.value
 
-            // valid user exist
             let user = await AppDataSource.getRepository(User).findOneBy({ email: loginUserRequest.email });
             console.error("Utilisateur trouvé :", user);
             console.error("Utilisateur trouvé (ou null) :", user);
@@ -102,7 +101,12 @@ export const UserHandlerAuthentication = (app: express.Express) => {
                 res.status(400).send({ error: "username or password not valid" })
                 return
             }
-
+            const token = jwt.sign(
+                { userId: user.id, email: user.email }, // Payload (données à inclure dans le token)
+                process.env.JWT_SECRET || 'your_secret_key', // Clé secrète pour signer le token
+                {     expiresIn: '365d'} // Durée de validité du token
+            );
+    
             const userUsecase = new UserUsecase(AppDataSource);
 
             user = await userUsecase.getOneUser(user.id);
@@ -121,7 +125,10 @@ export const UserHandlerAuthentication = (app: express.Express) => {
                 { ...user }
             );
             
-            res.status(200).json({  user });
+            res.status(200).json({
+                token, 
+                user, 
+            });
         } catch (error) {
             console.log(error)
             res.status(500).send({ "error": "internal error retry later" })
