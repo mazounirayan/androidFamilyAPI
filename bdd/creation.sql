@@ -94,6 +94,15 @@ CREATE TABLE UserRecompense (
     FOREIGN KEY (idUser) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (idRecompense) REFERENCES Recompense(idRecompense) ON DELETE CASCADE
 );
+CREATE TABLE FamilleRecompense (
+    idFamille INT,
+    idRecompense INT,
+    date_ajout TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (idFamille, idRecompense),
+    FOREIGN KEY (idFamille) REFERENCES Famille(idFamille) ON DELETE CASCADE,
+    FOREIGN KEY (idRecompense) REFERENCES Recompense(idRecompense) ON DELETE CASCADE
+);
+
 CREATE TABLE TransactionCoins (
     idTransaction INT PRIMARY KEY AUTO_INCREMENT,
     idUser INT,

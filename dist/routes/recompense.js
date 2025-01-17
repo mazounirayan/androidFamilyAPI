@@ -148,13 +148,38 @@ const RecompenseHandler = (app) => {
     }));
     app.get("/recompenses/user/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const userId = parseInt(req.params.id, 10);
+            const validationResult = recompense_validator_1.recompenseIdValidation.validate(req.params);
+            if (validationResult.error) {
+                res.status(400).send((0, generate_validation_message_1.generateValidationErrorMessage)(validationResult.error.details));
+                return;
+            }
+            const userId = validationResult.value;
             const recompenseUsecase = new recompense_usecase_1.RecompenseUsecase(database_1.AppDataSource);
-            const recompenses = yield recompenseUsecase.listRecompensesByUserId(userId);
+            const recompenses = yield recompenseUsecase.listRecompensesByUserId(userId.id);
+            if (recompenses === null) {
+                res.status(404).send({ "error": `Recompense ${userId} not found` });
+                return;
+            }
             res.status(200).send(recompenses);
         }
         catch (error) {
             console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    }));
+    app.get("/familles/:idFamille/recompenses", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { idFamille } = req.params;
+        if (!idFamille || isNaN(Number(idFamille))) {
+            res.status(400).send({ error: "Invalid family ID." });
+            return;
+        }
+        try {
+            const recompenseUsecase = new recompense_usecase_1.RecompenseUsecase(database_1.AppDataSource);
+            const recompenses = yield recompenseUsecase.getRecompensesByFamille(Number(idFamille));
+            res.status(200).send(recompenses);
+        }
+        catch (error) {
+            console.error(error);
             res.status(500).send({ error: "Internal error" });
         }
     }));

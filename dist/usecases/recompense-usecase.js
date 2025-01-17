@@ -14,6 +14,7 @@ const recompense_1 = require("../database/entities/recompense");
 const user_1 = require("../database/entities/user");
 const transactionCoins_1 = require("../database/entities/transactionCoins");
 const userRecompense_1 = require("../database/entities/userRecompense");
+const familleRecompense_1 = require("../database/entities/familleRecompense");
 class RecompenseUsecase {
     constructor(db) {
         this.db = db;
@@ -78,6 +79,16 @@ class RecompenseUsecase {
             return yield repo.findOneBy({ idRecompense });
         });
     }
+    getRecompensesByFamille(idFamille) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(familleRecompense_1.FamilleRecompense);
+            const results = yield repo.find({
+                where: { famille: { idFamille } },
+                relations: ['famille', 'recompense'],
+            });
+            return results.map(({ recompense }) => recompense);
+        });
+    }
     // Supprimer une récompense
     deleteRecompense(idRecompense) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -99,17 +110,15 @@ class RecompenseUsecase {
             return yield repo.save(recompense);
         });
     }
-    listRecompensesByUserId(userId) {
+    listRecompensesByUserId(idUser) {
         return __awaiter(this, void 0, void 0, function* () {
             const repo = this.db.getRepository(userRecompense_1.UserRecompense);
             const userRecompenses = yield repo.find({
-                where: { idUser: userId },
-                relations: ["recompense"],
+                where: { idUser: idUser }, // Utilisez directement idUser, pas un objet
+                relations: ['recompense'], // Charger la relation "recompense"
             });
-            if (!userRecompenses || userRecompenses.length === 0) {
-                throw new Error("No rewards found for this user");
-            }
-            return userRecompenses.map(ur => ur.recompense);
+            const recompenses = userRecompenses.map(ur => ur.recompense);
+            return recompenses;
         });
     }
 }

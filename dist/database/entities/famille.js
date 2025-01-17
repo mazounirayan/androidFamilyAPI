@@ -16,7 +16,7 @@ const tache_1 = require("./tache");
 let Famille = class Famille {
     constructor(idFamille, nom, code_invitation, 
     // Optionnel
-    users, taches, date_de_creation // Valeur par défaut
+    users, familleRecompenses, taches, date_de_creation // Valeur par défaut
     ) {
         this.idFamille = idFamille;
         this.nom = nom;
@@ -24,6 +24,7 @@ let Famille = class Famille {
         this.code_invitation = code_invitation;
         this.users = users;
         this.taches = taches;
+        this.familleRecompenses = familleRecompenses;
     }
 };
 exports.Famille = Famille;
@@ -51,8 +52,12 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => tache_1.Tache, tache => tache.famille),
     __metadata("design:type", Array)
 ], Famille.prototype, "taches", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => tache_1.Tache, tache => tache.famille),
+    __metadata("design:type", Array)
+], Famille.prototype, "familleRecompenses", void 0);
 exports.Famille = Famille = __decorate([
     (0, typeorm_1.Entity)('Famille'),
-    __metadata("design:paramtypes", [Number, String, String, Array, Array, Date // Valeur par défaut
+    __metadata("design:paramtypes", [Number, String, String, Array, Array, Array, Date // Valeur par défaut
     ])
 ], Famille);

@@ -37,10 +37,14 @@ __decorate([
 ], UserRecompense.prototype, "date_obtention", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => user_1.User, user => user.userRecompenses),
+    (0, typeorm_1.JoinColumn)({ name: 'idUser' }) // Spécifiez explicitement le nom de la colonne
+    ,
     __metadata("design:type", user_1.User)
 ], UserRecompense.prototype, "user", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => recompense_1.Recompense, recompense => recompense.userRecompenses),
+    (0, typeorm_1.JoinColumn)({ name: 'idRecompense' }) // Spécifiez explicitement le nom de la colonne
+    ,
     __metadata("design:type", recompense_1.Recompense)
 ], UserRecompense.prototype, "recompense", void 0);
 exports.UserRecompense = UserRecompense = __decorate([

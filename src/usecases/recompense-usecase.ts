@@ -3,6 +3,7 @@ import { Recompense } from "../database/entities/recompense";
 import { User } from "../database/entities/user";
 import { TransactionCoins } from "../database/entities/transactionCoins";
 import { UserRecompense } from "../database/entities/userRecompense";
+import { FamilleRecompense } from "../database/entities/familleRecompense";
 
 export class RecompenseUsecase {
     constructor(private readonly db: DataSource) {}
@@ -66,7 +67,18 @@ export class RecompenseUsecase {
         const repo = this.db.getRepository(Recompense);
         return await repo.findOneBy({ idRecompense });
     }
-
+    async getRecompensesByFamille(idFamille: number) {
+        const repo = this.db.getRepository(FamilleRecompense);
+    
+        const results = await repo.find({
+            where: { famille: { idFamille } },
+            relations: ['famille', 'recompense'],
+        });
+    
+     
+    
+        return results.map(({ recompense }) => recompense);
+    }
     // Supprimer une récompense
     async deleteRecompense(idRecompense: number) {
         const repo = this.db.getRepository(Recompense);
@@ -85,18 +97,20 @@ export class RecompenseUsecase {
     }
 
 
-    async listRecompensesByUserId(userId: number): Promise<Recompense[]> {
+    async listRecompensesByUserId(idUser: number): Promise<Recompense[]> {
         const repo = this.db.getRepository(UserRecompense);
+        
         const userRecompenses = await repo.find({
-            where: { idUser: userId },
-            relations: ["recompense"],
+            where: { idUser: idUser }, // Utilisez directement idUser, pas un objet
+            relations: ['recompense'], // Charger la relation "recompense"
         });
     
-        if (!userRecompenses || userRecompenses.length === 0) {
-            throw new Error("No rewards found for this user");
-        }
+      
+        const recompenses = userRecompenses.map(ur => ur.recompense);
     
-        return userRecompenses.map(ur => ur.recompense);
+      
+    
+        return recompenses;
     }
   
 }

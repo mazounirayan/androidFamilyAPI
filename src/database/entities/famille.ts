@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { User } from './user';
 import { Tache } from './tache';
+import { FamilleRecompense } from './familleRecompense';
 
 @Entity('Famille')
 export class Famille {
@@ -21,13 +22,14 @@ export class Famille {
 
     @OneToMany(() => Tache, tache => tache.famille)
     taches: Tache[];
-
+    @OneToMany(() => Tache, tache => tache.famille)
+    familleRecompenses: FamilleRecompense[];
     constructor(
         idFamille: number,
         nom: string,
         code_invitation: string,
         // Optionnel
-        users: User[]  ,
+        users: User[]  , familleRecompenses: FamilleRecompense[]  ,
         taches: Tache[] , date_de_creation?: Date // Valeur par défaut
     ) {
         this.idFamille = idFamille;
@@ -35,6 +37,6 @@ export class Famille {
         this.date_de_creation = date_de_creation || null;
         this.code_invitation = code_invitation;
         this.users = users;
-        this.taches = taches;
+        this.taches = taches;   this.familleRecompenses = familleRecompenses;
     }
 }

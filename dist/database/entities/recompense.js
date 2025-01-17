@@ -13,7 +13,7 @@ exports.Recompense = void 0;
 const typeorm_1 = require("typeorm");
 const userRecompense_1 = require("./userRecompense"); // Assurez-vous de créer cette entité
 let Recompense = class Recompense {
-    constructor(idRecompense, nom, cout, stock = 0, estDisponible = true, userRecompenses, description) {
+    constructor(idRecompense, nom, cout, familleRecompenses, stock = 0, estDisponible = true, userRecompenses, description) {
         this.idRecompense = idRecompense;
         this.nom = nom;
         this.cout = cout;
@@ -21,6 +21,7 @@ let Recompense = class Recompense {
         this.stock = stock;
         this.estDisponible = estDisponible;
         this.userRecompenses = userRecompenses;
+        this.familleRecompenses = familleRecompenses;
     }
 };
 exports.Recompense = Recompense;
@@ -52,7 +53,11 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => userRecompense_1.UserRecompense, userRecompense => userRecompense.recompense),
     __metadata("design:type", Array)
 ], Recompense.prototype, "userRecompenses", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => userRecompense_1.UserRecompense, userRecompense => userRecompense.recompense),
+    __metadata("design:type", Array)
+], Recompense.prototype, "familleRecompenses", void 0);
 exports.Recompense = Recompense = __decorate([
     (0, typeorm_1.Entity)('Recompense'),
-    __metadata("design:paramtypes", [Number, String, Number, Number, Boolean, Array, String])
+    __metadata("design:paramtypes", [Number, String, Number, Array, Number, Boolean, Array, String])
 ], Recompense);

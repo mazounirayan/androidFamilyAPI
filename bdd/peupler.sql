@@ -56,3 +56,4 @@ INSERT INTO TransactionCoins (idUser, type, montant, description) VALUES
 (3, 'Gain', 20, 'Récompense pour une tâche terminée'),
 (3, 'Depense', 10, 'Achat d\une récompense');
 
+INSERT INTO FamilleRecompense (idFamille, idRecompense) VALUES (1, 2);
