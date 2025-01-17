@@ -3,7 +3,8 @@ import { AppDataSource } from '../../database/database';
 import { UserUsecase } from '../../usecases/user-usecase';
 import { generateValidationErrorMessage } from '../../validators/generate-validation-message';
 import { listUserValidation, createUserValidation, userIdValidation, updateUserValidation } from '../../validators/user-validator';
-
+import { FamilleIdValidation} from '../../validators/famille-validator';
+import { FamilleUsecase } from '../../usecases/famille-usecase';
 export const UserHandler = (app: express.Express) => {
 
     // Lister les utilisateurs
@@ -161,4 +162,35 @@ export const UserHandler = (app: express.Express) => {
             res.status(500).send({ error: "Internal error" });
         }
     });
+
+
+
+
+
+    app.get("/users/family/:id", async (req: Request, res: Response) => {
+        try {
+     
+            const validationResult = FamilleIdValidation.validate(req.params);
+    
+            if (validationResult.error) {
+                res.status(400).send(generateValidationErrorMessage(validationResult.error.details));
+                return;
+            }
+    
+            const  idFamille  = validationResult.value.id;
+    
+            // Utilisation du UserUsecase pour récupérer les utilisateurs
+            const familleUsecase = new FamilleUsecase(AppDataSource);
+            const users = await familleUsecase.getFamilyMembers(idFamille);
+    
+       
+    
+
+            res.status(200).send(users);
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    });
+
 };

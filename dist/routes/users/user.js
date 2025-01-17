@@ -14,6 +14,8 @@ const database_1 = require("../../database/database");
 const user_usecase_1 = require("../../usecases/user-usecase");
 const generate_validation_message_1 = require("../../validators/generate-validation-message");
 const user_validator_1 = require("../../validators/user-validator");
+const famille_validator_1 = require("../../validators/famille-validator");
+const famille_usecase_1 = require("../../usecases/famille-usecase");
 const UserHandler = (app) => {
     // Lister les utilisateurs
     app.get("/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -140,6 +142,24 @@ const UserHandler = (app) => {
                 return;
             }
             res.status(200).send(user);
+        }
+        catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    }));
+    app.get("/users/family/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const validationResult = famille_validator_1.FamilleIdValidation.validate(req.params);
+            if (validationResult.error) {
+                res.status(400).send((0, generate_validation_message_1.generateValidationErrorMessage)(validationResult.error.details));
+                return;
+            }
+            const idFamille = validationResult.value.id;
+            // Utilisation du UserUsecase pour récupérer les utilisateurs
+            const familleUsecase = new famille_usecase_1.FamilleUsecase(database_1.AppDataSource);
+            const users = yield familleUsecase.getFamilyMembers(idFamille);
+            res.status(200).send(users);
         }
         catch (error) {
             console.log(error);
