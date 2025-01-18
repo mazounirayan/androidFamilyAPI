@@ -83,7 +83,7 @@ class RecompenseUsecase {
         return __awaiter(this, void 0, void 0, function* () {
             const repo = this.db.getRepository(familleRecompense_1.FamilleRecompense);
             const results = yield repo.find({
-                where: { famille: { idFamille } },
+                where: { idFamille }, // Use the correct column name
                 relations: ['famille', 'recompense'],
             });
             return results.map(({ recompense }) => recompense);

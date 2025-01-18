@@ -100,24 +100,8 @@ class UserUsecase {
     listUsers(options) {
         return __awaiter(this, void 0, void 0, function* () {
             const repo = this.db.getRepository(user_1.User);
-            const query = repo.createQueryBuilder("user");
-            if (options.nom) {
-                query.andWhere("user.nom LIKE :nom", { nom: `%${options.nom}%` });
-            }
-            if (options.prenom) {
-                query.andWhere("user.prenom LIKE :prenom", { prenom: `%${options.prenom}%` });
-            }
-            if (options.email) {
-                query.andWhere("user.email = :email", { email: options.email });
-            }
-            if (options.role) {
-                query.andWhere("user.role = :role", { role: options.role });
-            }
-            const [users, total] = yield query
-                .skip((options.page - 1) * options.limit)
-                .take(options.limit)
-                .getManyAndCount();
-            return { users, total, page: options.page, limit: options.limit };
+            const users = yield repo.find();
+            return users;
         });
     }
     verifUser(userId) {

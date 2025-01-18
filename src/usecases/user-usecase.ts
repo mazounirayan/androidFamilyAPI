@@ -82,28 +82,11 @@ export class UserUsecase {
 
     // Lister les utilisateurs avec pagination et filtres
     async listUsers(options: { page: number; limit: number; nom?: string; prenom?: string; email?: string; role?: UserRole }) {
-        const repo = this.db.getRepository(User);
-        const query = repo.createQueryBuilder("user");
-
-        if (options.nom) {
-            query.andWhere("user.nom LIKE :nom", { nom: `%${options.nom}%` });
-        }
-        if (options.prenom) {
-            query.andWhere("user.prenom LIKE :prenom", { prenom: `%${options.prenom}%` });
-        }
-        if (options.email) {
-            query.andWhere("user.email = :email", { email: options.email });
-        }
-        if (options.role) {
-            query.andWhere("user.role = :role", { role: options.role });
-        }
-
-        const [users, total] = await query
-            .skip((options.page - 1) * options.limit)
-            .take(options.limit)
-            .getManyAndCount();
-
-        return { users, total, page: options.page, limit: options.limit };
+      
+            const repo = this.db.getRepository(User);
+            const users = await repo.find(); 
+            return users;
+        
     }
     async verifUser(userId: number): Promise<boolean> {
         const repo = this.db.getRepository(User);

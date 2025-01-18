@@ -48,6 +48,10 @@ export class User {
     @JoinColumn({ name: "idFamille" })
     famille: Famille;
 
+
+
+
+    
     @OneToMany(() => Tache, tache => tache.user)
     taches: Tache[];
 

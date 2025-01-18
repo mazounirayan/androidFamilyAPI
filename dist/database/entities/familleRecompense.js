@@ -14,27 +14,34 @@ const typeorm_1 = require("typeorm");
 const recompense_1 = require("./recompense");
 const famille_1 = require("./famille");
 let FamilleRecompense = class FamilleRecompense {
-    constructor(id, famille, recompense) {
-        this.id = id;
+    constructor(idFamille, idRecompense, famille, recompense) {
+        this.idRecompense = idRecompense;
+        this.idFamille = idFamille;
         this.famille = famille;
         this.recompense = recompense;
     }
 };
 exports.FamilleRecompense = FamilleRecompense;
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)(),
+    (0, typeorm_1.PrimaryColumn)(),
     __metadata("design:type", Number)
-], FamilleRecompense.prototype, "id", void 0);
+], FamilleRecompense.prototype, "idFamille", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => famille_1.Famille, (famille) => famille.familleRecompenses, { onDelete: 'CASCADE' }),
+    (0, typeorm_1.PrimaryColumn)(),
+    __metadata("design:type", Number)
+], FamilleRecompense.prototype, "idRecompense", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => famille_1.Famille, famille => famille.familleRecompenses),
+    (0, typeorm_1.JoinColumn)({ name: 'idFamille' }),
     __metadata("design:type", famille_1.Famille)
 ], FamilleRecompense.prototype, "famille", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => recompense_1.Recompense, (recompense) => recompense.familleRecompenses, { onDelete: 'CASCADE' }),
+    (0, typeorm_1.ManyToOne)(() => recompense_1.Recompense, recompense => recompense.familleRecompenses),
+    (0, typeorm_1.JoinColumn)({ name: 'idRecompense' }),
     __metadata("design:type", recompense_1.Recompense)
 ], FamilleRecompense.prototype, "recompense", void 0);
 exports.FamilleRecompense = FamilleRecompense = __decorate([
     (0, typeorm_1.Entity)("FamilleRecompense"),
-    __metadata("design:paramtypes", [Number, famille_1.Famille,
+    __metadata("design:paramtypes", [Number, Number, famille_1.Famille,
         recompense_1.Recompense])
 ], FamilleRecompense);

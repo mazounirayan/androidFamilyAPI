@@ -71,14 +71,18 @@ export class RecompenseUsecase {
         const repo = this.db.getRepository(FamilleRecompense);
     
         const results = await repo.find({
-            where: { famille: { idFamille } },
+            where: { idFamille }, // Use the correct column name
             relations: ['famille', 'recompense'],
         });
     
-     
-    
         return results.map(({ recompense }) => recompense);
     }
+
+
+
+
+
+    
     // Supprimer une récompense
     async deleteRecompense(idRecompense: number) {
         const repo = this.db.getRepository(Recompense);

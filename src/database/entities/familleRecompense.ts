@@ -1,25 +1,34 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, PrimaryColumn, JoinColumn } from 'typeorm';
 import { Recompense } from './recompense';
 import { Famille } from './famille';
 
 @Entity("FamilleRecompense")
 export class FamilleRecompense {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn()
+    idFamille: number;
 
-    @ManyToOne(() => Famille, (famille) => famille.familleRecompenses, { onDelete: 'CASCADE' })
+    @PrimaryColumn()
+    idRecompense: number;
+
+  
+
+    @ManyToOne(() => Famille, famille => famille.familleRecompenses)
+    @JoinColumn({ name: 'idFamille' })
     famille: Famille;
 
-    @ManyToOne(() => Recompense, (recompense) => recompense.familleRecompenses, { onDelete: 'CASCADE' })
+    @ManyToOne(() => Recompense, recompense => recompense.familleRecompenses)
+    @JoinColumn({ name: 'idRecompense' })
     recompense: Recompense;
     constructor(
-        id: number,
+        idFamille: number,idRecompense: number,
         famille: Famille,
         recompense: Recompense,
        
        
     ) {
-        this.id = id;
+        this.idRecompense = idRecompense;
+
+        this.idFamille = idFamille;
         this.famille = famille;
         this.recompense = recompense;
     
