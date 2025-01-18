@@ -25,7 +25,7 @@ export const UserHandler = (app: express.Express) => {
 
         try {
             const userUsecase = new UserUsecase(AppDataSource);
-            const listUsers = await userUsecase.listUsers({ ...listUserRequest, page, limit });
+            const listUsers = await userUsecase.listUsers();
             res.status(200).send(listUsers);
         } catch (error) {
             console.log(error);

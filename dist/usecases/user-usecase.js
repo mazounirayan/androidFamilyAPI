@@ -97,10 +97,12 @@ class UserUsecase {
         });
     }
     // Lister les utilisateurs avec pagination et filtres
-    listUsers(options) {
+    listUsers() {
         return __awaiter(this, void 0, void 0, function* () {
             const repo = this.db.getRepository(user_1.User);
-            const users = yield repo.find();
+            const users = yield repo.find({
+                relations: ['famille'], // Charge la relation 'famille'
+            });
             return users;
         });
     }

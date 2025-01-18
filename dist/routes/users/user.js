@@ -33,7 +33,7 @@ const UserHandler = (app) => {
         const page = (_a = listUserRequest.page) !== null && _a !== void 0 ? _a : 1;
         try {
             const userUsecase = new user_usecase_1.UserUsecase(database_1.AppDataSource);
-            const listUsers = yield userUsecase.listUsers(Object.assign(Object.assign({}, listUserRequest), { page, limit }));
+            const listUsers = yield userUsecase.listUsers();
             res.status(200).send(listUsers);
         }
         catch (error) {

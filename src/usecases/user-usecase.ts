@@ -81,12 +81,12 @@ export class UserUsecase {
     }
 
     // Lister les utilisateurs avec pagination et filtres
-    async listUsers(options: { page: number; limit: number; nom?: string; prenom?: string; email?: string; role?: UserRole }) {
-      
-            const repo = this.db.getRepository(User);
-            const users = await repo.find(); 
-            return users;
-        
+    async listUsers() {
+        const repo = this.db.getRepository(User);
+        const users = await repo.find({
+            relations: ['famille'], // Charge la relation 'famille'
+        });
+        return users;
     }
     async verifUser(userId: number): Promise<boolean> {
         const repo = this.db.getRepository(User);
