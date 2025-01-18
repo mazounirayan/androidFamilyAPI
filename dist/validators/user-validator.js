@@ -7,8 +7,16 @@ exports.LoginUserValidation = exports.listUserValidation = exports.updateUserVal
 const joi_1 = __importDefault(require("joi"));
 // Create User Validation
 exports.createUserValidation = joi_1.default.object({
-    nom: joi_1.default.string().required(),
-    prenom: joi_1.default.string().required(),
+    nom: joi_1.default.string()
+        .required()
+        .messages({
+        'string.empty': 'Le nom est obligatoire.',
+    }),
+    prenom: joi_1.default.string()
+        .required()
+        .messages({
+        'string.empty': 'Le prénom est obligatoire.',
+    }),
     email: joi_1.default.string()
         .email()
         .required()
@@ -16,15 +24,39 @@ exports.createUserValidation = joi_1.default.object({
         'string.empty': 'L’email est obligatoire.',
         'string.email': 'L’email doit être valide.',
     }),
-    motDePasse: joi_1.default.string().required(),
-    numTel: joi_1.default.string().min(10).max(10).optional(), // Make numTel optional
+    motDePasse: joi_1.default.string()
+        .required()
+        .messages({
+        'string.empty': 'Le mot de passe est obligatoire.',
+        'string.min': 'Le mot de passe doit contenir au moins 8 caractères.',
+    }),
+    numTel: joi_1.default.string()
+        .length(10)
+        .pattern(/^[0-9]+$/)
+        .optional()
+        .messages({
+        'string.length': 'Le numéro de téléphone doit contenir exactement 10 chiffres.',
+        'string.pattern.base': 'Le numéro de téléphone ne doit contenir que des chiffres.',
+    }),
     role: joi_1.default.string()
-        .valid('Parent', 'Enfant') // Use ...Object.values(UserRole) if UserRole is an enum
+        .valid('Parent', 'Enfant')
         .required()
         .messages({
         'any.only': 'Le rôle doit être soit "Parent" soit "Enfant".',
+        'string.empty': 'Le rôle est obligatoire.',
     }),
-}).options({ abortEarly: false });
+    codeFamille: joi_1.default.string()
+        .optional()
+        .messages({
+        'string.empty': 'Le code famille ne peut pas être vide.',
+    }),
+    nomFamille: joi_1.default.string()
+        .optional()
+        .messages({
+        'string.empty': 'Le nom de la famille ne peut pas être vide.',
+    }),
+})
+    .options({ abortEarly: false });
 // User ID Validation
 exports.userIdValidation = joi_1.default.object({
     id: joi_1.default.number().required(),

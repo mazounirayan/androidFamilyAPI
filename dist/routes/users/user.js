@@ -34,7 +34,8 @@ const UserHandler = (app) => {
         try {
             const userUsecase = new user_usecase_1.UserUsecase(database_1.AppDataSource);
             const listUsers = yield userUsecase.listUsers();
-            res.status(200).send(listUsers);
+            // Encapsuler le tableau dans un objet avec la clé "user"
+            res.status(200).send({ user: listUsers });
         }
         catch (error) {
             console.log(error);

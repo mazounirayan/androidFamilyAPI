@@ -10,23 +10,25 @@ export const UserHandler = (app: express.Express) => {
     // Lister les utilisateurs
     app.get("/users", async (req: Request, res: Response) => {
         const validation = listUserValidation.validate(req.query);
-
+    
         if (validation.error) {
             res.status(400).send(generateValidationErrorMessage(validation.error.details));
             return;
         }
-
+    
         const listUserRequest = validation.value;
         let limit = 20;
         if (listUserRequest.limit) {
             limit = listUserRequest.limit;
         }
         const page = listUserRequest.page ?? 1;
-
+    
         try {
             const userUsecase = new UserUsecase(AppDataSource);
             const listUsers = await userUsecase.listUsers();
-            res.status(200).send(listUsers);
+    
+            // Encapsuler le tableau dans un objet avec la clé "user"
+            res.status(200).send({ user: listUsers });
         } catch (error) {
             console.log(error);
             res.status(500).send({ error: "Internal error" });

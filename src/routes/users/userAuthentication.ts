@@ -6,61 +6,114 @@ import { generateValidationErrorMessage } from "../../validators/generate-valida
 import { User } from "../../database/entities/user";
 import jwt from 'jsonwebtoken'; // Importez jwt pour générer le token
 import { UserUsecase } from "../../usecases/user-usecase";
+import { Famille } from "../../database/entities/famille";
 
+function generateUniqueCode(): string {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+        code += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return code;
+}
 
 
 export const UserHandlerAuthentication = (app: express.Express) => {
     app.post('/auth/signup', async (req: Request, res: Response) => {
         try {
-            const validationResult = createUserValidation.validate(req.body)
+            // Valider le corps de la requête
+            const validationResult = createUserValidation.validate(req.body);
             if (validationResult.error) {
-                res.status(400).send(generateValidationErrorMessage(validationResult.error.details))
-                return
+                res.status(400).send(generateValidationErrorMessage(validationResult.error.details));
+                return;
             }
-
-            const createUserRequest = validationResult.value;
-
-            let hashedPassword;
-            if(createUserRequest.motDePasse !== undefined){
-                hashedPassword = await hash(createUserRequest.motDePasse, 10);
-            }
-
-            const userRepository = AppDataSource.getRepository(User);
-            const user = await userRepository.save({
-                nom: req.body.nom,
-                prenom: req.body.prenom,
-                email: req.body.email,
-                motDePasse: req.body.motDePasse, 
-                numTel: req.body.numTel,
-                role: req.body.role,
-                dateInscription: new Date(),
-                
-            });
-
-            res.status(201).send({ id: user.id,nom: user.nom,prenom:user.prenom ,email: user.email, role: user.role });
-            return
-        } catch (error: unknown) {
-            // Vérification de l'erreur de la base de données
-            const mysqlError = error as any;
-            if (error instanceof Error) {
-                
-            if (mysqlError.code === 'ER_DUP_ENTRY') {
-                res.status(400).send({ error: "L'adresse email est déjà utilisée." });
-                } else {
-                    // Log de l'erreur pour le débogage
-                    console.error('Erreur interne du serveur:', error);
     
-                    // Envoi de la réponse d'erreur générique
-                    res.status(500).send({ error: "Erreur interne du serveur. Réessayez plus tard." });
+            const createUserRequest = validationResult.value;
+    
+            const userRepository = AppDataSource.getRepository(User);
+            const familleRepository = AppDataSource.getRepository(Famille);
+    
+            let famille: Famille | null = null;
+    
+            // Hasher le mot de passe
+            const hashedPassword = createUserRequest.motDePasse
+                ? await hash(createUserRequest.motDePasse, 10)
+                : undefined;
+    
+            // Logique selon le rôle de l'utilisateur
+            if (createUserRequest.role === 'Parent') {
+                // Si le parent crée une nouvelle famille
+                if (!createUserRequest.nomFamille) {
+                    res.status(400).send({ error: "Le nom de la famille est obligatoire pour un parent." });
+                    return;
+                }
+    
+                // Vérifier si une famille avec le même nom existe
+                famille = await familleRepository.findOne({ where: { nom: createUserRequest.nomFamille } });
+    
+                if (!famille) {
+                    // Créer une nouvelle famille si elle n'existe pas
+                    famille = familleRepository.create({
+                        nom: createUserRequest.nomFamille,
+                        date_de_creation: new Date(),
+                        code_invitation: generateUniqueCode(), // Implémentez cette fonction
+                    });
+                    famille = await familleRepository.save(famille);
+                }
+            } else if (createUserRequest.role === 'Enfant') {
+                // Si l'enfant rejoint une famille existante
+                if (!createUserRequest.codeFamille) {
+                    res.status(400).send({ error: "Le code famille est obligatoire pour un enfant." });
+                    return;
+                }
+    
+                // Vérifier si le code famille est valide
+                famille = await familleRepository.findOne({ where: { code_invitation: createUserRequest.codeFamille } });
+    
+                if (!famille) {
+                    res.status(404).send({ error: "Le code famille est invalide." });
+                    return;
                 }
             } else {
-                // En cas d'erreur inconnue non instance de Error
-                console.error('Erreur inconnue:', error);
-                res.status(500).send({ error: "Erreur inconnue. Réessayez plus tard." });
+                res.status(400).send({ error: "Rôle utilisateur invalide." });
+                return;
             }
-            return
+    
+            // Créer l'utilisateur
+            const user = userRepository.create({
+                nom: createUserRequest.nom,
+                prenom: createUserRequest.prenom,
+                email: createUserRequest.email,
+                motDePasse: hashedPassword,
+                role: createUserRequest.role,
+                dateInscription: new Date(),
+                famille,
+            });
+    
+            const savedUser = await userRepository.save(user);
+    
+            // Réponse avec l'utilisateur créé
+            res.status(201).send({
+                id: savedUser.id,
+                nom: savedUser.nom,
+                prenom: savedUser.prenom,
+                email: savedUser.email,
+                role: savedUser.role,
+                famille: famille ? { idFamille: famille.idFamille, nom: famille.nom, code_invitation: famille.code_invitation } : null,
+            });
+        } catch (error: unknown) {
+            const mysqlError = error as any;
+            if (mysqlError.code === 'ER_DUP_ENTRY') {
+                res.status(400).send({ error: "L'adresse email est déjà utilisée." });
+            } else {
+                console.error('Erreur interne du serveur:', error);
+                res.status(500).send({ error: "Erreur interne du serveur. Réessayez plus tard." });
+            }
         }
-    })
+    });
+    
+    
+    
 
     app.post('/auth/login', async (req: Request, res: Response) => {
         try {

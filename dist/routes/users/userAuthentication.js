@@ -20,52 +20,98 @@ const generate_validation_message_1 = require("../../validators/generate-validat
 const user_1 = require("../../database/entities/user");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken")); // Importez jwt pour générer le token
 const user_usecase_1 = require("../../usecases/user-usecase");
+const famille_1 = require("../../database/entities/famille");
+function generateUniqueCode() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+        code += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return code;
+}
 const UserHandlerAuthentication = (app) => {
     app.post('/auth/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
+            // Valider le corps de la requête
             const validationResult = user_validator_1.createUserValidation.validate(req.body);
             if (validationResult.error) {
                 res.status(400).send((0, generate_validation_message_1.generateValidationErrorMessage)(validationResult.error.details));
                 return;
             }
             const createUserRequest = validationResult.value;
-            let hashedPassword;
-            if (createUserRequest.motDePasse !== undefined) {
-                hashedPassword = yield (0, bcrypt_1.hash)(createUserRequest.motDePasse, 10);
-            }
             const userRepository = database_1.AppDataSource.getRepository(user_1.User);
-            const user = yield userRepository.save({
-                nom: req.body.nom,
-                prenom: req.body.prenom,
-                email: req.body.email,
-                motDePasse: req.body.motDePasse,
-                numTel: req.body.numTel,
-                role: req.body.role,
-                dateInscription: new Date(),
-            });
-            res.status(201).send({ id: user.id, nom: user.nom, prenom: user.prenom, email: user.email, role: user.role });
-            return;
-        }
-        catch (error) {
-            // Vérification de l'erreur de la base de données
-            const mysqlError = error;
-            if (error instanceof Error) {
-                if (mysqlError.code === 'ER_DUP_ENTRY') {
-                    res.status(400).send({ error: "L'adresse email est déjà utilisée." });
+            const familleRepository = database_1.AppDataSource.getRepository(famille_1.Famille);
+            let famille = null;
+            // Hasher le mot de passe
+            const hashedPassword = createUserRequest.motDePasse
+                ? yield (0, bcrypt_1.hash)(createUserRequest.motDePasse, 10)
+                : undefined;
+            // Logique selon le rôle de l'utilisateur
+            if (createUserRequest.role === 'Parent') {
+                // Si le parent crée une nouvelle famille
+                if (!createUserRequest.nomFamille) {
+                    res.status(400).send({ error: "Le nom de la famille est obligatoire pour un parent." });
+                    return;
                 }
-                else {
-                    // Log de l'erreur pour le débogage
-                    console.error('Erreur interne du serveur:', error);
-                    // Envoi de la réponse d'erreur générique
-                    res.status(500).send({ error: "Erreur interne du serveur. Réessayez plus tard." });
+                // Vérifier si une famille avec le même nom existe
+                famille = yield familleRepository.findOne({ where: { nom: createUserRequest.nomFamille } });
+                if (!famille) {
+                    // Créer une nouvelle famille si elle n'existe pas
+                    famille = familleRepository.create({
+                        nom: createUserRequest.nomFamille,
+                        date_de_creation: new Date(),
+                        code_invitation: generateUniqueCode(), // Implémentez cette fonction
+                    });
+                    famille = yield familleRepository.save(famille);
+                }
+            }
+            else if (createUserRequest.role === 'Enfant') {
+                // Si l'enfant rejoint une famille existante
+                if (!createUserRequest.codeFamille) {
+                    res.status(400).send({ error: "Le code famille est obligatoire pour un enfant." });
+                    return;
+                }
+                // Vérifier si le code famille est valide
+                famille = yield familleRepository.findOne({ where: { code_invitation: createUserRequest.codeFamille } });
+                if (!famille) {
+                    res.status(404).send({ error: "Le code famille est invalide." });
+                    return;
                 }
             }
             else {
-                // En cas d'erreur inconnue non instance de Error
-                console.error('Erreur inconnue:', error);
-                res.status(500).send({ error: "Erreur inconnue. Réessayez plus tard." });
+                res.status(400).send({ error: "Rôle utilisateur invalide." });
+                return;
             }
-            return;
+            // Créer l'utilisateur
+            const user = userRepository.create({
+                nom: createUserRequest.nom,
+                prenom: createUserRequest.prenom,
+                email: createUserRequest.email,
+                motDePasse: hashedPassword,
+                role: createUserRequest.role,
+                dateInscription: new Date(),
+                famille,
+            });
+            const savedUser = yield userRepository.save(user);
+            // Réponse avec l'utilisateur créé
+            res.status(201).send({
+                id: savedUser.id,
+                nom: savedUser.nom,
+                prenom: savedUser.prenom,
+                email: savedUser.email,
+                role: savedUser.role,
+                famille: famille ? { idFamille: famille.idFamille, nom: famille.nom, code_invitation: famille.code_invitation } : null,
+            });
+        }
+        catch (error) {
+            const mysqlError = error;
+            if (mysqlError.code === 'ER_DUP_ENTRY') {
+                res.status(400).send({ error: "L'adresse email est déjà utilisée." });
+            }
+            else {
+                console.error('Erreur interne du serveur:', error);
+                res.status(500).send({ error: "Erreur interne du serveur. Réessayez plus tard." });
+            }
         }
     }));
     app.post('/auth/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {

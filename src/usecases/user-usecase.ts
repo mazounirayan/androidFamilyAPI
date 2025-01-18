@@ -80,11 +80,11 @@ export class UserUsecase {
         return user.coins;
     }
 
-    // Lister les utilisateurs avec pagination et filtres
+  
     async listUsers() {
         const repo = this.db.getRepository(User);
         const users = await repo.find({
-            relations: ['famille'], // Charge la relation 'famille'
+            relations: ['famille'], 
         });
         return users;
     }
