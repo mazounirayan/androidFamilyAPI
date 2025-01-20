@@ -15,6 +15,7 @@ const user_1 = require("../database/entities/user");
 const transactionCoins_1 = require("../database/entities/transactionCoins");
 const userRecompense_1 = require("../database/entities/userRecompense");
 const familleRecompense_1 = require("../database/entities/familleRecompense");
+const famille_1 = require("../database/entities/famille");
 class RecompenseUsecase {
     constructor(db) {
         this.db = db;
@@ -87,6 +88,24 @@ class RecompenseUsecase {
                 relations: ['famille', 'recompense'],
             });
             return results.map(({ recompense }) => recompense);
+        });
+    }
+    createRecompenseForFamille(idFamille, recompenseData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const familleRepository = this.db.getRepository(famille_1.Famille);
+            const recompenseRepository = this.db.getRepository(recompense_1.Recompense);
+            const familleRecompenseRepository = this.db.getRepository(familleRecompense_1.FamilleRecompense);
+            const famille = yield familleRepository.findOneBy({ idFamille });
+            if (!famille) {
+                throw new Error("Famille introuvable.");
+            }
+            const recompense = recompenseRepository.create(recompenseData);
+            const savedRecompense = yield recompenseRepository.save(recompense);
+            const familleRecompense = familleRecompenseRepository.create({
+                famille,
+                recompense: savedRecompense,
+            });
+            return yield familleRecompenseRepository.save(familleRecompense);
         });
     }
     // Supprimer une récompense

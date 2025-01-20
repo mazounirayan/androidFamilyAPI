@@ -205,5 +205,37 @@ export const RecompenseHandler = (app: express.Express) => {
             res.status(500).send({ error: "Internal error" });
         }
     });
+    app.post("/familles/:idFamille/recompenses", async (req: Request, res: Response) => {
+        const { idFamille } = req.params;
+    
+        if (!idFamille || isNaN(Number(idFamille))) {
+            res.status(400).send({ error: "Invalid family ID." });
+            return;
+        }
+        const validationResult = createRecompenseValidation.validate(req.body);
+
+       
+        if (validationResult.error) {
+            res.status(400).send(validationResult.error.details.map(err => err.message));
+            return;
+        }
+    
+        try {
+            const recompenseUsecase = new RecompenseUsecase(AppDataSource);
+    
+            const newRecompense = await recompenseUsecase.createRecompenseForFamille(
+                Number(idFamille),
+                validationResult.value            );
+    
+            res.status(200).send(newRecompense);
+        } catch (error: any) {
+            if (error.message === "Famille introuvable.") {
+                res.status(404).send({ error: error.message });
+            } else {
+                console.error(error);
+                res.status(500).send({ error: "Erreur interne du serveur." });
+            }
+        }
+    });
     
 };

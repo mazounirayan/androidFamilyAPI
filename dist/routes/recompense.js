@@ -183,5 +183,31 @@ const RecompenseHandler = (app) => {
             res.status(500).send({ error: "Internal error" });
         }
     }));
+    app.post("/familles/:idFamille/recompenses", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { idFamille } = req.params;
+        if (!idFamille || isNaN(Number(idFamille))) {
+            res.status(400).send({ error: "Invalid family ID." });
+            return;
+        }
+        const validationResult = recompense_validator_1.createRecompenseValidation.validate(req.body);
+        if (validationResult.error) {
+            res.status(400).send(validationResult.error.details.map(err => err.message));
+            return;
+        }
+        try {
+            const recompenseUsecase = new recompense_usecase_1.RecompenseUsecase(database_1.AppDataSource);
+            const newRecompense = yield recompenseUsecase.createRecompenseForFamille(Number(idFamille), validationResult.value);
+            res.status(200).send(newRecompense);
+        }
+        catch (error) {
+            if (error.message === "Famille introuvable.") {
+                res.status(404).send({ error: error.message });
+            }
+            else {
+                console.error(error);
+                res.status(500).send({ error: "Erreur interne du serveur." });
+            }
+        }
+    }));
 };
 exports.RecompenseHandler = RecompenseHandler;

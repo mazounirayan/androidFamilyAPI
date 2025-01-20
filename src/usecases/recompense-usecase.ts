@@ -4,6 +4,7 @@ import { User } from "../database/entities/user";
 import { TransactionCoins } from "../database/entities/transactionCoins";
 import { UserRecompense } from "../database/entities/userRecompense";
 import { FamilleRecompense } from "../database/entities/familleRecompense";
+import { Famille } from "../database/entities/famille";
 
 export class RecompenseUsecase {
     constructor(private readonly db: DataSource) {}
@@ -78,7 +79,32 @@ export class RecompenseUsecase {
         return results.map(({ recompense }) => recompense);
     }
 
+    async createRecompenseForFamille(
+        idFamille: number,
+        recompenseData: Partial<Recompense>
+    ) {
+        const familleRepository = this.db.getRepository(Famille);
+        const recompenseRepository = this.db.getRepository(Recompense);
+        const familleRecompenseRepository = this.db.getRepository(FamilleRecompense);
 
+        const famille = await familleRepository.findOneBy({ idFamille });
+        if (!famille) {
+            throw new Error("Famille introuvable.");
+        }
+        const recompense = recompenseRepository.create(recompenseData);
+       
+      
+        const savedRecompense = await recompenseRepository.save(recompense);
+
+        const familleRecompense = familleRecompenseRepository.create({
+            famille,
+            recompense: savedRecompense,
+
+        });
+
+        return await familleRecompenseRepository.save(familleRecompense);
+  
+    }
 
 
 
