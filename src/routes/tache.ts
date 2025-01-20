@@ -42,7 +42,6 @@ export const TacheHandler = (app: express.Express) => {
     
         const tacheRequest = validation.value;
     
-        // Convert string dates to Date objects
         if (tacheRequest.date_debut) {
             tacheRequest.date_debut = new Date(tacheRequest.date_debut);
         }

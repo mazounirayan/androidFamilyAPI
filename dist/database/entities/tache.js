@@ -9,19 +9,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Tache = exports.PrioriteTache = void 0;
+exports.Tache = void 0;
 const typeorm_1 = require("typeorm");
 const CategorieTache_1 = require("./CategorieTache");
 const famille_1 = require("./famille");
 const user_1 = require("./user");
 const notification_1 = require("./notification");
-// Définition de l'enum pour la priorité
-var PrioriteTache;
-(function (PrioriteTache) {
-    PrioriteTache["HAUTE"] = "Haute";
-    PrioriteTache["MOYENNE"] = "Moyenne";
-    PrioriteTache["BASSE"] = "Basse";
-})(PrioriteTache || (exports.PrioriteTache = PrioriteTache = {}));
 let Tache = class Tache {
     constructor(idTache, nom, user, famille, date_debut, date_fin, status, type, priorite, categorie, notifications, description) {
         this.idTache = idTache;
@@ -68,11 +61,7 @@ __decorate([
     __metadata("design:type", String)
 ], Tache.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.Column)({
-        type: 'enum',
-        enum: PrioriteTache,
-        nullable: true
-    }),
+    (0, typeorm_1.Column)({ type: 'enum', enum: ['Haute', 'Faible', 'Moyenne'] }),
     __metadata("design:type", String)
 ], Tache.prototype, "priorite", void 0);
 __decorate([

@@ -4,12 +4,7 @@ import { Famille } from "./famille";
 import { User } from "./user";
 import { Notification } from "./notification";
 
-// Définition de l'enum pour la priorité
-export enum PrioriteTache {
-    HAUTE = 'Haute',
-    MOYENNE = 'Moyenne',
-    BASSE = 'Basse'
-}
+export type Priorite = 'Haute' | 'Faible' | 'Moyenne';
 
 
 @Entity('Tache')
@@ -35,12 +30,8 @@ export class Tache {
     @Column({ type: 'text', nullable: true })
     description: string ;
 
-    @Column({ 
-        type: 'enum', 
-        enum: PrioriteTache,
-        nullable: true 
-    })
-    priorite: PrioriteTache ;
+    @Column({ type: 'enum', enum: ['Haute', 'Faible','Moyenne'] })
+    priorite: Priorite ;
 
     @ManyToOne(() => CategorieTache, categorie => categorie.taches, { nullable: true })
     @JoinColumn({ name: 'idCategorie' })
@@ -67,7 +58,7 @@ export class Tache {
             status: string  ,
             type: string ,
            
-            priorite: PrioriteTache ,
+            priorite: Priorite ,
             categorie: CategorieTache ,
             notifications: Notification[], description?: string )
              {

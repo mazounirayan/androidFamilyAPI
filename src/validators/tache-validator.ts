@@ -1,12 +1,13 @@
 import Joi from "joi";
-
+type priorite = 'Haute' | 'Faible' |'Moyenne';
 export const createTacheValidation = Joi.object<CreateTacheRequest>({
     nom: Joi.string().max(255).required(),
-    date_debut: Joi.date().iso().optional(), // Ensure the date is in ISO format
-    date_fin: Joi.date().iso().optional(),   // Ensure the date is in ISO format
-    status: Joi.string().max(50).optional(),
-    type: Joi.string().max(100).optional(),
-    description: Joi.string().optional(),
+    date_debut: Joi.date().iso(), // Ensure the date is in ISO format
+    date_fin: Joi.date().iso(),   // Ensure the date is in ISO format
+    status: Joi.string().max(50),
+    priorite: Joi.valid('Haute', 'Faible','Moyenne'),
+    type: Joi.string().max(100),
+    description: Joi.string(),
     idUser: Joi.number().integer().optional(),
     idFamille: Joi.number().integer().optional(),
 }).options({ abortEarly: false });
@@ -14,10 +15,11 @@ export const createTacheValidation = Joi.object<CreateTacheRequest>({
 export interface CreateTacheRequest {
     nom: string;
     date_debut?: Date; // Change to Date
-    date_fin?: Date;   // Change to Date
-    status?: string;
-    type?: string;
-    description?: string;
+    date_fin: Date;   // Change to Date
+    status: string;
+    type: string;
+    priorite:priorite;
+    description: string;
     idUser?: number;
     idFamille?: number;
 }
@@ -29,6 +31,7 @@ export const updateTacheValidation = Joi.object<UpdateTacheRequest>({
     date_fin: Joi.date().optional(),
     status: Joi.string().max(50).optional(),
     type: Joi.string().max(100).optional(),
+    priorite: Joi.optional().valid('Haute', 'Faible','Moyenne').optional(),
     description: Joi.string().optional(),
     idUser: Joi.number().integer().optional(),
     idFamille: Joi.number().integer().optional(),
@@ -41,6 +44,7 @@ export interface UpdateTacheRequest {
     date_fin?: Date;
     status?: string;
     type?: string;
+    priorite?:priorite;
     description?: string;
     idUser?: number;
     idFamille?: number;
