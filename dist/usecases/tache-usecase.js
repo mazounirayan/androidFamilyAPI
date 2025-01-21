@@ -20,9 +20,15 @@ class TacheUsecase {
     // Créer une tâche
     createTache(tacheData) {
         return __awaiter(this, void 0, void 0, function* () {
-            const repo = this.db.getRepository(tache_1.Tache);
-            const tache = repo.create(tacheData);
-            return yield repo.save(tache);
+            try {
+                const repo = this.db.getRepository(tache_1.Tache);
+                const tache = repo.create(tacheData);
+                return yield repo.save(tache);
+            }
+            catch (error) {
+                console.error('Erreur dans TacheUsecase.createTache:', error);
+                throw error;
+            }
         });
     }
     // Marquer une tâche comme terminée
@@ -112,27 +118,13 @@ class TacheUsecase {
         });
     }
     // Lister les tâches avec pagination et filtres
-    listTaches(options) {
+    listTaches() {
         return __awaiter(this, void 0, void 0, function* () {
             const repo = this.db.getRepository(tache_1.Tache);
-            const query = repo.createQueryBuilder("tache");
-            if (options.status) {
-                query.andWhere("tache.status = :status", { status: options.status });
-            }
-            if (options.type) {
-                query.andWhere("tache.type = :type", { type: options.type });
-            }
-            if (options.idFamille) {
-                query.andWhere("tache.idFamille = :idFamille", { idFamille: options.idFamille });
-            }
-            if (options.nom) {
-                query.andWhere("tache.nom LIKE :nom", { nom: `%${options.nom}%` });
-            }
-            const [taches, total] = yield query
-                .skip((options.page - 1) * options.limit)
-                .take(options.limit)
-                .getManyAndCount();
-            return { taches, total, page: options.page, limit: options.limit };
+            const users = yield repo.find({
+                relations: ['famille', 'user']
+            });
+            return users;
         });
     }
     // Obtenir une tâche par son ID

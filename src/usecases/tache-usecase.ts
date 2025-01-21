@@ -7,11 +7,17 @@ export class TacheUsecase {
     constructor(private readonly db: DataSource) {}
 
     // Créer une tâche
-    async createTache(tacheData: Partial<Tache>) {
-        const repo = this.db.getRepository(Tache);
-        const tache = repo.create(tacheData);
-        return await repo.save(tache);
+    async createTache(tacheData: Partial<Tache>): Promise<Tache> {
+        try {
+            const repo = this.db.getRepository(Tache);
+            const tache = repo.create(tacheData);
+            return await repo.save(tache);
+        } catch (error) {
+            console.error('Erreur dans TacheUsecase.createTache:', error);
+            throw error;
+        }
     }
+    
 
     // Marquer une tâche comme terminée
     async markTacheAsCompleted(idTache: number) {
@@ -97,29 +103,13 @@ export class TacheUsecase {
         return taches;
     }
     // Lister les tâches avec pagination et filtres
-    async listTaches(options: { page: number; limit: number; status?: string; type?: string; idFamille?: number; nom?: string }) {
+  
+    async listTaches() {
         const repo = this.db.getRepository(Tache);
-        const query = repo.createQueryBuilder("tache");
-
-        if (options.status) {
-            query.andWhere("tache.status = :status", { status: options.status });
-        }
-        if (options.type) {
-            query.andWhere("tache.type = :type", { type: options.type });
-        }
-        if (options.idFamille) {
-            query.andWhere("tache.idFamille = :idFamille", { idFamille: options.idFamille });
-        }
-        if (options.nom) {
-            query.andWhere("tache.nom LIKE :nom", { nom: `%${options.nom}%` });
-        }
-
-        const [taches, total] = await query
-            .skip((options.page - 1) * options.limit)
-            .take(options.limit)
-            .getManyAndCount();
-
-        return { taches, total, page: options.page, limit: options.limit };
+        const users = await repo.find({
+            relations: ['famille','user']
+        });
+        return users;
     }
 
     // Obtenir une tâche par son ID

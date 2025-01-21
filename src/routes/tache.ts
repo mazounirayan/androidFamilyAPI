@@ -3,6 +3,8 @@ import { AppDataSource } from '../database/database';
 import { TacheUsecase } from '../usecases/tache-usecase';
 import { generateValidationErrorMessage } from '../validators/generate-validation-message';
 import { listTacheValidation, createTacheValidation, TacheIdValidation, updateTacheValidation } from '../validators/tache-validator';
+import { User } from '../database/entities/user';
+import { Famille } from '../database/entities/famille';
 
 export const TacheHandler = (app: express.Express) => {
 
@@ -24,7 +26,7 @@ export const TacheHandler = (app: express.Express) => {
 
         try {
             const tacheUsecase = new TacheUsecase(AppDataSource);
-            const listTaches = await tacheUsecase.listTaches({ ...listTacheRequest, page, limit });
+            const listTaches = await tacheUsecase.listTaches();
             res.status(200).send(listTaches);
         } catch (error) {
             console.log(error);
@@ -34,30 +36,63 @@ export const TacheHandler = (app: express.Express) => {
 
     app.post("/taches", async (req: Request, res: Response) => {
         const validation = createTacheValidation.validate(req.body);
-    
+        
         if (validation.error) {
-            res.status(400).send(generateValidationErrorMessage(validation.error.details));
-            return;
+            return res.status(400).json({
+                error: generateValidationErrorMessage(validation.error.details)
+            });
         }
-    
+        
         const tacheRequest = validation.value;
-    
+        
+        // Conversion des dates en objets Date
         if (tacheRequest.date_debut) {
             tacheRequest.date_debut = new Date(tacheRequest.date_debut);
         }
         if (tacheRequest.date_fin) {
             tacheRequest.date_fin = new Date(tacheRequest.date_fin);
         }
-    
+        
         try {
             const tacheUsecase = new TacheUsecase(AppDataSource);
-            const tacheCreated = await tacheUsecase.createTache(tacheRequest);
-            res.status(201).send(tacheCreated);
+            
+            // Vérification des relations
+            const [user, famille] = await Promise.all([
+                tacheRequest.idUser ? 
+                    AppDataSource.getRepository(User).findOneBy({ id: tacheRequest.idUser }) : 
+                    null,
+                tacheRequest.idFamille ? 
+                    AppDataSource.getRepository(Famille).findOneBy({ idFamille: tacheRequest.idFamille }) : 
+                    null
+            ]);
+    
+            if (tacheRequest.idUser && !user) {
+                return res.status(404).json({
+                    error: `Utilisateur avec l'id ${tacheRequest.idUser} introuvable.`
+                });
+            }
+    
+            if (tacheRequest.idFamille && !famille) {
+                return res.status(404).json({
+                    error: `Famille avec l'id ${tacheRequest.idFamille} introuvable.`
+                });
+            }
+    
+            const tacheCreated = await tacheUsecase.createTache({
+                ...tacheRequest,
+                user: user || undefined,  // Conversion explicite de null en undefined
+                famille: famille || undefined  // Même chose pour famille
+            });
+            return res.status(201).json(tacheCreated);
         } catch (error) {
-            console.log(error);
-            res.status(500).send({ error: "Internal error" });
+            console.error('Erreur lors de la création de la tâche:', error);
+            return res.status(500).json({
+                error: "Erreur interne du serveur."
+            });
         }
     });
+    
+    
 
     // Supprimer une tâche
     app.delete("/taches/:id", async (req: Request, res: Response) => {

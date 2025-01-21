@@ -7,12 +7,12 @@ exports.TacheIdValidation = exports.listTacheValidation = exports.updateTacheVal
 const joi_1 = __importDefault(require("joi"));
 exports.createTacheValidation = joi_1.default.object({
     nom: joi_1.default.string().max(255).required(),
-    date_debut: joi_1.default.date().iso(), // Ensure the date is in ISO format
-    date_fin: joi_1.default.date().iso(), // Ensure the date is in ISO format
-    status: joi_1.default.string().max(50),
-    priorite: joi_1.default.valid('Haute', 'Faible', 'Moyenne'),
-    type: joi_1.default.string().max(100),
-    description: joi_1.default.string(),
+    date_debut: joi_1.default.date().iso().optional(),
+    date_fin: joi_1.default.date().iso().required(),
+    status: joi_1.default.string().max(50).required(),
+    type: joi_1.default.string().max(100).required(),
+    priorite: joi_1.default.string().valid('HAUTE', 'FAIBLE', 'MOYENNE').required(),
+    description: joi_1.default.string().required(),
     idUser: joi_1.default.number().integer().optional(),
     idFamille: joi_1.default.number().integer().optional(),
 }).options({ abortEarly: false });
@@ -23,7 +23,7 @@ exports.updateTacheValidation = joi_1.default.object({
     date_fin: joi_1.default.date().optional(),
     status: joi_1.default.string().max(50).optional(),
     type: joi_1.default.string().max(100).optional(),
-    priorite: joi_1.default.string().valid('Haute', 'Faible', 'Moyenne').optional(),
+    priorite: joi_1.default.string().valid('HAUTE', 'FAIBLE', 'MOYENNE').optional(),
     description: joi_1.default.string().optional(),
     idUser: joi_1.default.number().integer().optional(),
     idFamille: joi_1.default.number().integer().optional(),

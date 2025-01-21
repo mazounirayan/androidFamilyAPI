@@ -14,6 +14,8 @@ const database_1 = require("../database/database");
 const tache_usecase_1 = require("../usecases/tache-usecase");
 const generate_validation_message_1 = require("../validators/generate-validation-message");
 const tache_validator_1 = require("../validators/tache-validator");
+const user_1 = require("../database/entities/user");
+const famille_1 = require("../database/entities/famille");
 const TacheHandler = (app) => {
     // Lister les tâches
     app.get("/taches", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -31,7 +33,7 @@ const TacheHandler = (app) => {
         const page = (_a = listTacheRequest.page) !== null && _a !== void 0 ? _a : 1;
         try {
             const tacheUsecase = new tache_usecase_1.TacheUsecase(database_1.AppDataSource);
-            const listTaches = yield tacheUsecase.listTaches(Object.assign(Object.assign({}, listTacheRequest), { page, limit }));
+            const listTaches = yield tacheUsecase.listTaches();
             res.status(200).send(listTaches);
         }
         catch (error) {
@@ -42,10 +44,12 @@ const TacheHandler = (app) => {
     app.post("/taches", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const validation = tache_validator_1.createTacheValidation.validate(req.body);
         if (validation.error) {
-            res.status(400).send((0, generate_validation_message_1.generateValidationErrorMessage)(validation.error.details));
-            return;
+            return res.status(400).json({
+                error: (0, generate_validation_message_1.generateValidationErrorMessage)(validation.error.details)
+            });
         }
         const tacheRequest = validation.value;
+        // Conversion des dates en objets Date
         if (tacheRequest.date_debut) {
             tacheRequest.date_debut = new Date(tacheRequest.date_debut);
         }
@@ -54,12 +58,34 @@ const TacheHandler = (app) => {
         }
         try {
             const tacheUsecase = new tache_usecase_1.TacheUsecase(database_1.AppDataSource);
-            const tacheCreated = yield tacheUsecase.createTache(tacheRequest);
-            res.status(201).send(tacheCreated);
+            // Vérification des relations
+            const [user, famille] = yield Promise.all([
+                tacheRequest.idUser ?
+                    database_1.AppDataSource.getRepository(user_1.User).findOneBy({ id: tacheRequest.idUser }) :
+                    null,
+                tacheRequest.idFamille ?
+                    database_1.AppDataSource.getRepository(famille_1.Famille).findOneBy({ idFamille: tacheRequest.idFamille }) :
+                    null
+            ]);
+            if (tacheRequest.idUser && !user) {
+                return res.status(404).json({
+                    error: `Utilisateur avec l'id ${tacheRequest.idUser} introuvable.`
+                });
+            }
+            if (tacheRequest.idFamille && !famille) {
+                return res.status(404).json({
+                    error: `Famille avec l'id ${tacheRequest.idFamille} introuvable.`
+                });
+            }
+            const tacheCreated = yield tacheUsecase.createTache(Object.assign(Object.assign({}, tacheRequest), { user: user || undefined, famille: famille || undefined // Même chose pour famille
+             }));
+            return res.status(201).json(tacheCreated);
         }
         catch (error) {
-            console.log(error);
-            res.status(500).send({ error: "Internal error" });
+            console.error('Erreur lors de la création de la tâche:', error);
+            return res.status(500).json({
+                error: "Erreur interne du serveur."
+            });
         }
     }));
     // Supprimer une tâche
