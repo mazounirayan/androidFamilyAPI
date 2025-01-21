@@ -17,13 +17,13 @@ exports.createTacheValidation = joi_1.default.object({
     idFamille: joi_1.default.number().integer().optional(),
 }).options({ abortEarly: false });
 exports.updateTacheValidation = joi_1.default.object({
-    id: joi_1.default.number().required(),
+    idTache: joi_1.default.number().required(),
     nom: joi_1.default.string().max(255).optional(),
     date_debut: joi_1.default.date().optional(),
     date_fin: joi_1.default.date().optional(),
     status: joi_1.default.string().max(50).optional(),
     type: joi_1.default.string().max(100).optional(),
-    priorite: joi_1.default.optional().valid('Haute', 'Faible', 'Moyenne').optional(),
+    priorite: joi_1.default.string().valid('Haute', 'Faible', 'Moyenne').optional(),
     description: joi_1.default.string().optional(),
     idUser: joi_1.default.number().integer().optional(),
     idFamille: joi_1.default.number().integer().optional(),
