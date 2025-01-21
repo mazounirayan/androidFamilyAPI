@@ -151,7 +151,7 @@ export const TacheHandler = (app: express.Express) => {
 
     // Mettre à jour une tâche
 
-app.patch("/taches/:id", async (req: Request, res: Response) => {
+app.patch("/taches/:idTache", async (req: Request, res: Response) => {
     try {
         const validationResult = updateTacheValidation.validate({ ...req.params, ...req.body });
 
