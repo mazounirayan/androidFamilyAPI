@@ -134,7 +134,7 @@ const TacheHandler = (app) => {
         }
     }));
     // Mettre à jour une tâche
-    app.patch("/taches/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.patch("/taches/:idTache", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const validationResult = tache_validator_1.updateTacheValidation.validate(Object.assign(Object.assign({}, req.params), req.body));
             if (validationResult.error) {
