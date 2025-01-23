@@ -95,17 +95,22 @@ class RecompenseUsecase {
             const familleRepository = this.db.getRepository(famille_1.Famille);
             const recompenseRepository = this.db.getRepository(recompense_1.Recompense);
             const familleRecompenseRepository = this.db.getRepository(familleRecompense_1.FamilleRecompense);
+            // Trouver la famille
             const famille = yield familleRepository.findOneBy({ idFamille });
             if (!famille) {
                 throw new Error("Famille introuvable.");
             }
+            // Créer et sauvegarder la récompense
             const recompense = recompenseRepository.create(recompenseData);
             const savedRecompense = yield recompenseRepository.save(recompense);
+            // Créer et sauvegarder la relation Famille-Recompense
             const familleRecompense = familleRecompenseRepository.create({
                 famille,
                 recompense: savedRecompense,
             });
-            return yield familleRecompenseRepository.save(familleRecompense);
+            yield familleRecompenseRepository.save(familleRecompense);
+            // Retourner uniquement les informations de la récompense
+            return savedRecompense;
         });
     }
     // Supprimer une récompense
