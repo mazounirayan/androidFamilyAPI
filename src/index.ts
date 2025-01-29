@@ -31,7 +31,7 @@ const main = async () => {
         console.log(`Server running on port ${port}`)
     })
 
-    server.listen(3000, () => {
+    /*server.listen(3000, () => {
         console.log("Serveur WebSocket démarré sur le port 3000");
     });
 
@@ -55,7 +55,7 @@ const main = async () => {
     
     client.on('close', () => {
         console.log("Connexion fermée par le serveur");
-    });
+    });*/
     
 }
 

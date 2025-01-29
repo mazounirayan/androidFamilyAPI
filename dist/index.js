@@ -36,5 +36,30 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     app.listen(port, () => {
         console.log(`Server running on port ${port}`);
     });
+    /*server.listen(3000, () => {
+        console.log("Serveur WebSocket démarré sur le port 3000");
+    });
+
+    const client = io("http://localhost:3000");
+    
+    client.on('connect', () => {
+        console.log("Connexion établie avec le serveur WebSocket");
+    
+        client.emit("joinFamily", 2);
+        client.emit("sendMessage", { familyId: 2, senderId: 1, content: "Salut" });
+
+    });
+    
+    client.on('message', (data:any) => {
+        console.log(`Message reçu du serveur : ${data}`);
+    });
+    
+    client.on('error', (err:any) => {
+        console.error(`Erreur côté client : ${err.message}`);
+    });
+    
+    client.on('close', () => {
+        console.log("Connexion fermée par le serveur");
+    });*/
 });
 main();
