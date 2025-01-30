@@ -15,8 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const routes_1 = require("./routes/routes");
 const database_1 = require("./database/database");
-const websocket_1 = require("./websocket");
-const socket_io_client_1 = require("socket.io-client");
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const app = (0, express_1.default)();
     const port = 3006;
@@ -38,21 +36,27 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     app.listen(port, () => {
         console.log(`Server running on port ${port}`);
     });
-    yield (0, websocket_1.websocket)();
-    const client = (0, socket_io_client_1.io)("ws://localhost:3000");
+    /*await websocket();
+
+    const client = io("ws://localhost:3000");
+    
     client.on('connect', () => {
         console.log("Connexion établie avec le serveur WebSocket");
+    
         client.emit("joinFamily", 2);
         client.emit("sendMessage", { familyId: 2, senderId: 1, content: "Salut" });
     });
-    client.on('message', (data) => {
+    
+    client.on('message', (data:any) => {
         console.log(`Message reçu du serveur : ${data}`);
     });
-    client.on('error', (err) => {
+    
+    client.on('error', (err:any) => {
         console.error(`Erreur côté client : ${err.message}`);
     });
+    
     client.on('close', () => {
         console.log("Connexion fermée par le serveur");
-    });
+    })*/
 });
 main();

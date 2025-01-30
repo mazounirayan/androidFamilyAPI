@@ -31,7 +31,7 @@ const main = async () => {
         console.log(`Server running on port ${port}`)
     })
 
-    await websocket();
+    /*await websocket();
 
     const client = io("ws://localhost:3000");
     
@@ -52,7 +52,7 @@ const main = async () => {
     
     client.on('close', () => {
         console.log("Connexion fermée par le serveur");
-    })
+    })*/
 
 }
 
