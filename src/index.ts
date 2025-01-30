@@ -1,7 +1,7 @@
 import express from "express";
 import { initRoutes } from "./routes/routes";
 import { AppDataSource } from "./database/database";
-import {server} from "./websocket"
+import {websocket} from "./websocket"
 import { io } from "socket.io-client";
 const main = async () => {
     const app = express()
@@ -31,18 +31,15 @@ const main = async () => {
         console.log(`Server running on port ${port}`)
     })
 
-    /*server.listen(3000, () => {
-        console.log("Serveur WebSocket démarré sur le port 3000");
-    });
+    await websocket();
 
-    const client = io("http://localhost:3000");
+    const client = io("ws://localhost:3000");
     
     client.on('connect', () => {
         console.log("Connexion établie avec le serveur WebSocket");
     
         client.emit("joinFamily", 2); 
         client.emit("sendMessage", { familyId: 2, senderId: 1, content: "Salut" });
-
     });
     
     client.on('message', (data:any) => {
@@ -55,8 +52,9 @@ const main = async () => {
     
     client.on('close', () => {
         console.log("Connexion fermée par le serveur");
-    });*/
-    
+    })
+
 }
+
 
 main()

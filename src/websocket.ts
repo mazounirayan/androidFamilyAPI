@@ -1,40 +1,53 @@
 const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
+const socketIO = require("socket.io");
+const PORT = 3000
 
-const app = express();
-export const server = http.createServer(app);
-const io = new Server(server);
+export const websocket = async () => {
 
-io.on("connection", (socket:any) => {
-    console.log("Nouvelle connexion WebSocket établie");
-
-    socket.on("error", (err:any) => {
-        console.error(`Erreur WebSocket : ${err.message}`);
+    const server = express().listen(PORT, ()=>{
+        console.log(`Ws écoute sur le port ${PORT}`)
     });
 
-    socket.on("disconnect", () => {
-        console.log("Un utilisateur s'est déconnecté");
+ const socketHandler = socketIO(server)
+
+
+    socketHandler.on("connection", (socket:any) => {
+        console.log("Nouvelle connexion WebSocket établie");
+
+        socket.on("error", (err:any) => {
+            console.error(`Erreur WebSocket : ${err.message}`);
+        });
+
+        socket.on("disconnect", () => {
+            console.log("Un utilisateur s'est déconnecté");
+        });
+
+
+        socket.on("joinFamily", (familyId:number) => {
+            if (!familyId) {
+                console.error("ID de la famille manquant");
+                return;
+            }
+            socket.join(familyId);
+            console.log(`Utilisateur rejoint la famille : ${familyId}`);
+        });
+        
+
+        socket.on("sendMessage", (data:any) => {
+            const { familyId, senderId, content } = data;
+            console.log(`Message reçu : ${content} de ${senderId} pour la famille ${familyId}`);
+            socket.emit("message",{"test":"test"})
+
+        });
+
+        socket.on("message", (data:any) => {
+            console.log(`Message reçu : ${data}`);
+            socket.emit("message",{"test":"test"})
+            console.log("message test envoyé")
+        });
+
+
+
     });
 
-
-    socket.on("joinFamily", (familyId:number) => {
-        if (!familyId) {
-            console.error("ID de la famille manquant");
-            return;
-        }
-        socket.join(familyId);
-        console.log(`Utilisateur rejoint la famille : ${familyId}`);
-    });
-    
-
-    socket.on("sendMessage", (data:any) => {
-        const { familyId, senderId, content } = data;
-        console.log(`Message reçu : ${content} de ${senderId} pour la famille ${familyId}`);
-
-    });
-
-
-});
-
-
+}
