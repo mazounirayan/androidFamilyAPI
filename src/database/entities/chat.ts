@@ -13,8 +13,8 @@ export class Chat {
   messages: Message[];
 
   constructor(idChat:number,libelle: string,messages: Message[]) {
-    this.libelle = libelle;
     this.idChat =idChat;
+    this.libelle = libelle;
     this.messages = messages; // Initialiser messages comme un tableau vide
   }
 }

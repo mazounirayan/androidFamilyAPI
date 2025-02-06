@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from './user';
 import { Chat } from './chat';
 
@@ -17,9 +17,11 @@ export class Message {
     isVue: boolean;
 
     @ManyToOne(() => User, user => user.messages)
+    @JoinColumn({ name: 'idUser' })
     user: User;
 
     @ManyToOne(() => Chat, chat => chat.messages)
+    @JoinColumn({ name: 'idChat' })
     chat: Chat;
 
     constructor(

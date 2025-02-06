@@ -1,3 +1,5 @@
+source creation.sql 
+
 USE projet_famille;
 -- Insertion dans Famille
 INSERT INTO Famille (nom, date_de_creation, code_invitation) VALUES

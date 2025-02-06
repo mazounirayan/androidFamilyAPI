@@ -26,7 +26,7 @@ class MessageUsecase {
     listMessagesByChat() {
         return __awaiter(this, arguments, void 0, function* (page = 1, limit = 10, idChat) {
             const repo = this.db.getRepository(message_1.Message);
-            const query = repo.createQueryBuilder("notification");
+            const query = repo.createQueryBuilder("message");
             if (idChat) {
                 query.where("message.idChat LIKE :idChat", { idChat: `%${idChat}%` });
             }

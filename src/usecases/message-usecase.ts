@@ -14,10 +14,11 @@ export class MessageUsecase {
 
     async listMessagesByChat(page: number = 1, limit: number = 10,idChat?: number): Promise<Message[]> {
         const repo = this.db.getRepository(Message);
-        const query = repo.createQueryBuilder("notification");
+        const query = repo.createQueryBuilder("message");
         if (idChat) {
             query.where("message.idChat LIKE :idChat", { idChat: `%${idChat}%` });
         }
         query.skip((page - 1) * limit).take(limit);
-        return query.getMany();}
+        return query.getMany();
+    }
 }

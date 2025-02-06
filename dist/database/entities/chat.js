@@ -14,8 +14,8 @@ const typeorm_1 = require("typeorm");
 const message_1 = require("./message");
 let Chat = class Chat {
     constructor(idChat, libelle, messages) {
-        this.libelle = libelle;
         this.idChat = idChat;
+        this.libelle = libelle;
         this.messages = messages; // Initialiser messages comme un tableau vide
     }
 };

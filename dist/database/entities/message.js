@@ -42,10 +42,12 @@ __decorate([
 ], Message.prototype, "isVue", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => user_1.User, user => user.messages),
+    (0, typeorm_1.JoinColumn)({ name: 'idUser' }),
     __metadata("design:type", user_1.User)
 ], Message.prototype, "user", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => chat_1.Chat, chat => chat.messages),
+    (0, typeorm_1.JoinColumn)({ name: 'idChat' }),
     __metadata("design:type", chat_1.Chat)
 ], Message.prototype, "chat", void 0);
 exports.Message = Message = __decorate([
