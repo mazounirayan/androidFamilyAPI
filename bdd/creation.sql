@@ -115,6 +115,15 @@ CREATE TABLE Chat (
     idChat INT PRIMARY KEY AUTO_INCREMENT,
     libelle VARCHAR(255) NOT NULL
 );
+
+CREATE TABLE user_chats_chat (
+    idUser INT,
+    idChat INT,
+    PRIMARY KEY (idUser, idChat),
+    FOREIGN KEY (idUser) REFERENCES User(id) ON DELETE CASCADE,
+    FOREIGN KEY (idChat) REFERENCES Chat(idChat) ON DELETE CASCADE
+);
+
 CREATE TABLE Message (
     idMessage INT PRIMARY KEY AUTO_INCREMENT,
     contenu TEXT NOT NULL,
