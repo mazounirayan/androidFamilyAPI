@@ -7,6 +7,7 @@ import { User } from "../../database/entities/user";
 import jwt from 'jsonwebtoken'; // Importez jwt pour générer le token
 import { UserUsecase } from "../../usecases/user-usecase";
 import { Famille } from "../../database/entities/famille";
+import { Token } from "../../database/entities/token";
 
 function generateUniqueCode(): string {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -117,11 +118,8 @@ export const UserHandlerAuthentication = (app: express.Express) => {
 
     app.post('/auth/login', async (req: Request, res: Response) => {
         try {
-            console.error("Body reçu :", req.body);
-
 
             const validationResult = LoginUserValidation.validate(req.body)
-            console.error("Validation result :", validationResult);
 
             if (validationResult.error) {
                 res.status(400).send(generateValidationErrorMessage(validationResult.error.details))
@@ -130,22 +128,11 @@ export const UserHandlerAuthentication = (app: express.Express) => {
             const loginUserRequest = validationResult.value
 
             let user = await AppDataSource.getRepository(User).findOneBy({ email: loginUserRequest.email });
-            console.error("Utilisateur trouvé :", user);
-            console.error("Utilisateur trouvé (ou null) :", user);
-        
-            console.error("Mot de passe reçu :", loginUserRequest.motDePasse);
-            console.error("Mot de passe stocké :", user?.motDePasse);
+
             if (!user) {
                 res.status(400).send({ error: "username or password not valid" })
                 return
             } 
-
-
-
-
-            
- 
-
 
           //  a remetrre apres les test   const isValid = await compare(loginUserRequest.motDePasse, user.motDePasse);
             const isValid = loginUserRequest.motDePasse === user.motDePasse;
@@ -157,8 +144,11 @@ export const UserHandlerAuthentication = (app: express.Express) => {
             const token = jwt.sign(
                 { userId: user.id, email: user.email }, // Payload (données à inclure dans le token)
                 process.env.JWT_SECRET || 'your_secret_key', // Clé secrète pour signer le token
-                {     expiresIn: '365d'} // Durée de validité du token
+                {     expiresIn: '1d'} // Durée de validité du token
             );
+
+            await AppDataSource.getRepository(Token).save({ token: token, user: user})
+
     
             const userUsecase = new UserUsecase(AppDataSource);
 

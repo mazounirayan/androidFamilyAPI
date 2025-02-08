@@ -100,7 +100,10 @@ class UserUsecase {
         return __awaiter(this, void 0, void 0, function* () {
             const repo = this.db.getRepository(user_1.User);
             const users = yield repo.find({
-                relations: ['famille'],
+                relations: {
+                    famille: true,
+                    chats: true
+                },
             });
             return users;
         });

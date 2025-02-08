@@ -18,8 +18,10 @@ const message_1 = require("./message");
 const userRecompense_1 = require("./userRecompense");
 const userBadge_1 = require("./userBadge");
 const transactionCoins_1 = require("./transactionCoins");
+const chat_1 = require("./chat");
+const token_1 = require("./token");
 let User = class User {
-    constructor(id, nom, prenom, email, motDePasse, role, dateInscription, avatar, coins, totalPoints, famille, taches, notifications, messages, userRecompenses, userBadges, transactions, numTel) {
+    constructor(id, nom, prenom, email, motDePasse, role, dateInscription, avatar, coins, totalPoints, famille, taches, notifications, messages, userRecompenses, userBadges, transactions, chats, tokens, numTel) {
         this.id = id;
         this.nom = nom;
         this.prenom = prenom;
@@ -37,7 +39,9 @@ let User = class User {
         this.userRecompenses = userRecompenses;
         this.userBadges = userBadges;
         this.transactions = transactions;
+        this.chats = chats;
         this.numTel = numTel || "";
+        this.tokens = tokens;
     }
 };
 exports.User = User;
@@ -114,7 +118,26 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => transactionCoins_1.TransactionCoins, transaction => transaction.user),
     __metadata("design:type", Array)
 ], User.prototype, "transactions", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => token_1.Token, token => token.user),
+    __metadata("design:type", Array)
+], User.prototype, "tokens", void 0);
+__decorate([
+    (0, typeorm_1.ManyToMany)(() => chat_1.Chat),
+    (0, typeorm_1.JoinTable)({
+        name: "user_chats_chat", // Correspond au nom de ta table SQL
+        joinColumn: {
+            name: "idUser", // Nom de la colonne dans la table de jointure
+            referencedColumnName: "id", // Nom de la colonne référencée dans User
+        },
+        inverseJoinColumn: {
+            name: "idChat", // Nom de la colonne dans la table de jointure
+            referencedColumnName: "idChat", // Nom de la colonne référencée dans Chat
+        },
+    }),
+    __metadata("design:type", Array)
+], User.prototype, "chats", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)('User'),
-    __metadata("design:paramtypes", [Number, String, String, String, String, String, Date, String, Number, Number, famille_1.Famille, Array, Array, Array, Array, Array, Array, String])
+    __metadata("design:paramtypes", [Number, String, String, String, String, String, Date, String, Number, Number, famille_1.Famille, Array, Array, Array, Array, Array, Array, Array, Array, String])
 ], User);

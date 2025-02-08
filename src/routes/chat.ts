@@ -1,7 +1,8 @@
 import express, { Request, Response } from "express";
 import { AppDataSource } from "../database/database";
 import { ChatUsecase } from "../usecases/chat-usecase";
-import { createChatValidation } from "../validators/chat-validator";
+import { addUserToChat, createChatValidation } from "../validators/chat-validator";
+import { generateValidationErrorMessage } from "../validators/generate-validation-message";
 
 export const ChatHandler = (app: express.Express) => {
     const chatUsecase = new ChatUsecase(AppDataSource);
@@ -30,6 +31,26 @@ export const ChatHandler = (app: express.Express) => {
         } catch (error) {
             console.error(error);
             res.status(500).send({ error: "Internal server error" });
+        }
+    });
+
+    app.post("/chats/user", async (req: Request, res: Response) => {
+        const validation = addUserToChat.validate(req.body);
+        if (validation.error) {
+            res.status(400).send(generateValidationErrorMessage(validation.error.details));
+            return;
+        }
+
+        const { idUser, idChat } = validation.value;
+
+        try {
+            const chatUsecase = new ChatUsecase(AppDataSource);
+            await chatUsecase.addUserToChat(idUser, idChat);
+            res.status(201)
+
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
         }
     });
 };

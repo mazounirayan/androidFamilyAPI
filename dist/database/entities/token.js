@@ -25,7 +25,7 @@ __decorate([
     __metadata("design:type", Number)
 ], Token.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ length: 255 }),
+    (0, typeorm_1.Column)({ type: "varchar", length: 255 }),
     __metadata("design:type", String)
 ], Token.prototype, "token", void 0);
 __decorate([

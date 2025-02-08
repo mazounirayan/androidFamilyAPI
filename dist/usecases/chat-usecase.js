@@ -28,5 +28,14 @@ class ChatUsecase {
             return yield repo.find();
         });
     }
+    addUserToChat(userId, chatId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.db.createQueryBuilder()
+                .insert()
+                .into("user_chats_chat") // Nom de la table de relation
+                .values({ idUser: userId, idChat: chatId })
+                .execute();
+        });
+    }
 }
 exports.ChatUsecase = ChatUsecase;

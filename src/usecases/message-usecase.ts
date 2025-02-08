@@ -18,6 +18,9 @@ export class MessageUsecase {
         if (idChat) {
             query.where("message.idChat LIKE :idChat", { idChat: `%${idChat}%` });
         }
+
+        query.leftJoinAndSelect('message.user','user.id')
+        
         query.skip((page - 1) * limit).take(limit);
         return query.getMany();
     }

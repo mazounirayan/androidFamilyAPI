@@ -134,7 +134,6 @@ CREATE TABLE Message (
     FOREIGN KEY (idUser) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (idChat) REFERENCES Chat(idChat) ON DELETE CASCADE
 );
--- Table Tache
 
 
 

@@ -56,6 +56,8 @@ export const UserHandler = (app: express.Express) => {
         }
     });
 
+
+
     // Supprimer un utilisateur
     app.delete("/users/:id", async (req: Request, res: Response) => {
         try {

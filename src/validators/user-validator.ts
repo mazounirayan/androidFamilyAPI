@@ -135,6 +135,8 @@ export interface ListUserRequest {
     role?: UserRole;
 }
 
+
+
 // Login User Validation
 export const LoginUserValidation = Joi.object<LoginUserValidationRequest>({
     email: Joi.string().email().required(),

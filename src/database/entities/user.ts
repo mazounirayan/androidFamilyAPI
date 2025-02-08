@@ -1,12 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn, ManyToMany, JoinTable } from 'typeorm';
 import { Famille } from './famille';
 import { Tache } from './tache';
 import { Notification } from './notification';
 import { Message } from './message';
-import { Recompense } from './recompense';
 import { UserRecompense } from './userRecompense';
 import { UserBadge } from './userBadge';
 import { TransactionCoins } from './transactionCoins';
+import { Chat } from './chat';
+import { Token } from './token';
 export type UserRole = 'Parent' | 'Enfant';
 
 @Entity('User')
@@ -47,10 +48,6 @@ export class User {
     @ManyToOne(() => Famille, famille => famille.users)
     @JoinColumn({ name: "idFamille" })
     famille: Famille;
-
-
-
-
     
     @OneToMany(() => Tache, tache => tache.user)
     taches: Tache[];
@@ -69,9 +66,26 @@ export class User {
 
     @OneToMany(() => TransactionCoins, transaction => transaction.user)
     transactions: TransactionCoins[]; // Transactions de points
+    
+    @OneToMany(() => Token, token => token.user)
+    tokens: Token[];
 
 
 
+    @ManyToMany(() => Chat)
+    @JoinTable({
+        name: "user_chats_chat",  // Correspond au nom de ta table SQL
+        joinColumn: {
+            name: "idUser",  // Nom de la colonne dans la table de jointure
+            referencedColumnName: "id",  // Nom de la colonne référencée dans User
+        },
+        inverseJoinColumn: {
+            name: "idChat",  // Nom de la colonne dans la table de jointure
+            referencedColumnName: "idChat",  // Nom de la colonne référencée dans Chat
+        },
+    })
+    chats: Chat[];
+    
     constructor(
         id: number,
         nom: string,
@@ -90,8 +104,9 @@ export class User {
         userRecompenses: UserRecompense[] ,
         userBadges: UserBadge[] ,
         transactions: TransactionCoins[] ,
-       
-        numTel?: string
+        chats: Chat[],
+        tokens: Token[],
+        numTel?: string,
     ) {
         this.id = id;
         this.nom = nom;
@@ -110,7 +125,8 @@ export class User {
         this.userRecompenses = userRecompenses;
         this.userBadges = userBadges;
         this.transactions = transactions;
-    
+        this.chats = chats
         this.numTel = numTel || "";
+        this.tokens = tokens
     }
 }

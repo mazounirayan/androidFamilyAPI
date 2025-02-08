@@ -14,4 +14,11 @@ export class ChatUsecase {
         const repo = this.db.getRepository(Chat);
         return await repo.find();
     }
+    async addUserToChat(userId: number, chatId: number) {
+        return await this.db.createQueryBuilder()
+            .insert()
+            .into("user_chats_chat") // Nom de la table de relation
+            .values({ idUser: userId, idChat: chatId })
+            .execute();
+    }
 }

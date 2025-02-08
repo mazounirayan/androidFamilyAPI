@@ -13,6 +13,8 @@ export class UserUsecase {
         return await repo.save(user);
     }
 
+
+
     // Obtenir un utilisateur par son ID
     async getUserById(id: number) {
         const repo = this.db.getRepository(User);
@@ -84,7 +86,10 @@ export class UserUsecase {
     async listUsers() {
         const repo = this.db.getRepository(User);
         const users = await repo.find({
-            relations: ['famille'], 
+            relations: {
+                famille:true,
+                chats:true 
+            },
         });
         return users;
     }
