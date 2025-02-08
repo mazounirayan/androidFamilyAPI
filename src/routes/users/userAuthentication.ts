@@ -206,6 +206,7 @@ export const UserHandlerAuthentication = (app: express.Express) => {
                 return
             }
 
+            userUsecase.deleteToken(user.id)
 
             await userUsecase.updateUser(
                 user.id,

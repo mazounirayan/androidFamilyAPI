@@ -105,6 +105,27 @@ const UserHandler = (app) => {
             res.status(500).send({ error: "Internal error" });
         }
     }));
+    app.get("/usersbytoken", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const validationResult = user_validator_1.userTokenValidation.validate(req.body);
+            if (validationResult.error) {
+                res.status(400).send((0, generate_validation_message_1.generateValidationErrorMessage)(validationResult.error.details));
+                return;
+            }
+            const userToken = validationResult.value;
+            const userUsecase = new user_usecase_1.UserUsecase(database_1.AppDataSource);
+            const user = yield userUsecase.getUserByToken(userToken.token);
+            if (user === null) {
+                res.status(404).send({ "error": `User ${userToken.token} not found` });
+                return;
+            }
+            res.status(200).send(user);
+        }
+        catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    }));
     // Mettre à jour un utilisateur
     app.patch("/users/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {

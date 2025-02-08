@@ -177,6 +177,7 @@ const UserHandlerAuthentication = (app) => {
                 res.status(404).send({ "error": `user ${userId.id} not found` });
                 return;
             }
+            userUsecase.deleteToken(user.id);
             yield userUsecase.updateUser(user.id, Object.assign({}, user));
             res.status(201).send({ "message": "logout success" });
             return;

@@ -13,6 +13,7 @@ exports.UserUsecase = void 0;
 const user_1 = require("../database/entities/user");
 const famille_1 = require("../database/entities/famille");
 const transactionCoins_1 = require("../database/entities/transactionCoins");
+const token_1 = require("../database/entities/token");
 class UserUsecase {
     constructor(db) {
         this.db = db;
@@ -23,6 +24,19 @@ class UserUsecase {
             const repo = this.db.getRepository(user_1.User);
             const user = repo.create(userData);
             return yield repo.save(user);
+        });
+    }
+    getUserByToken(tokenValue) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const tokenRepo = this.db.getRepository(token_1.Token);
+            const token = yield tokenRepo.findOne({
+                where: { token: tokenValue },
+                relations: ['user'],
+            });
+            if (!token) {
+                throw new Error('Token invalide ou inexistant');
+            }
+            return token.user; // Retourner l'utilisateur associé au token
         });
     }
     // Obtenir un utilisateur par son ID
@@ -122,6 +136,12 @@ class UserUsecase {
             // Recherche de l'utilisateur par ID
             const user = yield repo.findOneBy({ id: userId });
             return user;
+        });
+    }
+    deleteToken(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const TokenDelete = yield this.db.createQueryBuilder().delete().from(token_1.Token).where("userId = :id", { id: id }).execute();
+            return TokenDelete;
         });
     }
 }

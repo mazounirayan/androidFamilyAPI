@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import { AppDataSource } from '../../database/database';
 import { UserUsecase } from '../../usecases/user-usecase';
 import { generateValidationErrorMessage } from '../../validators/generate-validation-message';
-import { listUserValidation, createUserValidation, userIdValidation, updateUserValidation } from '../../validators/user-validator';
+import { listUserValidation, createUserValidation, userIdValidation, updateUserValidation, userTokenValidation } from '../../validators/user-validator';
 import { FamilleIdValidation} from '../../validators/famille-validator';
 import { FamilleUsecase } from '../../usecases/famille-usecase';
 export const UserHandler = (app: express.Express) => {
@@ -103,6 +103,32 @@ export const UserHandler = (app: express.Express) => {
 
             if (user === null) {
                 res.status(404).send({ "error": `User ${userId.id} not found` });
+                return;
+            }
+
+            res.status(200).send(user);
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    });
+
+    app.get("/usersbytoken", async (req: Request, res: Response) => {
+        try {
+            const validationResult = userTokenValidation.validate(req.body);
+
+            if (validationResult.error) {
+                res.status(400).send(generateValidationErrorMessage(validationResult.error.details));
+                return;
+            }
+
+            const userToken = validationResult.value;
+
+            const userUsecase = new UserUsecase(AppDataSource);
+            const user = await userUsecase.getUserByToken(userToken.token);
+
+            if (user === null) {
+                res.status(404).send({ "error": `User ${userToken.token} not found` });
                 return;
             }
 

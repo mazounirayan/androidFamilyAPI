@@ -78,12 +78,18 @@ interface CreateUserValidationRequest {
 // User ID Validation
 export const userIdValidation = Joi.object<UserIdRequest>({
     id: Joi.number().required(),
-  
 });
 
 export interface UserIdRequest {
     id: number;
+}
 
+export const userTokenValidation = Joi.object<UserTokenRequest>({
+    token: Joi.string().required(),
+});
+
+export interface UserTokenRequest {
+    token: string;
 }
 
 // Update User Validation

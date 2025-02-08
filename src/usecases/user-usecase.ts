@@ -1,7 +1,8 @@
-import { DataSource } from "typeorm";
+import { DataSource, DeleteResult } from "typeorm";
 import { User,UserRole } from "../database/entities/user";
 import { Famille } from "../database/entities/famille";
 import { TransactionCoins } from "../database/entities/transactionCoins";
+import { Token } from "../database/entities/token";
 
 export class UserUsecase {
     constructor(private readonly db: DataSource) {}
@@ -14,6 +15,21 @@ export class UserUsecase {
     }
 
 
+    async getUserByToken(tokenValue: string) {
+        const tokenRepo = this.db.getRepository(Token);
+    
+        const token = await tokenRepo.findOne({
+            where: { token: tokenValue },
+            relations: ['user'], 
+        });
+    
+        if (!token) {
+            throw new Error('Token invalide ou inexistant');
+        }
+    
+        return token.user; // Retourner l'utilisateur associé au token
+    }
+    
 
     // Obtenir un utilisateur par son ID
     async getUserById(id: number) {
@@ -108,6 +124,14 @@ export class UserUsecase {
         const user = await repo.findOneBy({ id: userId });
 
         return user;
+    }
+
+        async deleteToken(id: number): Promise<DeleteResult> {
+
+        const TokenDelete = await this.db.createQueryBuilder().delete().from(Token).where("userId = :id", { id: id }).execute();
+
+        return TokenDelete;
+
     }
 
 

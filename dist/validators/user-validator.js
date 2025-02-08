@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LoginUserValidation = exports.listUserValidation = exports.updateUserValidation = exports.userIdValidation = exports.createUserValidation = void 0;
+exports.LoginUserValidation = exports.listUserValidation = exports.updateUserValidation = exports.userTokenValidation = exports.userIdValidation = exports.createUserValidation = void 0;
 const joi_1 = __importDefault(require("joi"));
 // Create User Validation
 exports.createUserValidation = joi_1.default.object({
@@ -60,6 +60,9 @@ exports.createUserValidation = joi_1.default.object({
 // User ID Validation
 exports.userIdValidation = joi_1.default.object({
     id: joi_1.default.number().required(),
+});
+exports.userTokenValidation = joi_1.default.object({
+    token: joi_1.default.string().required(),
 });
 // Update User Validation
 exports.updateUserValidation = joi_1.default.object({
