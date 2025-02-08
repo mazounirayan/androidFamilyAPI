@@ -51,10 +51,15 @@ async updateFamille(idFamille: number, updateData: Partial<Famille>) {
     async getFamilyMembers(idFamille: number) {
         const repo = this.db.getRepository(User);
         return await repo.find({
-            where: {
+ /*           relations: {
+                chats:true 
+            },
+*/          where: {
                 famille: { idFamille }, 
             },
         });
+
+        
     }
 
  

@@ -11,6 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessageUsecase = void 0;
 const message_1 = require("../database/entities/message");
+const user_1 = require("../database/entities/user");
+const chat_1 = require("../database/entities/chat");
 class MessageUsecase {
     constructor(db) {
         this.db = db;
@@ -18,8 +20,23 @@ class MessageUsecase {
     // Create a new message
     createMessage(messageData) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             const repo = this.db.getRepository(message_1.Message);
-            const message = repo.create(messageData);
+            const userRepo = this.db.getRepository(user_1.User);
+            const chatRepo = this.db.getRepository(chat_1.Chat);
+            const user = yield userRepo.findOne({ where: { id: (_a = messageData.user) === null || _a === void 0 ? void 0 : _a.id } });
+            const chat = yield chatRepo.findOne({ where: { idChat: (_b = messageData.chat) === null || _b === void 0 ? void 0 : _b.idChat } });
+            if (!user || !chat) {
+                throw new Error("User or Chat not found");
+            }
+            // Créer le message avec les relations correctement définies
+            const message = repo.create({
+                contenu: messageData.contenu,
+                date_envoie: messageData.date_envoie,
+                isVue: messageData.isVue,
+                user, // Relation User
+                chat, // Relation Chat
+            });
             return yield repo.save(message);
         });
     }

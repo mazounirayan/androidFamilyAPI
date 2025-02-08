@@ -66,7 +66,10 @@ class FamilleUsecase {
         return __awaiter(this, void 0, void 0, function* () {
             const repo = this.db.getRepository(user_1.User);
             return yield repo.find({
-                where: {
+                /*           relations: {
+                               chats:true
+                           },
+               */ where: {
                     famille: { idFamille },
                 },
             });
