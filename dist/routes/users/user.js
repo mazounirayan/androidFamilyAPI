@@ -105,9 +105,9 @@ const UserHandler = (app) => {
             res.status(500).send({ error: "Internal error" });
         }
     }));
-    app.get("/usersbytoken", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.get("/usersbytoken/:token", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const validationResult = user_validator_1.userTokenValidation.validate(req.body);
+            const validationResult = user_validator_1.userTokenValidation.validate(req.params);
             if (validationResult.error) {
                 res.status(400).send((0, generate_validation_message_1.generateValidationErrorMessage)(validationResult.error.details));
                 return;

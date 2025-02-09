@@ -113,9 +113,9 @@ export const UserHandler = (app: express.Express) => {
         }
     });
 
-    app.get("/usersbytoken", async (req: Request, res: Response) => {
+    app.get("/usersbytoken/:token", async (req: Request, res: Response) => {
         try {
-            const validationResult = userTokenValidation.validate(req.body);
+            const validationResult = userTokenValidation.validate(req.params);
 
             if (validationResult.error) {
                 res.status(400).send(generateValidationErrorMessage(validationResult.error.details));
