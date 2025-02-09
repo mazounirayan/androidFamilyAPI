@@ -20,15 +20,20 @@ export class UserUsecase {
     
         const token = await tokenRepo.findOne({
             where: { token: tokenValue },
-            relations: ['user'], 
+            relations: {
+                user: {
+                    chats: true, 
+                },
+            },
         });
     
         if (!token) {
             throw new Error('Token invalide ou inexistant');
         }
     
-        return token.user; // Retourner l'utilisateur associé au token
+        return token.user;
     }
+    
     
 
     // Obtenir un utilisateur par son ID
