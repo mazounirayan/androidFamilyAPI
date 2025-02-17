@@ -24,24 +24,24 @@ export class ChatUsecase {
     async listChatsByUser(userId: number): Promise<any[]> {
         const chatRepository = this.db.getRepository(Chat);
         const chats = await chatRepository.createQueryBuilder("chat")
-            .leftJoinAndSelect("chat.participants", "user")
-            .leftJoinAndSelect("chat.messages", "message")
-            .where("user.id = :userId", { userId })
-            .getMany();
-    
-        chats.forEach(chat => {
-            chat.messages.sort((a, b) => b.date_envoie.getTime() - a.date_envoie.getTime());
-        });
-    
-        return chats.map(chat => ({
+          .leftJoinAndSelect("chat.participants", "user")
+          .leftJoinAndSelect("chat.messages", "message", 
+            "message.idChat = chat.idChat AND message.idMessage = (SELECT MAX(m.idMessage) FROM Message m WHERE m.idChat = chat.idChat)")
+          .where("user.id = :userId", { userId })
+          .getMany();
+      
+        return chats.map(chat => {
+          chat.messages.sort((a, b) => b.date_envoie.getTime() - a.date_envoie.getTime());
+          const lastMessage = chat.messages[0];
+          return {
             id: chat.idChat,
             name: chat.libelle,
             participants: chat.participants.map(user => user.nom),
-            lastMessage: chat.messages[0] ? chat.messages[0].contenu : "No messages",
-            messageTime: chat.messages[0] ? chat.messages[0].date_envoie : null,
-        }));
-    }
-    
+            lastMessage: lastMessage ? lastMessage.contenu : "No messages",
+            messageTime: lastMessage ? lastMessage.date_envoie : null,
+          };
+        });
+      }
     
     
 
