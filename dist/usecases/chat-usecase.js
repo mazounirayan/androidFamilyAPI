@@ -42,7 +42,7 @@ class ChatUsecase {
             const chatRepository = this.db.getRepository(chat_1.Chat);
             const chats = yield chatRepository.createQueryBuilder("chat")
                 .leftJoinAndSelect("chat.participants", "user")
-                .leftJoinAndSelect("chat.messages", "message", "message.idMessage = (SELECT MAX(m.idMessage) FROM message m WHERE m.chatIdChat = chat.idChat)")
+                .leftJoinAndSelect("chat.messages", "message", "message.idMessage = (SELECT MAX(m.idMessage) FROM Message m WHERE m.chatIdChat = chat.idChat)")
                 .where("user.id = :userId", { userId })
                 .getMany();
             return chats.map(chat => {

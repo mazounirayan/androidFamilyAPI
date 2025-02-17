@@ -23,9 +23,9 @@ export class ChatUsecase {
     }
     async listChatsByUser(userId: number): Promise<any[]> {
         const chatRepository = this.db.getRepository(Chat);
-         const chats = await chatRepository.createQueryBuilder("chat")
+        const chats = await chatRepository.createQueryBuilder("chat")
             .leftJoinAndSelect("chat.participants", "user")
-            .leftJoinAndSelect("chat.messages", "message", "message.idMessage = (SELECT MAX(m.idMessage) FROM message m WHERE m.chatIdChat = chat.idChat)")  
+            .leftJoinAndSelect("chat.messages", "message", "message.idMessage = (SELECT MAX(m.idMessage) FROM Message m WHERE m.chatIdChat = chat.idChat)")  
             .where("user.id = :userId", { userId })
             .getMany();
     
@@ -41,6 +41,8 @@ export class ChatUsecase {
              };
         });
     }
+    
+    
 
     
 }
