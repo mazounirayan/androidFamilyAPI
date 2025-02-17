@@ -25,12 +25,12 @@ export class ChatUsecase {
         const chatRepository = this.db.getRepository(Chat);
         const chats = await chatRepository.createQueryBuilder("chat")
             .leftJoinAndSelect("chat.participants", "user")
-            .leftJoinAndSelect("chat.messages", "message", "message.idMessage = (SELECT MAX(m.idMessage) FROM Message m WHERE m.chatIdChat = chat.idChat)")  
+            .leftJoinAndSelect("chat.messages", "message", "message.idMessage = (SELECT MAX(m.idMessage) FROM Message m WHERE m.idChat = chat.idChat)")
             .where("user.id = :userId", { userId })
             .getMany();
     
         return chats.map(chat => {
-             chat.messages.sort((a, b) => b.date_envoie.getTime() - a.date_envoie.getTime());
+            chat.messages.sort((a, b) => b.date_envoie.getTime() - a.date_envoie.getTime());
             const lastMessage = chat.messages[0];
             return {
                 id: chat.idChat,
@@ -38,9 +38,10 @@ export class ChatUsecase {
                 participants: chat.participants.map(user => user.nom),
                 lastMessage: lastMessage ? lastMessage.contenu : "No messages",
                 messageTime: lastMessage ? lastMessage.date_envoie : null,
-             };
+            };
         });
     }
+    
     
     
 
