@@ -42,20 +42,19 @@ class ChatUsecase {
             const chatRepository = this.db.getRepository(chat_1.Chat);
             const chats = yield chatRepository.createQueryBuilder("chat")
                 .leftJoinAndSelect("chat.participants", "user")
-                .leftJoinAndSelect("chat.messages", "message", "message.idMessage = (SELECT MAX(m.idMessage) FROM Message m WHERE m.chatIdChat = chat.idChat)")
+                .leftJoinAndSelect("chat.messages", "message")
                 .where("user.id = :userId", { userId })
                 .getMany();
-            return chats.map(chat => {
+            chats.forEach(chat => {
                 chat.messages.sort((a, b) => b.date_envoie.getTime() - a.date_envoie.getTime());
-                const lastMessage = chat.messages[0];
-                return {
-                    id: chat.idChat,
-                    name: chat.libelle,
-                    participants: chat.participants.map(user => user.nom),
-                    lastMessage: lastMessage ? lastMessage.contenu : "No messages",
-                    messageTime: lastMessage ? lastMessage.date_envoie : null,
-                };
             });
+            return chats.map(chat => ({
+                id: chat.idChat,
+                name: chat.libelle,
+                participants: chat.participants.map(user => user.nom),
+                lastMessage: chat.messages[0] ? chat.messages[0].contenu : "No messages",
+                messageTime: chat.messages[0] ? chat.messages[0].date_envoie : null,
+            }));
         });
     }
 }
