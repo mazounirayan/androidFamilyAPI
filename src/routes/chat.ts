@@ -53,4 +53,21 @@ export const ChatHandler = (app: express.Express) => {
             res.status(500).send({ error: "Internal error" });
         }
     });
+    
+ app.get("/users/:userId/chats", async (req: Request, res: Response) => {
+    const userId = parseInt(req.params.userId);
+    if (isNaN(userId)) {
+        return res.status(400).send({ error: "Invalid user ID provided" });
+    }
+
+    try {
+        const chats = await chatUsecase.listChatsByUser(userId);
+        res.status(200).send(chats);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: "Internal server error" });
+    }
+});
+
+
 };

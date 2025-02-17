@@ -59,5 +59,19 @@ const ChatHandler = (app) => {
             res.status(500).send({ error: "Internal error" });
         }
     }));
+    app.get("/users/:userId/chats", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const userId = parseInt(req.params.userId);
+        if (isNaN(userId)) {
+            return res.status(400).send({ error: "Invalid user ID provided" });
+        }
+        try {
+            const chats = yield chatUsecase.listChatsByUser(userId);
+            res.status(200).send(chats);
+        }
+        catch (error) {
+            console.error(error);
+            res.status(500).send({ error: "Internal server error" });
+        }
+    }));
 };
 exports.ChatHandler = ChatHandler;
