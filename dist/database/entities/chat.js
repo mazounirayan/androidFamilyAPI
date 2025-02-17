@@ -12,11 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Chat = void 0;
 const typeorm_1 = require("typeorm");
 const message_1 = require("./message");
+const user_1 = require("./user");
 let Chat = class Chat {
-    constructor(idChat, libelle, messages) {
+    constructor(idChat, libelle, messages, participants) {
         this.idChat = idChat;
         this.libelle = libelle;
         this.messages = messages; // Initialiser messages comme un tableau vide
+        this.participants = participants; // Initialiser participants comme un tableau vide
     }
 };
 exports.Chat = Chat;
@@ -32,7 +34,22 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => message_1.Message, (message) => message.chat),
     __metadata("design:type", Array)
 ], Chat.prototype, "messages", void 0);
+__decorate([
+    (0, typeorm_1.ManyToMany)(() => user_1.User),
+    (0, typeorm_1.JoinTable)({
+        name: "user_chats_chat", // Le nom de la table de jointure
+        joinColumn: {
+            name: "idChat",
+            referencedColumnName: "idChat"
+        },
+        inverseJoinColumn: {
+            name: "idUser",
+            referencedColumnName: "id"
+        }
+    }),
+    __metadata("design:type", Array)
+], Chat.prototype, "participants", void 0);
 exports.Chat = Chat = __decorate([
     (0, typeorm_1.Entity)('Chat'),
-    __metadata("design:paramtypes", [Number, String, Array])
+    __metadata("design:paramtypes", [Number, String, Array, Array])
 ], Chat);

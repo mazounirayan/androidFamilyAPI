@@ -32,9 +32,30 @@ class ChatUsecase {
         return __awaiter(this, void 0, void 0, function* () {
             return yield this.db.createQueryBuilder()
                 .insert()
-                .into("user_chats_chat") // Nom de la table de relation
+                .into("user_chats_chat")
                 .values({ idUser: userId, idChat: chatId })
                 .execute();
+        });
+    }
+    listChatsByUser(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const chatRepository = this.db.getRepository(chat_1.Chat);
+            const chats = yield chatRepository.createQueryBuilder("chat")
+                .leftJoinAndSelect("chat.participants", "user")
+                .leftJoinAndSelect("chat.messages", "message", "message.idMessage = (SELECT MAX(m.idMessage) FROM message m WHERE m.chatIdChat = chat.idChat)")
+                .where("user.id = :userId", { userId })
+                .getMany();
+            return chats.map(chat => {
+                chat.messages.sort((a, b) => b.date_envoie.getTime() - a.date_envoie.getTime());
+                const lastMessage = chat.messages[0];
+                return {
+                    id: chat.idChat,
+                    name: chat.libelle,
+                    participants: chat.participants.map(user => user.nom),
+                    lastMessage: lastMessage ? lastMessage.contenu : "No messages",
+                    messageTime: lastMessage ? lastMessage.date_envoie : null,
+                };
+            });
         });
     }
 }

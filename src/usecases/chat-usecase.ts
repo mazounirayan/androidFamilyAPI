@@ -17,8 +17,30 @@ export class ChatUsecase {
     async addUserToChat(userId: number, chatId: number) {
         return await this.db.createQueryBuilder()
             .insert()
-            .into("user_chats_chat") // Nom de la table de relation
+            .into("user_chats_chat")  
             .values({ idUser: userId, idChat: chatId })
             .execute();
     }
+    async listChatsByUser(userId: number): Promise<any[]> {
+        const chatRepository = this.db.getRepository(Chat);
+         const chats = await chatRepository.createQueryBuilder("chat")
+            .leftJoinAndSelect("chat.participants", "user")
+            .leftJoinAndSelect("chat.messages", "message", "message.idMessage = (SELECT MAX(m.idMessage) FROM message m WHERE m.chatIdChat = chat.idChat)")  
+            .where("user.id = :userId", { userId })
+            .getMany();
+    
+        return chats.map(chat => {
+             chat.messages.sort((a, b) => b.date_envoie.getTime() - a.date_envoie.getTime());
+            const lastMessage = chat.messages[0];
+            return {
+                id: chat.idChat,
+                name: chat.libelle,
+                participants: chat.participants.map(user => user.nom),
+                lastMessage: lastMessage ? lastMessage.contenu : "No messages",
+                messageTime: lastMessage ? lastMessage.date_envoie : null,
+             };
+        });
+    }
+
+    
 }
