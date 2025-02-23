@@ -37,7 +37,9 @@ const MessageHandler = (app) => {
             if (isNaN(chatId)) {
                 return res.status(400).send({ error: "Invalid chatId parameter" });
             }
-            const messages = yield messageUsecase.listMessagesByChat(chatId);
+            const page = parseInt(req.query.page, 10) || 1;
+            const limit = parseInt(req.query.limit, 10) || 10;
+            const messages = yield messageUsecase.listMessagesByChat(page, limit, chatId);
             res.status(200).send(messages);
         }
         catch (error) {

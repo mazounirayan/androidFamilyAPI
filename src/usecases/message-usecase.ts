@@ -33,7 +33,7 @@ export class MessageUsecase {
     
 
 
-    async listMessagesByChat(page: number = 1, limit: number = 10, idChat?: number): Promise<Message[]> {
+    async listMessagesByChat(page: number = 1, limit: number = 10, idChat: number): Promise<Message[]> {
         const repo = this.db.getRepository(Message);
     
         return repo.createQueryBuilder("message")
