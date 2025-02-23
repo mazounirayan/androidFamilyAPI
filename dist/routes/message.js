@@ -33,7 +33,11 @@ const MessageHandler = (app) => {
     // Get all messages for a specific chat
     app.get("/messages/chat/:chatId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const messages = yield messageUsecase.listMessagesByChat(+req.params.chatId);
+            const chatId = parseInt(req.params.chatId, 10);
+            if (isNaN(chatId)) {
+                return res.status(400).send({ error: "Invalid chatId parameter" });
+            }
+            const messages = yield messageUsecase.listMessagesByChat(chatId);
             res.status(200).send(messages);
         }
         catch (error) {

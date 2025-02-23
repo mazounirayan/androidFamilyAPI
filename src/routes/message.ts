@@ -25,11 +25,17 @@ export const MessageHandler = (app: express.Express) => {
     // Get all messages for a specific chat
     app.get("/messages/chat/:chatId", async (req: Request, res: Response) => {
         try {
-            const messages = await messageUsecase.listMessagesByChat(+req.params.chatId);
+            const chatId = parseInt(req.params.chatId, 10);
+            if (isNaN(chatId)) {
+                return res.status(400).send({ error: "Invalid chatId parameter" });
+            }
+            const messages = await messageUsecase.listMessagesByChat(chatId);
             res.status(200).send(messages);
         } catch (error) {
             console.error(error);
             res.status(500).send({ error: "Internal server error" });
         }
     });
+    
+    
 };
