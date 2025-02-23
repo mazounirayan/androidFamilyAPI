@@ -32,17 +32,18 @@ export class MessageUsecase {
     }
     
 
-
-    async listMessagesByChat(page: number = 1, limit: number = 10,idChat?: number): Promise<Message[]> {
+    async listMessagesByChat(page: number = 1, limit: number = 10, idChat?: number): Promise<Message[]> {
         const repo = this.db.getRepository(Message);
         const query = repo.createQueryBuilder("message");
+    
         if (idChat) {
-            query.where("message.idChat LIKE :idChat", { idChat: `%${idChat}%` });
+             query.where("message.idChat = :idChat", { idChat });
         }
-
-        query.leftJoinAndSelect('message.user','user.id')
-        
-        query.skip((page - 1) * limit).take(limit);
+    
+         query.leftJoinAndSelect('message.user', 'user');
+    
+         query.skip((page - 1) * limit).take(limit);
+    
         return query.getMany();
     }
 }

@@ -45,9 +45,9 @@ class MessageUsecase {
             const repo = this.db.getRepository(message_1.Message);
             const query = repo.createQueryBuilder("message");
             if (idChat) {
-                query.where("message.idChat LIKE :idChat", { idChat: `%${idChat}%` });
+                query.where("message.idChat = :idChat", { idChat });
             }
-            query.leftJoinAndSelect('message.user', 'user.id');
+            query.leftJoinAndSelect('message.user', 'user');
             query.skip((page - 1) * limit).take(limit);
             return query.getMany();
         });
