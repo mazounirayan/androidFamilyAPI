@@ -32,16 +32,15 @@ export class MessageUsecase {
     }
     
 
-
-    async listMessagesByChat(page: number = 1, limit: number = 10, idChat: number): Promise<Message[]> {
+    async listMessagesByChat(page: number = 1, limit: number = 10, idChat?: number): Promise<Message[]> {
         const repo = this.db.getRepository(Message);
     
         return repo.createQueryBuilder("message")
-            .where("message.idChat = :idChat", { idChat })   
+            .leftJoinAndSelect('message.user', 'user')      
+            .where("message.idChat = :idChat", { idChat }) 
             .orderBy('message.date_envoie', 'ASC')         
-            .skip((page - 1) * limit)                       
+            .skip((page - 1) * limit)
             .take(limit)
             .getMany();
     }
-    
-}
+}    
