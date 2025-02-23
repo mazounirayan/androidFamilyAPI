@@ -45,13 +45,7 @@ class MessageUsecase {
             const repo = this.db.getRepository(message_1.Message);
             const query = repo.createQueryBuilder("message")
                 .leftJoinAndSelect('message.user', 'user')
-                .where(qb => {
-                return "message.idMessage IN " + qb.subQuery()
-                    .select("m.idMessage")
-                    .from(message_1.Message, "m")
-                    .where("m.idChat = :idChat", { idChat })
-                    .getQuery();
-            })
+                .where("message.idChat = :idChat", { idChat })
                 .orderBy('message.date_envoie', 'ASC')
                 .skip((page - 1) * limit)
                 .take(limit);

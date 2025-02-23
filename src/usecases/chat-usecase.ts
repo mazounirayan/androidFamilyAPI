@@ -21,6 +21,7 @@ export class ChatUsecase {
             .values({ idUser: userId, idChat: chatId })
             .execute();
     }
+    
     async listChatsByUser(userId: number): Promise<any[]> {
         const chatRepository = this.db.getRepository(Chat);
         const chats = await chatRepository.createQueryBuilder("chat")
