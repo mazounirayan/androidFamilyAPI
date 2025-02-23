@@ -43,14 +43,12 @@ class MessageUsecase {
     listMessagesByChat() {
         return __awaiter(this, arguments, void 0, function* (page = 1, limit = 10, idChat) {
             const repo = this.db.getRepository(message_1.Message);
-            console.log("idChat received in function:", idChat);
-            const query = repo.createQueryBuilder("message")
-                .leftJoinAndSelect('message.user', 'user')
-                .where("message.idChat = :idChat", { idChat })
-                .orderBy('message.date_envoie', 'ASC')
-                .skip((page - 1) * limit)
-                .take(limit);
-            console.log("Generated SQL:", query.getSql());
+            const query = repo.createQueryBuilder("message");
+            if (idChat) {
+                query.where("message.idChat LIKE :idChat", { idChat: `%${idChat}%` });
+            }
+            query.leftJoinAndSelect('message.user', 'user.id');
+            query.skip((page - 1) * limit).take(limit);
             return query.getMany();
         });
     }

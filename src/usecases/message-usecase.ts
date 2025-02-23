@@ -32,21 +32,17 @@ export class MessageUsecase {
     }
     
 
-    async listMessagesByChat(page: number = 1, limit: number = 10, idChat?: number): Promise<Message[]> {
+
+    async listMessagesByChat(page: number = 1, limit: number = 10,idChat?: number): Promise<Message[]> {
         const repo = this.db.getRepository(Message);
-    
-        console.log("idChat received in function:", idChat);  
-    
-        const query = repo.createQueryBuilder("message")
-            .leftJoinAndSelect('message.user', 'user')
-            .where("message.idChat = :idChat", { idChat })   
-            .orderBy('message.date_envoie', 'ASC')
-            .skip((page - 1) * limit)
-            .take(limit);
-    
-        console.log("Generated SQL:", query.getSql());   
+        const query = repo.createQueryBuilder("message");
+        if (idChat) {
+            query.where("message.idChat LIKE :idChat", { idChat: `%${idChat}%` });
+        }
+
+        query.leftJoinAndSelect('message.user','user.id')
+        
+        query.skip((page - 1) * limit).take(limit);
         return query.getMany();
     }
-    
-    
 }
