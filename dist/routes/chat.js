@@ -16,19 +16,20 @@ const chat_validator_1 = require("../validators/chat-validator");
 const generate_validation_message_1 = require("../validators/generate-validation-message");
 const ChatHandler = (app) => {
     const chatUsecase = new chat_usecase_1.ChatUsecase(database_1.AppDataSource);
-    // Create a chat
     app.post("/chats", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const validation = chat_validator_1.createChatValidation.validate(req.body);
         if (validation.error) {
-            return res.status(400).send(validation.error.details);
+            return res.status(400).send({
+                error: validation.error.details.map((d) => d.message).join(", ")
+            });
         }
         try {
-            const chat = yield chatUsecase.createChat(validation.value);
+            const { libelle, participants } = validation.value;
+            const chat = yield chatUsecase.createChat(libelle, participants);
             res.status(201).send(chat);
         }
         catch (error) {
-            console.error(error);
-            res.status(500).send({ error: "Internal server error" });
+            res.status(500).send({ error: "Erreur interne du serveur" });
         }
     }));
     // List all chats

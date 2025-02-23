@@ -6,23 +6,26 @@ import { generateValidationErrorMessage } from "../validators/generate-validatio
 
 export const ChatHandler = (app: express.Express) => {
     const chatUsecase = new ChatUsecase(AppDataSource);
-
-    // Create a chat
     app.post("/chats", async (req: Request, res: Response) => {
         const validation = createChatValidation.validate(req.body);
-        if (validation.error) {
-            return res.status(400).send(validation.error.details);
+    
+         if (validation.error) {
+            return res.status(400).send({
+                error: validation.error.details.map((d) => d.message).join(", ")
+            });
         }
-
+    
         try {
-            const chat = await chatUsecase.createChat(validation.value);
-            res.status(201).send(chat);
+            const { libelle, participants } = validation.value;
+    
+             const chat = await chatUsecase.createChat(libelle, participants);
+            res.status(201).send(chat);  
         } catch (error) {
-            console.error(error);
-            res.status(500).send({ error: "Internal server error" });
+             res.status(500).send({ error: "Erreur interne du serveur" });
         }
     });
-
+    
+    
     // List all chats
     app.get("/chats", async (_req: Request, res: Response) => {
         try {

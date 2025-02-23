@@ -15,11 +15,31 @@ class ChatUsecase {
     constructor(db) {
         this.db = db;
     }
-    createChat(chatData) {
+    createChat(libelle, userIds) {
         return __awaiter(this, void 0, void 0, function* () {
-            const repo = this.db.getRepository(chat_1.Chat);
-            const chat = repo.create(chatData);
-            return yield repo.save(chat);
+            const result = yield this.db.createQueryBuilder()
+                .insert()
+                .into(chat_1.Chat)
+                .values({ libelle: libelle })
+                .execute();
+            const chatId = result.identifiers[0].idChat;
+            const valuesToInsert = userIds.map(userId => ({
+                idUser: userId,
+                idChat: chatId
+            }));
+            yield this.db.createQueryBuilder()
+                .insert()
+                .into("user_chats_chat")
+                .values(valuesToInsert)
+                .execute();
+            const chat = yield this.db.getRepository(chat_1.Chat).findOne({
+                where: { idChat: chatId },
+                relations: ["participants"]
+            });
+            if (!chat) {
+                throw new Error(`Impossible de récupérer le chat avec l'ID : ${chatId}`);
+            }
+            return chat;
         });
     }
     listChats() {
