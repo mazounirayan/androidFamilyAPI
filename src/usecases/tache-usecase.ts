@@ -96,10 +96,12 @@ export class TacheUsecase {
     }
     async listTachesByFamilleId(familleId: number): Promise<Tache[]> {
         const repo = this.db.getRepository(Tache);
-        const taches = await repo.find({ where:   { famille: { idFamille: familleId }}});
-    
-  
-    
+        const taches = await repo.find({ where:   
+            { famille: 
+                { idFamille: familleId }
+            }, 
+            relations : ['user']
+        });
         return taches;
     }
     // Lister les tâches avec pagination et filtres
