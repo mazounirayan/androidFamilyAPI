@@ -113,7 +113,10 @@ class TacheUsecase {
     listTachesByFamilleId(familleId) {
         return __awaiter(this, void 0, void 0, function* () {
             const repo = this.db.getRepository(tache_1.Tache);
-            const taches = yield repo.find({ where: { famille: { idFamille: familleId } } });
+            const taches = yield repo.find({ where: { famille: { idFamille: familleId }
+                },
+                relations: ['user']
+            });
             return taches;
         });
     }
