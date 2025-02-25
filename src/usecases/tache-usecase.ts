@@ -73,7 +73,7 @@ export class TacheUsecase {
     }
     async listTachesByUserId(idUser: number): Promise<Tache[]> {
         const repo = this.db.getRepository(Tache);
-        const taches = await repo.find({ where: { user: { id: idUser } } });
+        const taches = await repo.find({ where: { user: { id: idUser } },relations : ['user']});
     
    
         return taches;
