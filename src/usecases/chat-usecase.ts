@@ -73,6 +73,14 @@ export class ChatUsecase {
       }
     
     
+      async quitConv(idUser: number, idChat:number): Promise<any | null> {
 
+        const entityManager = this.db.getRepository(Chat);
+  
+        const sqlQuery = `DELETE FROM user_chats_chat WHERE idUser = ? and idChat = ?;`;
+  
+        await entityManager.query(sqlQuery, [idUser,idChat]);
+
+      }
     
 }

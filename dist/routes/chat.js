@@ -74,5 +74,20 @@ const ChatHandler = (app) => {
             res.status(500).send({ error: "Internal server error" });
         }
     }));
+    app.delete("/quitChat/:userId/:chatId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const userId = parseInt(req.params.userId);
+        const chatId = parseInt(req.params.chatId);
+        if (isNaN(userId) && isNaN(chatId)) {
+            return res.status(400).send({ error: "Invalid user or chat ID provided" });
+        }
+        try {
+            yield chatUsecase.quitConv(userId, chatId);
+            res.status(201).send();
+        }
+        catch (error) {
+            console.error(error);
+            res.status(500).send({ error: "Internal server error" });
+        }
+    }));
 };
 exports.ChatHandler = ChatHandler;

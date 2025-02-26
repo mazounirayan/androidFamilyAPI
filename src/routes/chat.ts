@@ -57,20 +57,37 @@ export const ChatHandler = (app: express.Express) => {
         }
     });
     
- app.get("/users/:userId/chats", async (req: Request, res: Response) => {
-    const userId = parseInt(req.params.userId);
-    if (isNaN(userId)) {
-        return res.status(400).send({ error: "Invalid user ID provided" });
-    }
+    app.get("/users/:userId/chats", async (req: Request, res: Response) => {
+        const userId = parseInt(req.params.userId);
+        if (isNaN(userId)) {
+            return res.status(400).send({ error: "Invalid user ID provided" });
+        }
 
-    try {
-        const chats = await chatUsecase.listChatsByUser(userId);
-        res.status(200).send(chats);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send({ error: "Internal server error" });
-    }
-});
+        try {
+            const chats = await chatUsecase.listChatsByUser(userId);
+            res.status(200).send(chats);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({ error: "Internal server error" });
+        }
+    });
+
+    app.delete("/quitChat/:userId/:chatId", async (req: Request, res: Response) => {
+        const userId = parseInt(req.params.userId);
+        const chatId = parseInt(req.params.chatId);
+
+        if (isNaN(userId) && isNaN(chatId)) {
+            return res.status(400).send({ error: "Invalid user or chat ID provided" });
+        }
+
+        try {
+            await chatUsecase.quitConv(userId, chatId);
+            res.status(201).send();
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({ error: "Internal server error" });
+        }
+    });
 
 
 };

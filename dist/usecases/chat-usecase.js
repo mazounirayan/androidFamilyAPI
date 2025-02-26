@@ -78,5 +78,12 @@ class ChatUsecase {
             });
         });
     }
+    quitConv(idUser, idChat) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const entityManager = this.db.getRepository(chat_1.Chat);
+            const sqlQuery = `DELETE FROM user_chats_chat WHERE idUser = ? and idChat = ?;`;
+            yield entityManager.query(sqlQuery, [idUser, idChat]);
+        });
+    }
 }
 exports.ChatUsecase = ChatUsecase;
