@@ -52,5 +52,15 @@ class MessageUsecase {
                 .getMany();
         });
     }
+    newMessageOfUser(idUser, date) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(message_1.Message);
+            console.log(idUser);
+            return repo.createQueryBuilder("message")
+                .where("message.idUser = :idUser", { idUser })
+                .andWhere("message.date_envoie > :date", { date })
+                .getMany();
+        });
+    }
 }
 exports.MessageUsecase = MessageUsecase;

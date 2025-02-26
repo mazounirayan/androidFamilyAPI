@@ -47,5 +47,17 @@ const MessageHandler = (app) => {
             res.status(500).send({ error: "Internal server error" });
         }
     }));
+    app.get("/messages/new/:userId/:date", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const userId = req.params.userId;
+            const date = req.params.date;
+            const messages = yield messageUsecase.newMessageOfUser(+userId, new Date(date));
+            res.status(200).send(messages);
+        }
+        catch (error) {
+            console.error(error);
+            res.status(500).send({ error: "Internal server error" });
+        }
+    }));
 };
 exports.MessageHandler = MessageHandler;

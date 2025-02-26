@@ -43,4 +43,14 @@ export class MessageUsecase {
             .take(limit)
             .getMany();
     }
+
+    async newMessageOfUser(idUser: number, date:Date): Promise<Message[]> {
+        const repo = this.db.getRepository(Message);
+    
+        console.log(idUser)
+        return repo.createQueryBuilder("message")
+            .where("message.idUser = :idUser", { idUser })
+            .andWhere("message.date_envoie > :date", {date}) 
+            .getMany();
+    }
 }    
