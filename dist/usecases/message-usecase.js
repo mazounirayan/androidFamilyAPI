@@ -57,6 +57,7 @@ class MessageUsecase {
             const repo = this.db.getRepository(message_1.Message);
             console.log(idUser);
             return repo.createQueryBuilder("message")
+                .leftJoinAndSelect('message.user', 'user')
                 .where("message.idUser = :idUser", { idUser })
                 .andWhere("message.date_envoie > :date", { date })
                 .getMany();
