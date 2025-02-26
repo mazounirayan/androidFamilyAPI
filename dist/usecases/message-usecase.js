@@ -59,7 +59,7 @@ class MessageUsecase {
             return repo.createQueryBuilder("message")
                 .leftJoinAndSelect('message.user', 'user')
                 .where("message.idUser = :idUser", { idUser })
-                .andWhere("message.date_envoie > :date", { date })
+                .andWhere("message.date_envoie <= :date", { date })
                 .getMany();
         });
     }
