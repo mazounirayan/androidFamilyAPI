@@ -50,8 +50,8 @@ const MessageHandler = (app) => {
     app.get("/messages/new/:userId/:date", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const userId = req.params.userId;
-            const date = req.params.date;
-            const messages = yield messageUsecase.newMessageOfUser(+userId, new Date(date));
+            const lastMessageId = req.params.date;
+            const messages = yield messageUsecase.newMessageOfUser(+userId, +lastMessageId);
             res.status(200).send(messages);
         }
         catch (error) {

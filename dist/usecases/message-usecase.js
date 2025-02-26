@@ -20,12 +20,11 @@ class MessageUsecase {
     // Create a new message
     createMessage(messageData) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
             const repo = this.db.getRepository(message_1.Message);
             const userRepo = this.db.getRepository(user_1.User);
             const chatRepo = this.db.getRepository(chat_1.Chat);
-            const user = yield userRepo.findOne({ where: { id: (_a = messageData.user) === null || _a === void 0 ? void 0 : _a.id } });
-            const chat = yield chatRepo.findOne({ where: { idChat: (_b = messageData.chat) === null || _b === void 0 ? void 0 : _b.idChat } });
+            const user = yield userRepo.findOne({ where: { id: messageData.idUser } });
+            const chat = yield chatRepo.findOne({ where: { idChat: messageData.idChat } });
             if (!user || !chat) {
                 throw new Error("User or Chat not found");
             }
@@ -52,15 +51,14 @@ class MessageUsecase {
                 .getMany();
         });
     }
-    newMessageOfUser(idUser, date) {
+    newMessageOfUser(idUser, lastMessageId) {
         return __awaiter(this, void 0, void 0, function* () {
             const repo = this.db.getRepository(message_1.Message);
-            console.log(idUser);
             return repo.createQueryBuilder("message")
                 .leftJoinAndSelect('message.user', 'user')
                 .where("message.idUser = :idUser", { idUser })
-                .andWhere("message.date_envoie > :lastCheckTime", { lastCheckTime: new Date(date) })
-                .orderBy("message.date_envoie", "ASC")
+                .andWhere("message.idMessage > :lastMessageId", { lastMessageId })
+                .orderBy("message.idMessage", "ASC")
                 .getMany();
         });
     }

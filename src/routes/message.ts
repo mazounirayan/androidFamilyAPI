@@ -42,9 +42,9 @@ export const MessageHandler = (app: express.Express) => {
     app.get("/messages/new/:userId/:date", async (req: Request, res: Response) => {
         try {
             const userId = req.params.userId
-            const date = req.params.date
+            const lastMessageId = req.params.date
 
-            const messages = await messageUsecase.newMessageOfUser(+userId, new Date(date));
+            const messages = await messageUsecase.newMessageOfUser(+userId, +lastMessageId);
             res.status(200).send(messages);
         } catch (error) {
             console.error(error);

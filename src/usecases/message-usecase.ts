@@ -7,13 +7,13 @@ export class MessageUsecase {
     constructor(private readonly db: DataSource) {}
 
     // Create a new message
-    async createMessage(messageData: Partial<Message>) {
+    async createMessage(messageData: Partial<any>) {
         const repo = this.db.getRepository(Message);
         const userRepo = this.db.getRepository(User);
         const chatRepo = this.db.getRepository(Chat);
-    
-        const user = await userRepo.findOne({ where: { id: messageData.user?.id } });
-        const chat = await chatRepo.findOne({ where: { idChat: messageData.chat?.idChat } });
+
+        const user = await userRepo.findOne({ where: { id: messageData.idUser } });
+        const chat = await chatRepo.findOne({ where: { idChat: messageData.idChat } });
     
         if (!user || !chat) {
             throw new Error("User or Chat not found");
@@ -44,15 +44,14 @@ export class MessageUsecase {
             .getMany();
     }
 
-    async newMessageOfUser(idUser: number, date:Date): Promise<Message[]> {
+    async newMessageOfUser(idUser: number, lastMessageId:number): Promise<Message[]> {
         const repo = this.db.getRepository(Message);
     
-        console.log(idUser)
         return repo.createQueryBuilder("message")
             .leftJoinAndSelect('message.user', 'user')      
             .where("message.idUser = :idUser", { idUser })
-            .andWhere("message.date_envoie > :lastCheckTime", { lastCheckTime: new Date(date) })
-            .orderBy("message.date_envoie", "ASC")
+            .andWhere("message.idMessage > :lastMessageId", { lastMessageId }) 
+            .orderBy("message.idMessage", "ASC")
             .getMany();
     }
 }    
