@@ -51,10 +51,14 @@ class MessageUsecase {
     }
     newMessageOfUser(idUser, lastMessageId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const rawData = yield this.db.query(`SELECT DISTINCT     m.idMessage, m.contenu, m.date_envoie, m.isVue, m.idUser, m.idChat 
-             FROM Message m
-             WHERE m.idMessage > ? AND m.idChat IN (SELECT DISTINCT uc.idChat FROM user_chats_chat uc WHERE uc.idUser = ?)`, [lastMessageId, idUser]);
-            return rawData; // Retourne les résultats bruts
+            const repo = this.db.getRepository(message_1.Message);
+            return repo.createQueryBuilder("message")
+                .distinct(true)
+                .where("message.idMessage > :lastMessageId", { lastMessageId })
+                .andWhere("message.idUser != :idUser", { idUser })
+                .andWhere("message.idChat IN (SELECT uc.idChat FROM user_chats_chat uc WHERE uc.idUser = :idUser)", { idUser })
+                .orderBy("message.idMessage", "ASC")
+                .getMany();
         });
     }
 }

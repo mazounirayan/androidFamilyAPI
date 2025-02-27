@@ -43,14 +43,16 @@ export class MessageUsecase {
     }
      
     async newMessageOfUser(idUser: number, lastMessageId: number): Promise<Message[]> {
-        const rawData = await this.db.query(
-            `SELECT DISTINCT     m.idMessage, m.contenu, m.date_envoie, m.isVue, m.idUser, m.idChat 
-             FROM Message m
-             WHERE m.idMessage > ? AND m.idChat IN (SELECT DISTINCT uc.idChat FROM user_chats_chat uc WHERE uc.idUser = ?)`,
-            [lastMessageId, idUser]
-        );
+        const repo = this.db.getRepository(Message);
     
-        return rawData; // Retourne les résultats bruts
+        return repo.createQueryBuilder("message")
+            .distinct(true)
+            .where("message.idMessage > :lastMessageId", { lastMessageId })
+            .andWhere("message.idUser != :idUser", { idUser })
+            .andWhere("message.idChat IN (SELECT uc.idChat FROM user_chats_chat uc WHERE uc.idUser = :idUser)", { idUser })
+            .orderBy("message.idMessage", "ASC")
+            .getMany();
     }
+    
     
 }    
