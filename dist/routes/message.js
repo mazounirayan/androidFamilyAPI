@@ -60,5 +60,16 @@ const MessageHandler = (app) => {
             res.status(500).send({ error: "Internal server error" });
         }
     }));
+    app.get("/messages/maxid/:userId/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const userId = req.params.userId;
+            const idMessage = yield messageUsecase.getMaxMessageIdForUser(+userId);
+            return res.status(200).json({ maxIdMessage: idMessage });
+        }
+        catch (error) {
+            console.error(error);
+            res.status(500).send({ error: "Internal server error" });
+        }
+    }));
 };
 exports.MessageHandler = MessageHandler;

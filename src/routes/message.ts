@@ -44,9 +44,20 @@ export const MessageHandler = (app: express.Express) => {
             const userId = req.params.userId
             const lastMessageId = req.params.date
             
-            console.log(req.params)
             const messages = await messageUsecase.newMessageOfUser(+userId, +lastMessageId);
             res.status(200).send(messages);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({ error: "Internal server error" });
+        }
+    });
+
+    app.get("/messages/maxid/:userId/", async (req: Request, res: Response) => {
+        try {
+            const userId = req.params.userId
+            
+            const idMessage = await messageUsecase.getMaxMessageIdForUser(+userId);
+            return res.status(200).json({ maxIdMessage: idMessage });
         } catch (error) {
             console.error(error);
             res.status(500).send({ error: "Internal server error" });

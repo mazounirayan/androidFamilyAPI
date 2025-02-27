@@ -55,5 +55,15 @@ export class MessageUsecase {
             .getMany();
     }
     
+    async getMaxMessageIdForUser(idUser: number): Promise<number | null> {
+        const repo = this.db.getRepository(Message);
+    
+        const result = await repo.createQueryBuilder("message")
+            .select("MAX(message.idMessage)", "maxIdMessage")
+            .where("message.idChat IN (SELECT uc.idChat FROM user_chats_chat uc WHERE uc.idUser = :idUser)", { idUser })
+            .getRawOne();
+    
+        return result?.maxIdMessage || null;
+    }
     
 }    

@@ -138,7 +138,28 @@ class UserUsecase {
         return __awaiter(this, void 0, void 0, function* () {
             const repo = this.db.getRepository(user_1.User);
             // Recherche de l'utilisateur par ID
-            const user = yield repo.findOneBy({ id: userId });
+            const user = yield yield repo.createQueryBuilder("user")
+                .leftJoin("user.famille", "famille")
+                .where("user.id = :userId", { userId })
+                .select([
+                "user.id AS id",
+                "user.nom AS nom",
+                "user.prenom AS prenom",
+                "user.email AS email",
+                "user.motDePasse AS motDePasse",
+                "user.role AS role",
+                "user.dateInscription AS dateInscription",
+                "user.avatar AS avatar",
+                "user.coins AS coins",
+                "user.totalPoints AS totalPoints",
+                "user.numTel AS numTel",
+                "famille.idFamille AS idFamille"
+            ])
+                .getRawOne(); // On récupère un objet plat
+            // Si `userWithFamille` existe, on reformate l'objet pour inclure `idFamille` directement
+            if (user) {
+                user.idFamille = user.idFamille || null; // Assure que `idFamille` existe toujours
+            }
             return user;
         });
     }

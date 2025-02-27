@@ -62,5 +62,15 @@ class MessageUsecase {
                 .getMany();
         });
     }
+    getMaxMessageIdForUser(idUser) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const repo = this.db.getRepository(message_1.Message);
+            const result = yield repo.createQueryBuilder("message")
+                .select("MAX(message.idMessage)", "maxIdMessage")
+                .where("message.idChat IN (SELECT uc.idChat FROM user_chats_chat uc WHERE uc.idUser = :idUser)", { idUser })
+                .getRawOne();
+            return (result === null || result === void 0 ? void 0 : result.maxIdMessage) || null;
+        });
+    }
 }
 exports.MessageUsecase = MessageUsecase;
