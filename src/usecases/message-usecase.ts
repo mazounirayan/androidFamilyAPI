@@ -41,15 +41,18 @@ export class MessageUsecase {
             .leftJoinAndSelect('message.user', 'user')      
             .getMany();
     }
-
-    async newMessageOfUser(idUser: number, lastMessageId:number): Promise<Message[]> {
-        const repo = this.db.getRepository(Message);
+     
+    async newMessageOfUser(idUser: number, lastMessageId: number): Promise<Message[]> {
+        const rawData = await this.db.query(
+            `SELECT DISTINCT idMessage, contenu, date_envoie, isVue, Message.idUser, Message.idChat 
+             FROM Message 
+             INNER JOIN Chat ON Message.idChat = Chat.idChat 
+             INNER JOIN User ON Message.idUser = User.id 
+             WHERE User.id = ? AND Message.idMessage > ?`,
+            [idUser, lastMessageId]
+        );
     
-        return repo.createQueryBuilder("message")
-            .leftJoinAndSelect('message.user', 'user')      
-            .where("message.idUser = :idUser", { idUser })
-            .andWhere("message.idMessage > :lastMessageId", { lastMessageId }) 
-            .orderBy("message.idMessage", "ASC")
-            .getMany();
+        return rawData; // Retourne les résultats bruts
     }
+    
 }    
