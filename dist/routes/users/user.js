@@ -188,5 +188,18 @@ const UserHandler = (app) => {
             res.status(500).send({ error: "Internal error" });
         }
     }));
+    app.get("/users/chat/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const idChat = req.params.id;
+            // Utilisation du UserUsecase pour récupérer les utilisateurs
+            const userUsecase = new user_usecase_1.UserUsecase(database_1.AppDataSource);
+            const users = yield userUsecase.getUsersOfChat(+idChat);
+            res.status(200).send(users);
+        }
+        catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    }));
 };
 exports.UserHandler = UserHandler;

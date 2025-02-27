@@ -223,4 +223,22 @@ export const UserHandler = (app: express.Express) => {
         }
     });
 
+
+    app.get("/users/chat/:id", async (req: Request, res: Response) => {
+        try {
+     
+    
+            const  idChat  = req.params.id;
+    
+            // Utilisation du UserUsecase pour récupérer les utilisateurs
+            const userUsecase = new UserUsecase(AppDataSource);
+            const users = await userUsecase.getUsersOfChat(+idChat);
+
+            res.status(200).send(users);
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ error: "Internal error" });
+        }
+    });
+
 };

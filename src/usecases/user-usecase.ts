@@ -160,7 +160,7 @@ export class UserUsecase {
         ])
         .getRawOne(); // On récupère un objet plat
     
-    // Si `userWithFamille` existe, on reformate l'objet pour inclure `idFamille` directement
+        // Si `userWithFamille` existe, on reformate l'objet pour inclure `idFamille` directement
         if (user) {
             user.idFamille = user.idFamille || null; // Assure que `idFamille` existe toujours
         }
@@ -169,11 +169,21 @@ export class UserUsecase {
     
     }
 
-        async deleteToken(id: number): Promise<DeleteResult> {
 
-        const TokenDelete = await this.db.createQueryBuilder().delete().from(Token).where("userId = :id", { id: id }).execute();
+    async getUsersOfChat(chatId: number): Promise<number[]> {
+        const result = await this.db.query(
+            `SELECT idUser FROM user_chats_chat WHERE idChat = ?`,
+            [chatId]
+        );
+    
+        return result.map((row: { idUser: number }) => row.idUser); // Retourne uniquement un tableau d'IDs
+    }
 
-        return TokenDelete;
+    async deleteToken(id: number): Promise<DeleteResult> {
+
+    const TokenDelete = await this.db.createQueryBuilder().delete().from(Token).where("userId = :id", { id: id }).execute();
+
+    return TokenDelete;
 
     }
 

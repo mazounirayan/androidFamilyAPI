@@ -176,6 +176,12 @@ class UserUsecase {
             return user;
         });
     }
+    getUsersOfChat(chatId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield this.db.query(`SELECT idUser FROM user_chats_chat WHERE idChat = ?`, [chatId]);
+            return result.map((row) => row.idUser); // Retourne uniquement un tableau d'IDs
+        });
+    }
     deleteToken(id) {
         return __awaiter(this, void 0, void 0, function* () {
             const TokenDelete = yield this.db.createQueryBuilder().delete().from(token_1.Token).where("userId = :id", { id: id }).execute();
