@@ -16,23 +16,38 @@ export class UserUsecase {
 
 
     async getUserByToken(tokenValue: string) {
-        const tokenRepo = this.db.getRepository(Token);
+        const repo = this.db.getRepository(Token);
     
-        const token = await tokenRepo.findOne({
-            where: { token: tokenValue },
-            relations: {
-                user: {
-                    chats: true, 
-                },
-            },
-        });
+        const userWithFamille = await repo.createQueryBuilder("token")
+            .leftJoin("token.user", "user")
+            .leftJoin("user.famille", "famille")
+            .where("token.token = :tokenValue", { tokenValue })
+            .select([
+                "user.id AS id",
+                "user.nom AS nom",
+                "user.prenom AS prenom",
+                "user.email AS email",
+                "user.motDePasse AS motDePasse",
+                "user.role AS role",
+                "user.dateInscription AS dateInscription",
+                "user.avatar AS avatar",
+                "user.coins AS coins",
+                "user.totalPoints AS totalPoints",
+                "user.numTel AS numTel",
+                "famille.idFamille AS idFamille"
+            ])
+            .getRawOne();
     
-        if (!token) {
+        if (!userWithFamille) {
             throw new Error('Token invalide ou inexistant');
         }
     
-        return token.user;
+        // Assure que `idFamille` est toujours défini
+        userWithFamille.idFamille = userWithFamille.idFamille || null;
+    
+        return userWithFamille;
     }
+    
     
     
 
