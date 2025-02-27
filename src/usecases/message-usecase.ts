@@ -50,6 +50,7 @@ export class MessageUsecase {
             .where("message.idMessage > :lastMessageId", { lastMessageId })
             .andWhere("message.idUser != :idUser", { idUser })
             .andWhere("message.idChat IN (SELECT uc.idChat FROM user_chats_chat uc WHERE uc.idUser = :idUser)", { idUser })
+            .andWhere("message.isVue = 0")
             .orderBy("message.idMessage", "ASC")
             .getMany();
     }
