@@ -43,11 +43,9 @@ class MessageUsecase {
         return __awaiter(this, arguments, void 0, function* (page = 1, limit = 10, idChat) {
             const repo = this.db.getRepository(message_1.Message);
             return repo.createQueryBuilder("message")
-                .leftJoinAndSelect('message.user', 'user')
                 .where("message.idChat = :idChat", { idChat })
                 .orderBy('message.date_envoie', 'ASC')
-                .skip((page - 1) * limit)
-                .take(limit)
+                .leftJoinAndSelect('message.user', 'user')
                 .getMany();
         });
     }
