@@ -51,11 +51,9 @@ class MessageUsecase {
     }
     newMessageOfUser(idUser, lastMessageId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const rawData = yield this.db.query(`SELECT DISTINCT idMessage, contenu, date_envoie, isVue, Message.idUser, Message.idChat 
-             FROM Message 
-             INNER JOIN Chat ON Message.idChat = Chat.idChat 
-             INNER JOIN User ON Message.idUser = User.id 
-             WHERE User.id = ? AND Message.idMessage > ?`, [idUser, lastMessageId]);
+            const rawData = yield this.db.query(`SELECT DISTINCT     m.idMessage, m.contenu, m.date_envoie, m.isVue, m.idUser, m.idChat 
+             FROM Message m
+             WHERE m.idMessage > ? AND m.idChat IN (SELECT DISTINCT uc.idChat FROM user_chats_chat uc WHERE uc.idUser = ?)`, [lastMessageId, idUser]);
             return rawData; // Retourne les résultats bruts
         });
     }
