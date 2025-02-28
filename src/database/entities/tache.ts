@@ -4,7 +4,7 @@ import { Famille } from "./famille";
 import { User } from "./user";
 import { Notification } from "./notification";
 
-export type Priorite = 'HAUTE' | 'FAIBLE' | 'MOYENNE';
+export type Priorite = 'Haute' | 'Faible' | 'Moyenne';
 
 
 @Entity('Tache')

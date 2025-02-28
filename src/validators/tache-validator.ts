@@ -1,5 +1,5 @@
 import Joi from "joi";
- type Priorite = 'HAUTE' | 'FAIBLE' | 'MOYENNE';
+ type Priorite = 'Haute' | 'Faible' | 'Moyenne';
 
  export interface CreateTacheRequest {
     nom: string;
@@ -19,7 +19,7 @@ export const createTacheValidation = Joi.object<CreateTacheRequest>({
     date_fin: Joi.date().iso().required(),
     status: Joi.string().max(50).required(),
     type: Joi.string().max(100).required(),
-    priorite: Joi.string().valid('HAUTE', 'FAIBLE', 'MOYENNE').required(),
+    priorite: Joi.string().valid('Haute', 'Faible', 'Moyenne').required(),
     description: Joi.string().required(),
     idUser: Joi.number().integer().optional(),
     idFamille: Joi.number().integer().optional(),
@@ -32,7 +32,7 @@ export const updateTacheValidation = Joi.object<UpdateTacheRequest>({
     date_fin: Joi.date().optional(),
     status: Joi.string().max(50).optional(),
     type: Joi.string().max(100).optional(),
-    priorite: Joi.string().valid('HAUTE', 'FAIBLE', 'MOYENNE').optional(),
+    priorite: Joi.string().valid('Haute', 'Faible', 'Moyenne').optional(),
     description: Joi.string().optional(),
     idUser: Joi.number().integer().optional(),
     idFamille: Joi.number().integer().optional(),
