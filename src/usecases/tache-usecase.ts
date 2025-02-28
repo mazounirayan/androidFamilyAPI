@@ -94,16 +94,64 @@ export class TacheUsecase {
         tache.user = user;
         await repo.save(tache);
     }
-    async listTachesByFamilleId(familleId: number): Promise<Tache[]> {
+    async listTachesByFamilleId(familleId: number): Promise<any[]> {
         const repo = this.db.getRepository(Tache);
-        const taches = await repo.find({ where:   
-            { famille: 
-                { idFamille: familleId }
-            }, 
-            relations : ['user']
-        });
-        return taches;
+    
+        const taches = await repo.createQueryBuilder("tache")
+            .leftJoin("tache.user", "user")
+            .leftJoin("tache.famille", "famille")
+            .where("famille.idFamille = :familleId", { familleId })
+            .select([
+                "tache.idTache AS idTache",
+                "tache.nom AS nom",
+                "tache.date_debut AS date_debut",
+                "tache.date_fin AS date_fin",
+                "tache.status AS status",
+                "tache.type AS type",
+                "tache.description AS description",
+                "tache.priorite AS priorite",
+                "user.id AS userId",
+                "user.nom AS userNom",
+                "user.prenom AS userPrenom",
+                "user.email AS userEmail",
+                "user.motDePasse AS userMotDePasse",
+                "user.role AS userRole",
+                "user.dateInscription AS userDateInscription",
+                "user.avatar AS userAvatar",
+                "user.coins AS userCoins",
+                "user.totalPoints AS userTotalPoints",
+                "user.numTel AS userNumTel",
+                "famille.idFamille AS idFamille"
+            ])
+            .getRawMany();
+    
+        // Reformate les résultats pour structurer les données
+        return taches.map(tache => ({
+            idTache: tache.idTache,
+            nom: tache.nom,
+            date_debut: tache.date_debut,
+            date_fin: tache.date_fin,
+            status: tache.status,
+            type: tache.type,
+            description: tache.description,
+            priorite: tache.priorite,
+            idFamille: tache.idFamille, // Ajout de l'ID de la famille directement dans la tâche
+            user: {
+                id: tache.userId,
+                nom: tache.userNom,
+                prenom: tache.userPrenom,
+                email: tache.userEmail,
+                motDePasse: tache.userMotDePasse,
+                role: tache.userRole,
+                dateInscription: tache.userDateInscription,
+                avatar: tache.userAvatar,
+                coins: tache.userCoins,
+                totalPoints: tache.userTotalPoints,
+                numTel: tache.userNumTel
+            }
+        }));
     }
+    
     // Lister les tâches avec pagination et filtres
   
     async listTaches() {
