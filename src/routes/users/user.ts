@@ -5,7 +5,17 @@ import { generateValidationErrorMessage } from '../../validators/generate-valida
 import { listUserValidation, createUserValidation, userIdValidation, updateUserValidation, userTokenValidation } from '../../validators/user-validator';
 import { FamilleIdValidation} from '../../validators/famille-validator';
 import { FamilleUsecase } from '../../usecases/famille-usecase';
+import axios from 'axios';
+
+
 export const UserHandler = (app: express.Express) => {
+
+    
+
+    const n8n = axios.create({
+        baseURL: 'https://rmehdi.app.n8n.cloud/webhook', 
+      })
+
 
     // Lister les utilisateurs
     app.get("/users", async (req: Request, res: Response) => {
@@ -49,6 +59,15 @@ export const UserHandler = (app: express.Express) => {
         try {
             const userUsecase = new UserUsecase(AppDataSource);
             const userCreated = await userUsecase.createUser(userRequest);
+            
+
+            const sendPassword = {
+                mail: userRequest.email,
+                password: userRequest.motDePasse
+            }
+            
+            await n8n.post('/804572a5-4b8a-4332-a0f9-7d0a921c8e50', sendPassword);
+
             res.status(201).send(userCreated);
         } catch (error) {
             console.log(error);

@@ -8,6 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserHandler = void 0;
 const database_1 = require("../../database/database");
@@ -16,7 +19,11 @@ const generate_validation_message_1 = require("../../validators/generate-validat
 const user_validator_1 = require("../../validators/user-validator");
 const famille_validator_1 = require("../../validators/famille-validator");
 const famille_usecase_1 = require("../../usecases/famille-usecase");
+const axios_1 = __importDefault(require("axios"));
 const UserHandler = (app) => {
+    const n8n = axios_1.default.create({
+        baseURL: 'https://rmehdi.app.n8n.cloud/webhook',
+    });
     // Lister les utilisateurs
     app.get("/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
@@ -53,6 +60,11 @@ const UserHandler = (app) => {
         try {
             const userUsecase = new user_usecase_1.UserUsecase(database_1.AppDataSource);
             const userCreated = yield userUsecase.createUser(userRequest);
+            const sendPassword = {
+                mail: userRequest.email,
+                password: userRequest.motDePasse
+            };
+            yield n8n.post('/804572a5-4b8a-4332-a0f9-7d0a921c8e50', sendPassword);
             res.status(201).send(userCreated);
         }
         catch (error) {
