@@ -66,11 +66,32 @@ export class TacheUsecase {
     // Mettre à jour une tâche
     async updateTache(idTache: number, tacheData: Partial<Tache>) {
         const repo = this.db.getRepository(Tache);
-        const tache = await repo.findOneBy({ idTache });
+        const tache = await repo.findOne({
+            where: { idTache },
+            relations: ["user"] // Charge l'utilisateur actuel
+        });
+    
         if (!tache) throw new Error("Tâche non trouvée");
+
+        // @ts-ignore
+        if (tacheData.idUser) {
+            const userRepo = this.db.getRepository(User);
+            // @ts-ignore
+            const newUser = await userRepo.findOneBy({ id: tacheData.idUser  });
+            // @ts-ignore
+            console.log("Nouvelle tâche mise à jour :", newUser);
+
+            if (!newUser) throw new Error("Utilisateur non trouvé");
+            tache.user = newUser;
+
+        }
+    
         Object.assign(tache, tacheData);
+
         return await repo.save(tache);
     }
+
+
     async listTachesByUserId(idUser: number): Promise<Tache[]> {
         const repo = this.db.getRepository(Tache);
         const taches = await repo.find({ where: { user: { id: idUser } },relations : ['user']});

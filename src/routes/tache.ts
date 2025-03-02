@@ -5,6 +5,7 @@ import { generateValidationErrorMessage } from '../validators/generate-validatio
 import { listTacheValidation, createTacheValidation, TacheIdValidation, updateTacheValidation } from '../validators/tache-validator';
 import { User } from '../database/entities/user';
 import { Famille } from '../database/entities/famille';
+import { UserUsecase } from '../usecases/user-usecase';
 
 export const TacheHandler = (app: express.Express) => {
 

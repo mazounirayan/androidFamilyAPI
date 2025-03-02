@@ -80,9 +80,23 @@ class TacheUsecase {
     updateTache(idTache, tacheData) {
         return __awaiter(this, void 0, void 0, function* () {
             const repo = this.db.getRepository(tache_1.Tache);
-            const tache = yield repo.findOneBy({ idTache });
+            const tache = yield repo.findOne({
+                where: { idTache },
+                relations: ["user"] // Charge l'utilisateur actuel
+            });
             if (!tache)
                 throw new Error("Tâche non trouvée");
+            // @ts-ignore
+            if (tacheData.idUser) {
+                const userRepo = this.db.getRepository(user_1.User);
+                // @ts-ignore
+                const newUser = yield userRepo.findOneBy({ id: tacheData.idUser });
+                // @ts-ignore
+                console.log("Nouvelle tâche mise à jour :", newUser);
+                if (!newUser)
+                    throw new Error("Utilisateur non trouvé");
+                tache.user = newUser;
+            }
             Object.assign(tache, tacheData);
             return yield repo.save(tache);
         });
