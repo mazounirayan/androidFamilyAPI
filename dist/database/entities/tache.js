@@ -16,7 +16,7 @@ const famille_1 = require("./famille");
 const user_1 = require("./user");
 const notification_1 = require("./notification");
 let Tache = class Tache {
-    constructor(idTache, nom, user, famille, date_debut, date_fin, status, type, priorite, categorie, notifications, description) {
+    constructor(idTache, nom, user, famille, date_debut, date_fin, status, type, ancien_status, priorite, categorie, notifications, description) {
         this.idTache = idTache;
         this.nom = nom;
         this.date_debut = date_debut;
@@ -29,6 +29,7 @@ let Tache = class Tache {
         this.user = user;
         this.famille = famille;
         this.notifications = notifications;
+        this.ancien_status = "A_FAIRE";
     }
 };
 exports.Tache = Tache;
@@ -52,6 +53,10 @@ __decorate([
     (0, typeorm_1.Column)({ length: 50, nullable: true }),
     __metadata("design:type", String)
 ], Tache.prototype, "status", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ length: 50, default: "A_FAIRE" }),
+    __metadata("design:type", String)
+], Tache.prototype, "ancien_status", void 0);
 __decorate([
     (0, typeorm_1.Column)({ length: 100, nullable: true }),
     __metadata("design:type", String)
@@ -88,5 +93,5 @@ exports.Tache = Tache = __decorate([
     __metadata("design:paramtypes", [Number, String, user_1.User,
         famille_1.Famille,
         Date,
-        Date, String, String, String, CategorieTache_1.CategorieTache, Array, String])
+        Date, String, String, String, String, CategorieTache_1.CategorieTache, Array, String])
 ], Tache);

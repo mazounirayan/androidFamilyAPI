@@ -24,6 +24,9 @@ export class Tache {
     @Column({ length: 50, nullable: true })
     status: string ;
 
+    @Column({ length: 50, default: "A_FAIRE" })
+    ancien_status: string ;
+
     @Column({ length: 100, nullable: true })
     type: string ;
 
@@ -57,7 +60,7 @@ export class Tache {
             date_fin: Date ,
             status: string  ,
             type: string ,
-           
+            ancien_status:string,
             priorite: Priorite ,
             categorie: CategorieTache ,
             notifications: Notification[], description?: string )
@@ -74,5 +77,6 @@ export class Tache {
         this.user = user;
         this.famille = famille;
         this.notifications = notifications ;
+        this.ancien_status = "A_FAIRE";
     }
 }

@@ -161,7 +161,11 @@ app.patch("/taches/:idTache", async (req: Request, res: Response) => {
             return;
         }
 
+        
+
         const updateTacheRequest = validationResult.value;
+
+
 
         const tacheUsecase = new TacheUsecase(AppDataSource);
         const updatedTache = await tacheUsecase.updateTache(updateTacheRequest.idTache, updateTacheRequest);

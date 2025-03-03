@@ -63,33 +63,65 @@ export class TacheUsecase {
         return await repo.remove(tache);
     }
 
-    // Mettre à jour une tâche
-    async updateTache(idTache: number, tacheData: Partial<Tache>) {
-        const repo = this.db.getRepository(Tache);
-        const tache = await repo.findOne({
-            where: { idTache },
-            relations: ["user"] // Charge l'utilisateur actuel
-        });
-    
-        if (!tache) throw new Error("Tâche non trouvée");
+// Mettre à jour une tâche
+async updateTache(idTache: number, tacheData: Partial<Tache>) {
+    const repo = this.db.getRepository(Tache);
 
-        // @ts-ignore
-        if (tacheData.idUser) {
-            const userRepo = this.db.getRepository(User);
-            // @ts-ignore
-            const newUser = await userRepo.findOneBy({ id: tacheData.idUser  });
-            // @ts-ignore
-            console.log("Nouvelle tâche mise à jour :", newUser);
+    const tache = await repo.findOne({
+        where: { idTache },
+        relations: ["user"] // Charge l'utilisateur actuel
+    });
 
-            if (!newUser) throw new Error("Utilisateur non trouvé");
-            tache.user = newUser;
+    if (!tache) throw new Error("Tâche non trouvée");
 
+    console.log("Tâche actuelle :", tache);
+    console.log("Nouvelle valeur :", tacheData);
+
+    const ancienStatus = tache.status; // Statut actuel avant modification
+    const nouveauStatus = tacheData.status; // Nouveau statut demandé
+
+    // Vérifier si le statut change réellement
+    if (nouveauStatus && nouveauStatus !== ancienStatus) {
+        tacheData.ancien_status = ancienStatus; // Sauvegarder l'ancien statut
+
+        const userRepo = this.db.getRepository(User);
+        const user = await userRepo.findOneBy({ id: tache.user.id });
+
+        if (user) {
+            if (ancienStatus !== "FINI" && nouveauStatus === "FINI") {
+                // Passage vers "FINI" => Ajouter 30 coins
+                console.log("Ajout de 30 coins");
+                user.coins += 30;
+                await userRepo.save(user);
+            } 
+            else if (ancienStatus === "FINI" && (nouveauStatus === "EN_COURS" || nouveauStatus === "A_FAIRE")) {
+                // Passage de "FINI" vers "EN_COURS" ou "A_FAIRE" => Retirer 30 coins
+                console.log("Suppression de 30 coins");
+                user.coins -= 30;
+                await userRepo.save(user);
+            }
         }
-    
-        Object.assign(tache, tacheData);
-
-        return await repo.save(tache);
+    } else {
+        console.log("Le statut n'a pas changé, aucune modification de coins.");
     }
+
+    // Vérifier si l'utilisateur change
+    if (tacheData.user?.id) {
+        const userRepo = this.db.getRepository(User);
+        const newUser = await userRepo.findOneBy({ id: tacheData.user?.id });
+
+        if (!newUser) throw new Error("Utilisateur non trouvé");
+
+        tache.user = newUser;
+    }
+
+    Object.assign(tache, tacheData);
+    console.log("Nouvelle tâche mise à jour :", tache);
+    
+    return await repo.save(tache);
+}
+
+
 
 
     async listTachesByUserId(idUser: number): Promise<Tache[]> {

@@ -79,6 +79,7 @@ class TacheUsecase {
     // Mettre à jour une tâche
     updateTache(idTache, tacheData) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             const repo = this.db.getRepository(tache_1.Tache);
             const tache = yield repo.findOne({
                 where: { idTache },
@@ -86,18 +87,43 @@ class TacheUsecase {
             });
             if (!tache)
                 throw new Error("Tâche non trouvée");
-            // @ts-ignore
-            if (tacheData.idUser) {
+            console.log("Tâche actuelle :", tache);
+            console.log("Nouvelle valeur :", tacheData);
+            const ancienStatus = tache.status; // Statut actuel avant modification
+            const nouveauStatus = tacheData.status; // Nouveau statut demandé
+            // Vérifier si le statut change réellement
+            if (nouveauStatus && nouveauStatus !== ancienStatus) {
+                tacheData.ancien_status = ancienStatus; // Sauvegarder l'ancien statut
                 const userRepo = this.db.getRepository(user_1.User);
-                // @ts-ignore
-                const newUser = yield userRepo.findOneBy({ id: tacheData.idUser });
-                // @ts-ignore
-                console.log("Nouvelle tâche mise à jour :", newUser);
+                const user = yield userRepo.findOneBy({ id: tache.user.id });
+                if (user) {
+                    if (ancienStatus !== "FINI" && nouveauStatus === "FINI") {
+                        // Passage vers "FINI" => Ajouter 30 coins
+                        console.log("Ajout de 30 coins");
+                        user.coins += 30;
+                        yield userRepo.save(user);
+                    }
+                    else if (ancienStatus === "FINI" && (nouveauStatus === "EN_COURS" || nouveauStatus === "A_FAIRE")) {
+                        // Passage de "FINI" vers "EN_COURS" ou "A_FAIRE" => Retirer 30 coins
+                        console.log("Suppression de 30 coins");
+                        user.coins -= 30;
+                        yield userRepo.save(user);
+                    }
+                }
+            }
+            else {
+                console.log("Le statut n'a pas changé, aucune modification de coins.");
+            }
+            // Vérifier si l'utilisateur change
+            if ((_a = tacheData.user) === null || _a === void 0 ? void 0 : _a.id) {
+                const userRepo = this.db.getRepository(user_1.User);
+                const newUser = yield userRepo.findOneBy({ id: (_b = tacheData.user) === null || _b === void 0 ? void 0 : _b.id });
                 if (!newUser)
                     throw new Error("Utilisateur non trouvé");
                 tache.user = newUser;
             }
             Object.assign(tache, tacheData);
+            console.log("Nouvelle tâche mise à jour :", tache);
             return yield repo.save(tache);
         });
     }
